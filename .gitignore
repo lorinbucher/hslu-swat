@@ -4,6 +4,7 @@
 /.classpath
 /.project
 .idea
+.vscode
 *.iml
 *.log
 /nbproject/
