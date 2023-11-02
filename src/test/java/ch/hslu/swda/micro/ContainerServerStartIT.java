@@ -36,7 +36,7 @@ import org.testcontainers.utility.DockerImageName;
 final class ContainerServerStartIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContainerServerStartIT.class);
-    private static final String IMAGE = "swda-23hs/service-sample:latest";
+    private static final String IMAGE = "swda-23hs/warehouse:latest";
 
     @Container
     private final GenericContainer<?> container

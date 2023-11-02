@@ -25,9 +25,9 @@
 
     <name>g08-warehouse</name>
     <description>
-        Warehouse Microservice for SWDA with RabbitMQ of Group g08.
+      Warehouse Microservice im Modul SWDA mit RabbitMQ für Gruppe g08.
     </description>
-    <url>https://gitlab.switch.ch/${scm.group.name}/g99/${project.artifactId}</url>
+    <url>https://gitlab.switch.ch/${scm.group.name}/g08/${project.artifactId}</url>
 
     <organization>
         <name>Hochschule Luzern - Informatik</name>
@@ -82,8 +82,8 @@
         <scm.developer.uid>${user.name}</scm.developer.uid>
         <docker.user>${scm.developer.uid}</docker.user>
         <docker.base.image>amazoncorretto:17.0.8-alpine</docker.base.image>
-        <docker.image>swda-23hs/service-sample</docker.image>
-        <docker.port>8090</docker.port>
+        <docker.image>swda-23hs/warehouse</docker.image>
+        <docker.port>8088</docker.port>
 
         <project.build.targetJdk>17</project.build.targetJdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

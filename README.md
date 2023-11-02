@@ -1,5 +1,5 @@
-# Modul SWDA - Service Microservice Sample
-Beispiel Microservice für SWDA, basierend auf RabbitMQ für g99.
+# Modul SWDA - Warehouse Microservice
+Warehouse Microservice für SWDA, basierend auf RabbitMQ für g08.
 
 ## Build lokal
 Der lokale Build setzt eine laufende Docker-Installation voraus!
@@ -21,4 +21,4 @@ Vorausgesetzt, der backbone läuft, kann der Service lokal vielfältig gestartet
   * `mvn docker:start` - Start des Containers
   * `mvn docker:logs` - Anzeige der Logs
   * `mvn docker:stop` - Stoppen und löschen des Containers
-* Docker pur: `docker run --rm -it -e "RMQ_HOST=host.docker.internal" swda-23hs01/service-sample`
+* Docker pur: `docker run --rm -it -e "RMQ_HOST=host.docker.internal" swda-23hs01/warehouse`
