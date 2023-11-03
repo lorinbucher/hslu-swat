@@ -31,7 +31,7 @@ import java.util.Map;
 @Singleton
 public class ProductCatalogueMemory implements ProductCatalogue {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogueMemory.class);
-    private Map<Long, Article> articles;
+    private final Map<Long, Article> articles;
 
     /**
      * Constructor.
@@ -45,6 +45,7 @@ public class ProductCatalogueMemory implements ProductCatalogue {
      */
     @Override
     public Article getById(final long id) {
+        LOG.info("API: read article with id {}", id);
         return this.articles.get(id);
     }
 
@@ -53,6 +54,7 @@ public class ProductCatalogueMemory implements ProductCatalogue {
      */
     @Override
     public List<Article> getAll() {
+        LOG.info("API: read all {} articles", this.articles.size());
         return new ArrayList<>(this.articles.values());
     }
 
@@ -62,6 +64,7 @@ public class ProductCatalogueMemory implements ProductCatalogue {
     @Override
     public Article create(final Article article) {
         this.articles.put(article.articleId(), article);
+        LOG.info("API: created article with id {}", article.articleId());
         return article;
     }
 
@@ -73,6 +76,7 @@ public class ProductCatalogueMemory implements ProductCatalogue {
         Article exists = this.articles.get(id);
         if (exists != null) {
             this.articles.put(id, article);
+            LOG.info("API: updated article with id {}", id);
             exists = this.articles.get(id);
         } else {
             exists = create(article);
@@ -86,6 +90,7 @@ public class ProductCatalogueMemory implements ProductCatalogue {
     @Override
     public boolean delete(final long id) {
         final Article student = articles.remove(id);
+        LOG.info("API: removed article with id {}", id);
         return student != null;
     }
 }
