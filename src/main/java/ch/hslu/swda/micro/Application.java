@@ -15,69 +15,39 @@
  */
 package ch.hslu.swda.micro;
 
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeoutException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.runtime.Micronaut;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.servers.Server;
 
 /**
- * Demo für Applikationsstart.
+ * Main Application.
  */
+@OpenAPIDefinition(
+        info = @Info(
+                title = "SWDA Warehouse G08",
+                version = "1.0",
+                license = @License(identifier = "Apache-2.0", name = "Apache License Version 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0")),
+        servers = {
+                @Server(url = "https://warehouse.g08.swda.hslu-edu.ch"),
+                @Server(url = "http://localhost:8088")
+        }
+)
 public final class Application {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-
     /**
-     * TimerTask für periodische Ausführung.
-     */
-    private static final class HeartBeat extends TimerTask {
-
-        private static final Logger LOG = LoggerFactory.getLogger(HeartBeat.class);
-
-        private ServiceTemplate service;
-
-        HeartBeat() {
-            try {
-                this.service = new ServiceTemplate();
-            } catch (IOException | TimeoutException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public void run() {
-            try {
-                service.registerStudent();
-                service.askAboutUniverse();
-            } catch (IOException | InterruptedException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
-    }
-
-    /**
-     * Privater Konstruktor.
+     * Private Constructor.
      */
     private Application() {
     }
 
     /**
-     * main-Methode. Startet einen Timer für den HeartBeat.
+     * Starts the warehouse microservice.
      *
      * @param args not used.
      */
-    public static void main(final String[] args) throws InterruptedException {
-        final long startTime = System.currentTimeMillis();
-        LOG.info("Service starting...");
-        if (!"OFF".equals(System.getenv("RABBIT"))) {
-            final Timer timer = new Timer();
-            timer.schedule(new HeartBeat(), 0, 10000);
-        } else {
-            LOG.atWarn().log("RabbitMQ disabled for testing.");
-        }
-        LOG.atInfo().addArgument(System.currentTimeMillis() - startTime).log("Service started in {}ms.");
-        Thread.sleep(60_000);
+    public static void main(final String[] args) {
+        Micronaut.run(Application.class);
     }
 }

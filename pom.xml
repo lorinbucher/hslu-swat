@@ -25,7 +25,7 @@
 
     <name>g08-warehouse</name>
     <description>
-      Warehouse Microservice im Modul SWDA mit RabbitMQ für Gruppe g08.
+        Warehouse Microservice im Modul SWDA mit RabbitMQ für Gruppe g08.
     </description>
     <url>https://gitlab.switch.ch/${scm.group.name}/g08/${project.artifactId}</url>
 
@@ -54,8 +54,11 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://${scm.developer.uid}@gitlab.switch.ch/hslu/${scm.group.name}/${project.artifactId}.git</connection>
-        <developerConnection>scm:git:ssh://git@gitlab.switch.ch/${scm.group.name}/${project.artifactId}.git</developerConnection>
+        <connection>
+            scm:git:https://${scm.developer.uid}@gitlab.switch.ch/hslu/${scm.group.name}/${project.artifactId}.git
+        </connection>
+        <developerConnection>scm:git:ssh://git@gitlab.switch.ch/${scm.group.name}/${project.artifactId}.git
+        </developerConnection>
         <url>https://gitlab.switch.ch/hslu-i1/${scm.group.name}/${project.artifactId}/tree/develop</url>
         <tag>HEAD</tag>
     </scm>
@@ -113,14 +116,16 @@
         <asciidoctorj.pdf.version>2.3.9</asciidoctorj.pdf.version>
         <asciidoctorj.version>2.5.10</asciidoctorj.version>
 
-        <slf4j.version>2.0.9</slf4j.version>
-        <logback.version>1.4.5</logback.version>
+        <slf4j.version>2.0.7</slf4j.version>
+        <logback.version>1.2.10</logback.version>
         <log4j2.version>2.20.0</log4j2.version>
 
         <junit5.version>5.10.0</junit5.version>
         <junit5.plattform.version>1.10.0</junit5.plattform.version>
 
         <jackson.version>2.15.3</jackson.version>
+        <micronaut.version>3.10.1</micronaut.version>
+        <micrometer.version>4.8.1</micrometer.version>
         <rabbitmq.version>5.19.0</rabbitmq.version>
         <testcontainers.version>1.19.1</testcontainers.version>
     </properties>
@@ -134,22 +139,23 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.micronaut</groupId>
+                <artifactId>micronaut-bom</artifactId>
+                <version>${micronaut.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>2.2.17</version>
                 <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j2-impl</artifactId>
-                <version>${log4j2.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>${log4j2.version}</version>
-                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>com.rabbitmq</groupId>
@@ -223,7 +229,13 @@
                 <artifactId>consolecaptor</artifactId>
                 <version>1.0.3</version>
                 <scope>test</scope>
-            </dependency>            
+            </dependency>
+            <dependency>
+                <groupId>io.micronaut.test</groupId>
+                <artifactId>micronaut-test-junit5</artifactId>
+                <version>3.9.2</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
@@ -241,24 +253,69 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-inject</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-validation</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-runtime</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-client</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-server-netty</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-inject-java</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.micrometer</groupId>
+            <artifactId>micronaut-micrometer-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.micrometer</groupId>
+            <artifactId>micronaut-micrometer-registry-jmx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-management</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j2-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -340,7 +397,72 @@
                     <version>3.11.0</version>
                     <configuration>
                         <release>${project.build.targetJdk}</release>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths combine.children="append">
+                            <path>
+                                <groupId>io.micronaut</groupId>
+                                <artifactId>micronaut-inject-java</artifactId>
+                                <version>${micronaut.version}</version>
+                            </path>
+                            <path>
+                                <groupId>io.micronaut</groupId>
+                                <artifactId>micronaut-validation</artifactId>
+                                <version>${micronaut.version}</version>
+                            </path>
+                            <path>
+                                <groupId>io.micronaut</groupId>
+                                <artifactId>micronaut-http-validation</artifactId>
+                                <version>${micronaut.version}</version>
+                            </path>
+                            <path>
+                                <groupId>io.micronaut.openapi</groupId>
+                                <artifactId>micronaut-openapi</artifactId>
+                                <version>4.10.0</version>
+                            </path>
+                            <path>
+                                <groupId>io.micronaut.micrometer</groupId>
+                                <artifactId>micronaut-micrometer-annotation</artifactId>
+                                <version>${micrometer.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>test-compile</id>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                            <configuration>
+                                <compilerArgs>
+                                    <arg>-parameters</arg>
+                                </compilerArgs>
+                                <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>io.micronaut</groupId>
+                                        <artifactId>micronaut-inject-java</artifactId>
+                                        <version>${micronaut.version}</version>
+                                    </path>
+                                    <path>
+                                        <groupId>io.micronaut</groupId>
+                                        <artifactId>micronaut-validation</artifactId>
+                                        <version>${micronaut.version}</version>
+                                    </path>
+                                    <path>
+                                        <groupId>io.micronaut</groupId>
+                                        <artifactId>micronaut-http-validation</artifactId>
+                                        <version>${micronaut.version}</version>
+                                    </path>
+                                    <path>
+                                        <groupId>io.micronaut.micrometer</groupId>
+                                        <artifactId>micronaut-micrometer-annotation</artifactId>
+                                        <version>${micrometer.version}</version>
+                                    </path>
+                                </annotationProcessorPaths>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -558,10 +680,12 @@
                         <configuration>
                             <outputFile>${project.build.directory}/service.jar</outputFile>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>${exec.mainClass}</mainClass>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                             <filters>
                                 <filter>
@@ -664,9 +788,9 @@
                             <backend>pdf</backend>
                             <attributes>
                                 <icons>font</icons>
-                                <pagenums />
-                                <toc />
-                                <idprefix />
+                                <pagenums/>
+                                <toc/>
+                                <idprefix/>
                                 <idseparator>-</idseparator>
                             </attributes>
                         </configuration>
