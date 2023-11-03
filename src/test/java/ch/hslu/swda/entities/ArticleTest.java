@@ -15,13 +15,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class ArticleTest {
 
     @Test
-    void testArticleIdNull() {
-        assertThatThrownBy(() -> new Article(null, "Test", new BigDecimal("1.00"), 1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("articleId should not be lower than 1");
-    }
-
-    @Test
     void testArticleIdInvalid() {
         assertThatThrownBy(() -> new Article(0, "Test", new BigDecimal("1.00"), 1))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -88,13 +81,6 @@ public class ArticleTest {
     }
 
     @Test
-    void testStockNull() {
-        assertThatThrownBy(() -> new Article(1, "Test", new BigDecimal("1.00"), null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("stock should not be lower than 0");
-    }
-
-    @Test
     void testStockInvalid() {
         assertThatThrownBy(() -> new Article(1, "Test", new BigDecimal("1.00"), -1))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -110,8 +96,15 @@ public class ArticleTest {
     @Test
     void testArticleEqual() {
         Article article1 = new Article(1, "Test", new BigDecimal("1.00"), 0);
-        Article article2 = new Article(1, "Test", new BigDecimal("1.00"), 0);
+        Article article2 = new Article(1, "Test1", new BigDecimal("2.00"), 1);
         assertThat(article1).isEqualTo(article2);
+    }
+
+    @Test
+    void testArticleHashCode() {
+        Article article1 = new Article(1, "Test", new BigDecimal("1.00"), 0);
+        Article article2 = new Article(1, "Test1", new BigDecimal("2.00"), 1);
+        assertThat(article1).hasSameHashCodeAs(article2);
     }
 
     @Test

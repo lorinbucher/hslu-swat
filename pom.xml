@@ -386,6 +386,10 @@
                     <version>3.11.0</version>
                     <configuration>
                         <release>${project.build.targetJdk}</release>
+                        <source>${project.build.targetJdk}</source>
+                        <target>${project.build.targetJdk}</target>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <useIncrementalCompilation>false</useIncrementalCompilation>
                         <compilerArgs>
                             <arg>-parameters</arg>
                         </compilerArgs>
