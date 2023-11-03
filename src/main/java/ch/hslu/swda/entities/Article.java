@@ -12,7 +12,7 @@ import java.util.Objects;
  * @param price     The price per article.
  * @param stock     The number of articles in stock.
  */
-public record Article(int articleId, String name, BigDecimal price, int stock) {
+public record Article(long articleId, String name, BigDecimal price, int stock) {
     public Article {
         if (articleId < 1) {
             throw new IllegalArgumentException("articleId should not be lower than 1");
@@ -50,7 +50,7 @@ public record Article(int articleId, String name, BigDecimal price, int stock) {
     /**
      * Returns the hashcode based on the articleId.
      *
-     * @return The hashcode.
+     * @return Hashcode.
      */
     @Override
     public int hashCode() {
