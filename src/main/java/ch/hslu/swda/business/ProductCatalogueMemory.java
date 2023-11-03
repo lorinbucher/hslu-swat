@@ -75,11 +75,12 @@ public class ProductCatalogueMemory implements ProductCatalogue {
     public Article update(final long id, final Article article) {
         Article exists = this.articles.get(id);
         if (exists != null) {
-            this.articles.put(id, article);
+            exists = new Article(id, article.name(), article.price(), article.stock());
+            this.articles.put(id, exists);
             LOG.info("API: updated article with id {}", id);
-            exists = this.articles.get(id);
         } else {
-            exists = create(article);
+            Article newArticle = new Article(id, article.name(), article.price(), article.stock());
+            exists = create(newArticle);
         }
         return exists;
     }
@@ -90,7 +91,7 @@ public class ProductCatalogueMemory implements ProductCatalogue {
     @Override
     public boolean delete(final long id) {
         final Article student = articles.remove(id);
-        LOG.info("API: removed article with id {}", id);
+        LOG.info("API: {}removed article with id {}", student != null ? "" : "not ", id);
         return student != null;
     }
 }
