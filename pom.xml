@@ -242,6 +242,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>ch.hslu.swda</groupId>
+            <artifactId>swda_stock</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject</artifactId>
             <scope>compile</scope>
