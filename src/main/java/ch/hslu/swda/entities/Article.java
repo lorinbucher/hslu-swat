@@ -7,10 +7,10 @@ import java.util.Objects;
 /**
  * An article of the warehouse.
  *
- * @param articleId The id of the article.
- * @param name      The name of the article.
- * @param price     The price per article.
- * @param stock     The number of articles in stock.
+ * @param articleId ID of the article.
+ * @param name      Name of the article.
+ * @param price     Price per article.
+ * @param stock     Number of articles in stock.
  */
 public record Article(long articleId, String name, BigDecimal price, int stock) {
     public Article {
@@ -34,21 +34,22 @@ public record Article(long articleId, String name, BigDecimal price, int stock) 
     }
 
     /**
-     * Articles are equal if they have the same articleId.
+     * Articles are equal if they have the same article number.
      *
      * @param obj The article to compare against.
-     * @return True if the articleId is the same.
+     * @return True if the article ID is the same.
      */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        return obj instanceof Article other && this.articleId == other.articleId;
+        return obj instanceof Article other
+                && this.articleId == other.articleId;
     }
 
     /**
-     * Returns the hashcode based on the articleId.
+     * Returns the hashcode based on the article ID.
      *
      * @return Hashcode.
      */
