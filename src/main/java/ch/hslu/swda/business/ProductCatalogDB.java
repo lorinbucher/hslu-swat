@@ -32,7 +32,7 @@ public final class ProductCatalogDB implements ProductCatalog {
      * Constructor.
      */
     public ProductCatalogDB() {
-        String host = System.getProperty("MONGO_HOST", "localhost");
+        String host = System.getenv().getOrDefault("MONGO_HOST", "localhost");
         this.client = MongoClients.create("mongodb://" + host);
         this.database = this.client.getDatabase(DATABASE);
         this.collection = this.database.getCollection(COLLECTION);
