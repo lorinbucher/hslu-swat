@@ -7,6 +7,10 @@ networks:
   bus:
     name: bus
     external: true
+  warehouse:
+
+volumes:
+  mongodb-data:
 
 services:
 
@@ -14,13 +18,27 @@ services:
     image: $CICD_IMAGE_ID
     environment:
       - RMQ_HOST=bus
+      - MONGO_HOST=mongodb
+      - MONGO_USER=root
+      - MONGO_PASSWORD=root
     networks:
       - bus
       - ingress
+      - warehouse
     deploy:
       replicas: 1
       labels:
-        - "traefik.http.routers.${CICD_STACK_NAME}App.rule=Host(`warehouse.${TLD}`)"
-        - "traefik.http.services.${CICD_STACK_NAME}App.loadbalancer.server.port=8088"
+        - 'traefik.http.routers.${CICD_STACK_NAME}App.rule=Host(`warehouse.${TLD}`)'
+        - 'traefik.http.services.${CICD_STACK_NAME}App.loadbalancer.server.port=8088'
         - 'traefik.http.routers.${CICD_STACK_NAME}App.entrypoints=websecure'
         - 'traefik.http.routers.${CICD_STACK_NAME}App.tls.certresolver=letsencrypt'
+
+  mongodb:
+    image: mongo:4.2.24
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: 'root'
+      MONGO_INITDB_ROOT_PASSWORD: 'root'
+    networks:
+      - warehouse
+    volumes:
+      - mongodb-data:/data/db
