@@ -1,18 +1,3 @@
-/*
- * Copyright 2023 Roland Gisler, HSLU Informatik, Switzerland
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Article;
@@ -76,12 +61,12 @@ public class ProductCatalogMemory implements ProductCatalog {
                 .filter(a -> a.articleId() == articleId)
                 .findFirst().orElse(null);
         if (exists != null) {
-            exists = new Article(articleId, article.name(), article.price(), article.stock());
+            exists = new Article(articleId, article.name(), article.price(), article.minStock(), article.stock());
             this.articles.get(branchId).removeIf(a -> a.articleId() == articleId);
             this.articles.get(branchId).add(exists);
             LOG.info("DB: updated article from branch {} with id {}", branchId, articleId);
         } else {
-            Article newArticle = new Article(articleId, article.name(), article.price(), article.stock());
+            Article newArticle = new Article(articleId, article.name(), article.price(), article.minStock(), article.stock());
             exists = create(branchId, newArticle);
         }
         return exists;

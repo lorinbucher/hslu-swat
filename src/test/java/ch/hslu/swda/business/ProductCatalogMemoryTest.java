@@ -17,8 +17,8 @@ final class ProductCatalogMemoryTest {
 
     @BeforeEach
     void beforeEach() {
-        final Article article1 = new Article(1L, "Test1", new BigDecimal("5.25"), 0);
-        final Article article2 = new Article(2L, "Test2", new BigDecimal("9.95"), 1);
+        final Article article1 = new Article(1L, "Test1", new BigDecimal("5.25"), 1, 0);
+        final Article article2 = new Article(2L, "Test2", new BigDecimal("9.95"), 1, 1);
         this.productCatalog = new ProductCatalogMemory();
         this.productCatalog.create(1, article1);
         this.productCatalog.create(1, article2);
@@ -47,7 +47,7 @@ final class ProductCatalogMemoryTest {
 
     @Test
     void testCreate() {
-        final Article article = new Article(3L, "Test3", new BigDecimal("13.70"), 5);
+        final Article article = new Article(3L, "Test3", new BigDecimal("13.70"), 1, 5);
         final Article createdArticle = productCatalog.create(2L, article);
         assertThat(createdArticle.articleId()).isEqualTo(article.articleId());
         assertThat(createdArticle.name()).isEqualTo(article.name());
@@ -59,7 +59,7 @@ final class ProductCatalogMemoryTest {
 
     @Test
     void testUpdateExistingArticle() {
-        final Article article = new Article(1L, "Test99", new BigDecimal("99.95"), 10);
+        final Article article = new Article(1L, "Test99", new BigDecimal("99.95"), 1, 10);
         final Article updatedArticle = productCatalog.update(1L, article.articleId(), article);
         assertThat(updatedArticle.articleId()).isEqualTo(article.articleId());
         assertThat(updatedArticle.name()).isEqualTo(article.name());
@@ -70,7 +70,7 @@ final class ProductCatalogMemoryTest {
 
     @Test
     void testUpdateNotExistingArticle() {
-        final Article article = new Article(5L, "Test5", new BigDecimal("25.00"), 2);
+        final Article article = new Article(5L, "Test5", new BigDecimal("25.00"), 1, 2);
         final Article updatedArticle = productCatalog.update(1L, article.articleId(), article);
         assertThat(updatedArticle.articleId()).isEqualTo(article.articleId());
         assertThat(updatedArticle.name()).isEqualTo(article.name());
