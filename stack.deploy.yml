@@ -7,7 +7,7 @@ networks:
   bus:
     name: bus
     external: true
-  warehouse:
+  internal:
 
 volumes:
   mongodb-data:
@@ -24,7 +24,7 @@ services:
     networks:
       - bus
       - ingress
-      - warehouse
+      - internal
     deploy:
       replicas: 1
       labels:
@@ -39,6 +39,6 @@ services:
       MONGO_INITDB_ROOT_USERNAME: 'root'
       MONGO_INITDB_ROOT_PASSWORD: 'root'
     networks:
-      - warehouse
+      - internal
     volumes:
       - mongodb-data:/data/db
