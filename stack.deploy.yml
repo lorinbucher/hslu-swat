@@ -19,6 +19,8 @@ services:
     environment:
       - RMQ_HOST=bus
       - MONGO_HOST=mongodb
+      - MONGO_USER=root
+      - MONGO_PASSWORD=root
     networks:
       - bus
       - ingress
@@ -33,6 +35,9 @@ services:
 
   mongodb:
     image: mongo:4.2.24
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: 'root'
+      MONGO_INITDB_ROOT_PASSWORD: 'root'
     networks:
       - internal
     volumes:

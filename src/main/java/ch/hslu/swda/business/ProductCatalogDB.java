@@ -33,7 +33,17 @@ public final class ProductCatalogDB implements ProductCatalog {
      */
     public ProductCatalogDB() {
         String host = System.getenv().getOrDefault("MONGO_HOST", "localhost");
-        this.client = MongoClients.create("mongodb://" + host);
+        String user = System.getenv().getOrDefault("MONGO_USER", "");
+        String password = System.getenv().getOrDefault("MONGO_PASSWORD", "");
+
+        String connectionURI = "mongodb://";
+        if (!user.isBlank() && !password.isBlank()) {
+            connectionURI += String.format("%s:%s@%s", user, password, host);
+        } else {
+            connectionURI += host;
+        }
+
+        this.client = MongoClients.create(connectionURI);
         this.database = this.client.getDatabase(DATABASE);
         this.collection = this.database.getCollection(COLLECTION);
     }
