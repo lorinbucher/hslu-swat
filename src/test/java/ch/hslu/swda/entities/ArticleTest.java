@@ -2,6 +2,7 @@ package ch.hslu.swda.entities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -13,6 +14,34 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Test cases for the article entity.
  */
 public class ArticleTest {
+
+    @Test
+    void testFromDocument() {
+        Document document = new Document()
+                .append("branchId", 1L)
+                .append("articleId", 5L)
+                .append("name", "Test")
+                .append("price", "5.95")
+                .append("minStock", 5)
+                .append("stock", 10);
+        final Article article = Article.fromDocument(document);
+        assertThat(article.articleId()).isEqualTo(5L);
+        assertThat(article.name()).isEqualTo("Test");
+        assertThat(article.price().compareTo(new BigDecimal("5.95"))).isEqualTo(0);
+        assertThat(article.minStock()).isEqualTo(5);
+        assertThat(article.stock()).isEqualTo(10);
+    }
+
+    @Test
+    void testToDocument() {
+        final Article article = new Article(5L, "Test", new BigDecimal("5.95"), 5, 10);
+        Document document = Article.toDocument(article);
+        assertThat(document.getLong("articleId")).isEqualTo(article.articleId());
+        assertThat(document.getString("name")).isEqualTo(article.name());
+        assertThat(new BigDecimal(document.getString("price"))).isEqualTo(article.price());
+        assertThat(document.getInteger("minStock")).isEqualTo(article.minStock());
+        assertThat(document.getInteger("stock")).isEqualTo(article.stock());
+    }
 
     @Test
     void testArticleIdInvalid() {

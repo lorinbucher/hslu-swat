@@ -1,5 +1,7 @@
 package ch.hslu.swda.entities;
 
+import org.bson.Document;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -38,13 +40,44 @@ public record Article(long articleId, String name, BigDecimal price, int minStoc
     }
 
     /**
+     * Creates an article from a MongoDB document.
+     *
+     * @param document MongoDB document.
+     * @return Article.
+     */
+    public static Article fromDocument(final Document document) {
+        return new Article(
+                document.getLong("articleId"),
+                document.getString("name"),
+                new BigDecimal(document.getString("price")),
+                document.getInteger("minStock"),
+                document.getInteger("stock")
+        );
+    }
+
+    /**
+     * Creates a MongoDB document from an article.
+     *
+     * @param article Article.
+     * @return MongoDB document.
+     */
+    public static Document toDocument(final Article article) {
+        return new Document()
+                .append("articleId", article.articleId())
+                .append("name", article.name())
+                .append("price", article.price().toPlainString())
+                .append("minStock", article.minStock())
+                .append("stock", article.stock());
+    }
+
+    /**
      * Articles are equal if they have the same article number.
      *
      * @param obj The article to compare against.
      * @return True if the article ID is the same.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

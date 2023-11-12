@@ -15,7 +15,7 @@ import java.util.List;
  * Controller for the product catalog.
  */
 @Controller("/api/v1/catalog")
-public class ProductCatalogController {
+public final class ProductCatalogController {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogController.class);
 
     @Inject
