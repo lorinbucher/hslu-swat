@@ -2,6 +2,7 @@ package ch.hslu.swda.micro;
 
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.entities.Article;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
@@ -57,6 +58,7 @@ public class ProductCatalogController {
      * @return Added article.
      */
     @Tag(name = "catalog")
+    @Status(HttpStatus.CREATED)
     @Post("/{branchId}")
     public Article create(final long branchId, @Body final Article article) {
         final Article created = productCatalog.create(branchId, article);
