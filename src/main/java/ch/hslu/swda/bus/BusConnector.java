@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public final class BusConnector implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BusConnector.class);
+    private final RabbitMqConfig config;
 
     // connection to bus
     private Connection connection;
@@ -45,6 +46,10 @@ public final class BusConnector implements AutoCloseable {
     // use different channels for different threads
     private Channel channelTalk;
     private Channel channelListen;
+
+    public BusConnector(final RabbitMqConfig config) {
+        this.config = config;
+    }
 
     /**
      * Beispiel für asynchrone Kommunikation (Send).
@@ -131,7 +136,7 @@ public final class BusConnector implements AutoCloseable {
                           final MessageReceiver receiver) throws IOException {
 
         // create queue to receive messages
-        channelListen.queueDeclare(queueName, true, false, false, new HashMap<>());
+        channelListen.queueDeclare(queueName, true, false, true, new HashMap<>());
         channelListen.queueBind(queueName, exchange, route);
 
         // add listener
@@ -152,21 +157,18 @@ public final class BusConnector implements AutoCloseable {
      */
     public void connect() throws IOException, TimeoutException {
 
-        // retrieve configuration
-        RabbitMqConfig config = new RabbitMqConfig();
-
         // create connection
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(config.getHost());
         factory.setUsername(config.getUsername());
         factory.setPassword(config.getPassword());
-        LOG.debug("Connecting to {}...", config.getHost());
+        LOG.info("Connecting to {}...", config.getHost());
         this.connection = factory.newConnection();
 
         // create channels within connection
         this.channelTalk = connection.createChannel();
         this.channelListen = connection.createChannel();
-        LOG.debug("Successfully connected to {}...", config.getHost());
+        LOG.info("Successfully connected to {}...", config.getHost());
     }
 
     /**

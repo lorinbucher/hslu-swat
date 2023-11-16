@@ -5,8 +5,8 @@ package ch.hslu.swda.micro;
  */
 public final class Routes {
 
-    static final String ARTICLE_ALL = "article.all";
-    static final String ARTICLE_CHANGED = "article.changed";
+    static final String ARTICLE_GET = "article.get";
+    static final String ARTICLE_RETURN = "article.return";
 
     /**
      * No instance allowed.

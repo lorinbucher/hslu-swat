@@ -1,10 +1,16 @@
 package ch.hslu.swda.micronaut;
 
+import ch.hslu.swda.micro.ArticleMessageHandler;
 import io.micronaut.runtime.Micronaut;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.servers.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Main Application.
@@ -21,6 +27,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
 )
 public final class Application {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+
     /**
      * Private Constructor.
      */
@@ -34,5 +42,12 @@ public final class Application {
      */
     public static void main(final String[] args) {
         Micronaut.run(Application.class);
+        new Thread(() -> {
+            try {
+                new ArticleMessageHandler();
+            } catch (IOException | TimeoutException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        }, "ArticleMessageHandler").start();
     }
 }
