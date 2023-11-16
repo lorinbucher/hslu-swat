@@ -1,4 +1,4 @@
-package ch.hslu.swda.micro;
+package ch.hslu.swda.micronaut;
 
 import io.micronaut.context.event.ShutdownEvent;
 import io.micronaut.context.event.StartupEvent;

@@ -78,7 +78,7 @@
         <argLine>-Xms512m -Xmx1g -Xss10m</argLine>
 
         <!-- Hier ggf. andere Startklasse anpassen! -->
-        <jar.start.class>ch.hslu.swda.micro.Application</jar.start.class>
+        <jar.start.class>ch.hslu.swda.micronaut.Application</jar.start.class>
         <exec.mainClass>${jar.start.class}</exec.mainClass>
 
         <scm.group.name>hslu/edu/bachelor-computer-science/swda/23hs01</scm.group.name>

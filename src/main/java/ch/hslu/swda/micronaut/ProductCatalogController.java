@@ -1,4 +1,4 @@
-package ch.hslu.swda.micro;
+package ch.hslu.swda.micronaut;
 
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.entities.Article;

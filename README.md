@@ -11,7 +11,7 @@ Der lokale Build setzt eine laufende Docker-Installation voraus!
 Vorausgesetzt, der backbone läuft, kann der Service lokal vielfältig gestartet werden:
 
 ### IDE
-* In der IDE kann die Klasse `ch.hslu.swda.micro.Application`-Klasse (mit `main()`-Methode) gestartet werden.
+* In der IDE kann die Klasse `ch.hslu.swda.micronaut.Application`-Klasse (mit `main()`-Methode) gestartet werden.
 
 ### Konsole
 * Java pur: `java -jar target/service.jar`
