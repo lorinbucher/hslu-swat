@@ -36,19 +36,21 @@ public final class ArticleMessageHandler {
      * Connects to Rabbit MQ and listens for incoming messages.
      */
     private void connectToBus() {
-        while (true) {
+        boolean connected = false;
+        while (!connected) {
             try {
                 LOG.info("Try connecting to message bus...");
                 bus.connect();
                 LOG.info("Starting listening for messages with routing [{}]", Routes.ARTICLE_GET);
                 bus.listenFor(config.getExchange(), "WarehouseService <- " + Routes.ARTICLE_GET, Routes.ARTICLE_GET,
-                        (String route, String replyTo, String corrId, String msg) -> receiveMessages(route, msg));
+                        (String route, String replyTo, String corrId, String message) -> receiveMessages(route, message));
+                connected = true;
             } catch (IOException | TimeoutException e) {
                 LOG.error(e.getMessage(), e);
                 try {
                     TimeUnit.SECONDS.sleep(10);
                 } catch (InterruptedException ie) {
-                    LOG.error("Reconnection timeout interrupted: {}", ie.getMessage());
+                    LOG.warn("Reconnection timeout interrupted: {}", ie.getMessage());
                 }
             }
         }
