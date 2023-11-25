@@ -29,13 +29,24 @@ public final class ProductCatalogDB implements ProductCatalog {
     private final MongoCollection<Document> collection;
 
     /**
-     * Constructor.
+     * Constructor using environment variables for db configuration.
      */
     public ProductCatalogDB() {
-        String host = System.getenv().getOrDefault("MONGO_HOST", "localhost");
-        String user = System.getenv().getOrDefault("MONGO_USER", "");
-        String password = System.getenv().getOrDefault("MONGO_PASSWORD", "");
+        this(
+                System.getenv().getOrDefault("MONGO_HOST", "localhost"),
+                System.getenv().getOrDefault("MONGO_USER", ""),
+                System.getenv().getOrDefault("MONGO_PASSWORD", "")
+        );
+    }
 
+    /**
+     * Constructor with arguments for db configuration.
+     *
+     * @param host     MongoDB host.
+     * @param user     MongoDB user.
+     * @param password MongoDB password.
+     */
+    public ProductCatalogDB(final String host, final String user, final String password) {
         String connectionURI = "mongodb://";
         if (!user.isBlank() && !password.isBlank()) {
             connectionURI += String.format("%s:%s@%s", user, password, host);
