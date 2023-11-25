@@ -1,7 +1,9 @@
 package ch.hslu.swda.micronaut;
 
 import ch.hslu.swda.business.ProductCatalog;
+import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Article;
+import ch.hslu.swda.micro.EventLogger;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +19,7 @@ import java.util.List;
 @Controller("/api/v1/catalog")
 public final class ProductCatalogController {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogController.class);
+    private final EventLogger eventLogger = new EventLogger();
 
     @Inject
     private ProductCatalog productCatalog;
@@ -63,7 +66,8 @@ public final class ProductCatalogController {
     public Article create(final long branchId, @Body final Article article) {
         final Article created = productCatalog.create(branchId, article);
         LOG.info("REST: Article {} added to branch {}.", created, branchId);
-        return article;
+        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.added", created.toString()));
+        return created;
     }
 
     /**
@@ -79,6 +83,7 @@ public final class ProductCatalogController {
     public Article update(final long branchId, final long articleId, @Body final Article article) {
         Article updated = productCatalog.update(branchId, articleId, article);
         LOG.info("REST: Article {} from branch {} updated.", updated, branchId);
+        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.changed", updated.toString()));
         return updated;
     }
 
@@ -93,5 +98,8 @@ public final class ProductCatalogController {
     public void delete(final long branchId, final long articleId) {
         final boolean deleted = productCatalog.delete(branchId, articleId);
         LOG.info("REST: Article {} {}removed from branch {}.", articleId, deleted ? "" : "not ", branchId);
+        if (deleted) {
+            this.eventLogger.publishLog(new LogEventDTO(branchId, "article.removed", "Article[articleId=" + articleId + "]"));
+        }
     }
 }

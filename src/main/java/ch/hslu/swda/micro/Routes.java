@@ -7,6 +7,7 @@ public final class Routes {
 
     static final String ARTICLE_GET = "article.get";
     static final String ARTICLE_RETURN = "article.return";
+    static final String LOG_EVENT = "log.event";
 
     /**
      * No instance allowed.
