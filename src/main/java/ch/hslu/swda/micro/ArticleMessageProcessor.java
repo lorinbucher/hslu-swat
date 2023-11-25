@@ -25,8 +25,8 @@ public final class ArticleMessageProcessor {
     /**
      * Constructor.
      */
-    public ArticleMessageProcessor() {
-        this.productCatalog = new ProductCatalogDB();
+    public ArticleMessageProcessor(final ProductCatalog productCatalog) {
+        this.productCatalog = productCatalog;
     }
 
     /**
