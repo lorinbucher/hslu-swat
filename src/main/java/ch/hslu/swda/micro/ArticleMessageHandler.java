@@ -2,12 +2,11 @@ package ch.hslu.swda.micro;
 
 import ch.hslu.swda.bus.BusConnector;
 import ch.hslu.swda.bus.RabbitMqConfig;
-import ch.hslu.swda.business.ProductCatalog;
-import ch.hslu.swda.business.ProductCatalogDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -23,17 +22,36 @@ public final class ArticleMessageHandler {
     /**
      * Constructor.
      */
-    public ArticleMessageHandler() throws IOException, TimeoutException {
+    public ArticleMessageHandler() {
         this.config = new RabbitMqConfig();
         this.bus = new BusConnector(config);
 
         String threadName = Thread.currentThread().getName();
         LOG.info("[Thread: {}] Service started", threadName);
 
-        bus.connect();
-        LOG.info("Starting listening for messages with routing [{}]", Routes.ARTICLE_GET);
-        bus.listenFor(config.getExchange(), "WarehouseService <- " + Routes.ARTICLE_GET, Routes.ARTICLE_GET,
-                (String route, String replyTo, String corrId, String message) -> receiveMessages(route, message));
+        this.connectToBus();
+    }
+
+    /**
+     * Connects to Rabbit MQ and listens for incoming messages.
+     */
+    private void connectToBus() {
+        while (true) {
+            try {
+                LOG.info("Try connecting to message bus...");
+                bus.connect();
+                LOG.info("Starting listening for messages with routing [{}]", Routes.ARTICLE_GET);
+                bus.listenFor(config.getExchange(), "WarehouseService <- " + Routes.ARTICLE_GET, Routes.ARTICLE_GET,
+                        (String route, String replyTo, String corrId, String msg) -> receiveMessages(route, msg));
+            } catch (IOException | TimeoutException e) {
+                LOG.error(e.getMessage(), e);
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException ie) {
+                    LOG.error("Reconnection timeout interrupted: {}", ie.getMessage());
+                }
+            }
+        }
     }
 
     /**

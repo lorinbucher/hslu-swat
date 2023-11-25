@@ -8,7 +8,6 @@ import ch.hslu.swda.dto.ArticleResponseDTO;
 import ch.hslu.swda.entities.Article;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

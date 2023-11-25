@@ -42,12 +42,6 @@ public final class Application {
      */
     public static void main(final String[] args) {
         Micronaut.run(Application.class);
-        new Thread(() -> {
-            try {
-                new ArticleMessageHandler();
-            } catch (IOException | TimeoutException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }, "ArticleMessageHandler").start();
+        new Thread(ArticleMessageHandler::new, "ArticleMessageHandler").start();
     }
 }
