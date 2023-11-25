@@ -146,6 +146,7 @@ public class ArticleTest {
     void testArticleEqual() {
         final Article article1 = new Article(1L, "Test1", new BigDecimal("1.00"), 1, 0);
         final Article article2 = new Article(1L, "Test2", new BigDecimal("2.00"), 1, 1);
+        assertThat(article1).isEqualTo(article1);
         assertThat(article1).isEqualTo(article2);
     }
 
@@ -167,9 +168,8 @@ public class ArticleTest {
     void testJsonObject() {
         final Article article = new Article(1L, "Test", new BigDecimal("50.25"), 1, 5);
         String articleJson = "{\"articleId\":1,\"name\":\"Test\",\"price\":50.25,\"minStock\":1,\"stock\":5}";
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            assertThat(mapper.writeValueAsString(article)).isEqualTo(articleJson);
+            assertThat(new ObjectMapper().writeValueAsString(article)).isEqualTo(articleJson);
         } catch (JsonProcessingException e) {
             assertThat(e).isNull();
         }
