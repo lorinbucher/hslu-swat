@@ -13,7 +13,7 @@ public enum DeliveryStatus {
     /**
      * The delivery has been modified because the order changed.
      */
-    MODIFIED,
+    CHANGED,
 
     /**
      * Some articles are not in stock, waiting on delivery from the central warehouse.

@@ -11,7 +11,7 @@ import java.util.Objects;
  * @param quantity  Number of articles ordered.
  * @param status    Status of the article in the warehouse.
  */
-public record DeliveryArticle(long articleId, int quantity, String status) {
+public record DeliveryArticle(long articleId, int quantity, DeliveryArticleStatus status) {
     public DeliveryArticle {
         if (articleId < 100000) {
             throw new IllegalArgumentException("articleId should not be lower than 100000");
@@ -22,8 +22,8 @@ public record DeliveryArticle(long articleId, int quantity, String status) {
         if (quantity < 1) {
             throw new IllegalArgumentException("quantity should not be lower than 1");
         }
-        if (status.isBlank()) {
-            throw new IllegalArgumentException("status should not be blank");
+        if (status == null) {
+            throw new IllegalArgumentException("status should not be null");
         }
     }
 
@@ -37,7 +37,7 @@ public record DeliveryArticle(long articleId, int quantity, String status) {
         return new DeliveryArticle(
                 document.getLong("articleId"),
                 document.getInteger("quantity"),
-                document.getString("status")
+                DeliveryArticleStatus.valueOf(document.getString("status"))
         );
     }
 
@@ -51,7 +51,7 @@ public record DeliveryArticle(long articleId, int quantity, String status) {
         return new Document()
                 .append("articleId", deliveryArticle.articleId())
                 .append("quantity", deliveryArticle.quantity())
-                .append("status", deliveryArticle.status());
+                .append("status", deliveryArticle.status().name());
     }
 
     /**

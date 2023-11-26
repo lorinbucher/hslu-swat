@@ -18,7 +18,7 @@ public class DeliveryTest {
 
     @Test
     void testFromDocument() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         Document document = new Document()
                 .append("orderNumber", 1L)
                 .append("status", DeliveryStatus.NEW.name())
@@ -32,7 +32,7 @@ public class DeliveryTest {
 
     @Test
     void testToDocument() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle));
         Document document = Delivery.toDocument(delivery);
         assertThat(document.getLong("orderNumber")).isEqualTo(delivery.orderNumber());
@@ -44,7 +44,7 @@ public class DeliveryTest {
 
     @Test
     void testOrderNumberInvalid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         assertThatThrownBy(() -> new Delivery(0L, DeliveryStatus.NEW, List.of(deliveryArticle)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("orderNumber should not be lower than 1");
@@ -52,14 +52,14 @@ public class DeliveryTest {
 
     @Test
     void testOrderNumberValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle));
         assertThat(delivery.orderNumber()).isEqualTo(1L);
     }
 
     @Test
     void testStatusInvalid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         assertThatThrownBy(() -> new Delivery(1L, null, List.of(deliveryArticle)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("status should not be null");
@@ -67,7 +67,7 @@ public class DeliveryTest {
 
     @Test
     void testStatusValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle));
         assertThat(delivery.status()).isEqualTo(DeliveryStatus.NEW);
     }
@@ -81,7 +81,7 @@ public class DeliveryTest {
 
     @Test
     void testArticlesValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle));
         assertThat(delivery.articles()).hasSize(1);
         assertThat(delivery.articles().get(0)).isEqualTo(deliveryArticle);
@@ -89,7 +89,7 @@ public class DeliveryTest {
 
     @Test
     void testNotEqual() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery1 = new Delivery(1L, DeliveryStatus.READY, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(2L, DeliveryStatus.COMPLETED, List.of(deliveryArticle));
         assertThat(delivery1).isNotEqualTo(delivery2);
@@ -97,8 +97,8 @@ public class DeliveryTest {
 
     @Test
     void testEqual() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
-        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.MODIFIED, List.of(deliveryArticle));
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
+        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.CHANGED, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle, deliveryArticle));
         assertThat(delivery1).isEqualTo(delivery1);
         assertThat(delivery1).isEqualTo(delivery2);
@@ -106,7 +106,7 @@ public class DeliveryTest {
 
     @Test
     void testHashCodeDiffers() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery1 = new Delivery(1L, DeliveryStatus.READY, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(2L, DeliveryStatus.COMPLETED, List.of(deliveryArticle));
         assertThat(delivery1).doesNotHaveSameHashCodeAs(delivery2);
@@ -114,15 +114,15 @@ public class DeliveryTest {
 
     @Test
     void testHashCode() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
-        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.MODIFIED, List.of(deliveryArticle));
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
+        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.CHANGED, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle, deliveryArticle));
         assertThat(delivery1).hasSameHashCodeAs(delivery2);
     }
 
     @Test
     void testJsonObject() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, "inStock");
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery = new Delivery(1L, DeliveryStatus.WAITING, List.of(deliveryArticle));
         String start = "{\"orderNumber\":1,\"status\":\"WAITING\",\"articles\":[{";
         String end = "}]}";

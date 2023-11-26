@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryArticle;
+import ch.hslu.swda.entities.DeliveryArticleStatus;
 import ch.hslu.swda.entities.DeliveryStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,8 +33,8 @@ class DeliveriesDBTestIT {
 
     @BeforeEach
     void initializeEnv() {
-        DeliveryArticle article1 = new DeliveryArticle(100001L, 2, "inStock");
-        DeliveryArticle article2 = new DeliveryArticle(100002L, 4, "inStock");
+        DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
+        DeliveryArticle article2 = new DeliveryArticle(100002L, 4, DeliveryArticleStatus.RESERVED);
         articles = List.of(article1, article2);
 
         String host = mongoContainer.getHost() + ":" + mongoContainer.getMappedPort(27017);
