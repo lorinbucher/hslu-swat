@@ -17,8 +17,11 @@ import java.util.Objects;
  */
 public record Article(long articleId, String name, BigDecimal price, int minStock, int stock) {
     public Article {
-        if (articleId < 1) {
-            throw new IllegalArgumentException("articleId should not be lower than 1");
+        if (articleId < 100000) {
+            throw new IllegalArgumentException("articleId should not be lower than 100000");
+        }
+        if (articleId > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("articleId should not be higher than " + Integer.MAX_VALUE);
         }
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("name should not be blank");
