@@ -76,7 +76,8 @@ public class DeliveriesDB implements Deliveries {
             filter = Filters.and(filter, Filters.eq("status", status));
         }
         List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
-        LOG.info("DB: read all {} deliveries from branch {} with status {}", documents.size(), branchId, status);
+        LOG.info("DB: read all {} deliveries from branch {}{}", documents.size(), branchId,
+                status != null ? "with status " + status : "");
         return documents.stream().map(Delivery::fromDocument).toList();
     }
 
