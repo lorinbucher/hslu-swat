@@ -96,7 +96,8 @@ public final class ProductCatalogDB implements ProductCatalog {
         }
 
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Document exists = this.collection.findOneAndReplace(filter, Article.toDocument(article).append("branchId", branchId));
+        Document articleDocument = Article.toDocument(article).append("branchId", branchId);
+        Document exists = this.collection.findOneAndReplace(filter, articleDocument);
         Article updated;
         if (exists != null) {
             updated = article;
