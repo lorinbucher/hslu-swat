@@ -54,7 +54,9 @@ public class ProductCatalogMemory implements ProductCatalog {
 
     @Override
     public boolean delete(long branchId, long articleId) {
-        catalog.remove(articleId);
+        if (branchId == 1) {
+            catalog.remove(articleId);
+        }
         return branchId == 1;
     }
 }

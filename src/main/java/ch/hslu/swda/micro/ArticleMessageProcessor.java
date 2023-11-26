@@ -1,7 +1,7 @@
 package ch.hslu.swda.micro;
 
+import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.business.ProductCatalog;
-import ch.hslu.swda.business.ProductCatalogDB;
 import ch.hslu.swda.dto.ArticleOrderDTO;
 import ch.hslu.swda.dto.ArticleRequestDTO;
 import ch.hslu.swda.dto.ArticleResponseDTO;
@@ -20,12 +20,15 @@ import java.util.List;
 public final class ArticleMessageProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArticleMessageProcessor.class);
+
+    private final Deliveries deliveries;
     private final ProductCatalog productCatalog;
 
     /**
      * Constructor.
      */
-    public ArticleMessageProcessor(final ProductCatalog productCatalog) {
+    public ArticleMessageProcessor(final Deliveries deliveries, final ProductCatalog productCatalog) {
+        this.deliveries = deliveries;
         this.productCatalog = productCatalog;
     }
 
