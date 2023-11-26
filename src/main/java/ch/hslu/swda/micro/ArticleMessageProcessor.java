@@ -45,18 +45,18 @@ public final class ArticleMessageProcessor {
 
         List<ArticleOrderDTO> articles = new ArrayList<>();
         List<String> error = new ArrayList<>();
-        for (long id : request.articles()) {
-            Article article = productCatalog.getById(request.branchId(), id);
-            if (article != null) {
-                ArticleOrderDTO articleDto = new ArticleOrderDTO(article.articleId(), article.name(), article.price());
-                articles.add(articleDto);
+        for (ArticleOrderDTO articleDto : request.articles()) {
+            Article a = productCatalog.getById(request.branchId(), articleDto.articleId());
+            if (a != null) {
+                ArticleOrderDTO dto = new ArticleOrderDTO(a.articleId(), a.name(), a.price(), articleDto.quantity());
+                articles.add(dto);
             } else {
-                error.add("article " + id + " not found in catalog");
+                error.add("article " + articleDto.articleId() + " not found in catalog");
             }
         }
 
-        ArticleResponseDTO response = new ArticleResponseDTO(request.orderNumber(), request.branchId(), articles, error);
-        return serializeMessage(response);
+        ArticleResponseDTO resDto = new ArticleResponseDTO(request.orderNumber(), request.branchId(), articles, error);
+        return serializeMessage(resDto);
     }
 
     private ArticleRequestDTO parseMessage(final String message) {

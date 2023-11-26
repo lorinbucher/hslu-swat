@@ -16,9 +16,9 @@ class ArticleResponseDTOTest {
 
     @Test
     void testToJsonString() {
-        ArticleOrderDTO orderDTO = new ArticleOrderDTO(1L, "Test", new BigDecimal("50.25"));
+        ArticleOrderDTO orderDTO = new ArticleOrderDTO(1L, "Test", new BigDecimal("50.25"), 1);
         ArticleResponseDTO responseDTO = new ArticleResponseDTO(1L, 1L, List.of(orderDTO), List.of("Error"));
-        String start = "{\"orderNumber\":1,\"branchId\":1,\"articles\":[{";
+        String start = "{\"branchId\":1,\"orderNumber\":1,\"articles\":[{";
         String end = "}],\"error\":[\"Error\"]}";
         try {
             String json = new ObjectMapper().writeValueAsString(responseDTO);

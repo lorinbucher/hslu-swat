@@ -8,6 +8,7 @@ import java.math.BigDecimal;
  * @param articleId ID of the article.
  * @param name      Name of the article.
  * @param price     Price of the article.
+ * @param quantity  Number of articles.
  */
-public record ArticleOrderDTO(long articleId, String name, BigDecimal price) {
+public record ArticleOrderDTO(long articleId, String name, BigDecimal price, int quantity) {
 }

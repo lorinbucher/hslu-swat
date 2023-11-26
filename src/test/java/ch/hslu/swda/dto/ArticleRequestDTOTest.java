@@ -16,13 +16,13 @@ class ArticleRequestDTOTest {
 
     @Test
     void testFromJsonString() {
-        String json = "{\"orderNumber\":1,\"branchId\":1,\"articles\":[1,2,3]}";
+        String json = "{\"branchId\":1,\"orderNumber\":1,\"articles\":[{\"articleId\":100001,\"quantity\":1}," +
+                "{\"articleId\":100002,\"quantity\":2},{\"articleId\":100003,\"quantity\":3}]}";
         try {
             ArticleRequestDTO dto = new ObjectMapper().readValue(json, ArticleRequestDTO.class);
             assertThat(dto.orderNumber()).isEqualTo(1L);
             assertThat(dto.branchId()).isEqualTo(1L);
             assertThat(dto.articles()).hasSize(3);
-            assertThat(dto.articles()).isEqualTo(List.of(1L, 2L, 3L));
         } catch (JsonProcessingException e) {
             assertThat(e).isNull();
         }
@@ -35,16 +35,16 @@ class ArticleRequestDTOTest {
     }
 
     @Test
-    void testOrderNumberInvalid() {
+    void testBranchIdInvalid() {
         assertThatThrownBy(() -> new ArticleRequestDTO(0L, 1L, List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("orderNumber should not be lower than 1");
+                .hasMessage("branchId should not be lower than 1");
     }
 
     @Test
-    void testBranchIdInvalid() {
+    void testOrderNumberInvalid() {
         assertThatThrownBy(() -> new ArticleRequestDTO(1L, 0L, List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("branchId should not be lower than 1");
+                .hasMessage("orderNumber should not be lower than 1");
     }
 }

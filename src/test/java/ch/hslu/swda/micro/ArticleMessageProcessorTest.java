@@ -27,9 +27,9 @@ class ArticleMessageProcessorTest {
     @Test
     void testValidMessageReceived() {
         ArticleMessageProcessor processor = new ArticleMessageProcessor(new ProductCatalogMemory());
-        String message = "{\"orderNumber\":1,\"branchId\":1,\"articles\":[]}";
+        String message = "{\"branchId\":1,\"orderNumber\":1,\"articles\":[]}";
         String response = processor.process(message);
-        assertThat(response).isEqualTo("{\"orderNumber\":1,\"branchId\":1,\"articles\":[],\"error\":[]}");
+        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":1,\"articles\":[],\"error\":[]}");
     }
 
     @Test
@@ -37,9 +37,11 @@ class ArticleMessageProcessorTest {
         ProductCatalog productCatalog = new ProductCatalogMemory();
         productCatalog.create(1, new Article(100001L, "Test", new BigDecimal("5.25"), 1, 1));
         ArticleMessageProcessor processor = new ArticleMessageProcessor(productCatalog);
-        String message = "{\"orderNumber\":1,\"branchId\":1,\"articles\":[100001,100002]}";
+        String message = "{\"branchId\":1,\"orderNumber\":1," +
+                "\"articles\":[{\"articleId\":100001,\"quantity\":1},{\"articleId\":100002,\"quantity\":2}]}";
         String response = processor.process(message);
-        assertThat(response).isEqualTo("{\"orderNumber\":1,\"branchId\":1,\"articles\":" +
-                "[{\"articleId\":100001,\"name\":\"Test\",\"price\":5.25}],\"error\":[\"article 100002 not found in catalog\"]}");
+        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":1," +
+                "\"articles\":[{\"articleId\":100001,\"name\":\"Test\",\"price\":5.25,\"quantity\":1}]," +
+                "\"error\":[\"article 100002 not found in catalog\"]}");
     }
 }

@@ -15,8 +15,8 @@ class ArticleOrderDTOTest {
 
     @Test
     void testToJsonString() {
-        ArticleOrderDTO dto = new ArticleOrderDTO(1L, "Test", new BigDecimal("50.25"));
-        String json = "{\"articleId\":1,\"name\":\"Test\",\"price\":50.25}";
+        ArticleOrderDTO dto = new ArticleOrderDTO(100001L, "Test", new BigDecimal("50.25"), 1);
+        String json = "{\"articleId\":100001,\"name\":\"Test\",\"price\":50.25,\"quantity\":1}";
         try {
             assertThat(new ObjectMapper().writeValueAsString(dto)).isEqualTo(json);
         } catch (JsonProcessingException e) {
