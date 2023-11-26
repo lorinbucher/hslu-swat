@@ -74,7 +74,7 @@ public record Article(long articleId, String name, BigDecimal price, int minStoc
     }
 
     /**
-     * Articles are equal if they have the same article number.
+     * Articles are equal if they have the same article ID.
      *
      * @param obj The article to compare against.
      * @return True if the article ID is the same.

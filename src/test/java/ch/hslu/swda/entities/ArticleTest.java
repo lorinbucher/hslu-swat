@@ -143,14 +143,14 @@ public class ArticleTest {
     }
 
     @Test
-    void testArticleNotEqual() {
+    void testNotEqual() {
         final Article article1 = new Article(100001L, "Test1", new BigDecimal("1.00"), 1, 0);
         final Article article2 = new Article(100002L, "Test2", new BigDecimal("2.00"), 1, 1);
         assertThat(article1).isNotEqualTo(article2);
     }
 
     @Test
-    void testArticleEqual() {
+    void testEqual() {
         final Article article1 = new Article(100001L, "Test1", new BigDecimal("1.00"), 1, 0);
         final Article article2 = new Article(100001L, "Test2", new BigDecimal("2.00"), 1, 1);
         assertThat(article1).isEqualTo(article1);
@@ -158,14 +158,14 @@ public class ArticleTest {
     }
 
     @Test
-    void testArticleHashCodeDiffers() {
+    void testHashCodeDiffers() {
         final Article article1 = new Article(100001L, "Test1", new BigDecimal("1.00"), 1, 0);
         final Article article2 = new Article(100002L, "Test2", new BigDecimal("2.00"), 1, 1);
         assertThat(article1).doesNotHaveSameHashCodeAs(article2);
     }
 
     @Test
-    void testArticleHashCode() {
+    void testHashCode() {
         final Article article1 = new Article(100001L, "Test1", new BigDecimal("1.00"), 1, 0);
         final Article article2 = new Article(100001L, "Test2", new BigDecimal("2.00"), 1, 1);
         assertThat(article1).hasSameHashCodeAs(article2);
