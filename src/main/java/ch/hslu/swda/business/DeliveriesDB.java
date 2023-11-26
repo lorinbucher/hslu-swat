@@ -1,7 +1,7 @@
 package ch.hslu.swda.business;
 
-import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.Delivery;
+import ch.hslu.swda.entities.DeliveryStatus;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -70,14 +70,14 @@ public class DeliveriesDB implements Deliveries {
     }
 
     @Override
-    public List<Delivery> getAll(long branchId, @Nullable String status) {
+    public List<Delivery> getAll(long branchId, @Nullable DeliveryStatus status) {
         Bson filter = Filters.eq("branchId", branchId);
         if (status != null) {
-            filter = Filters.and(filter, Filters.eq("status", status));
+            filter = Filters.and(filter, Filters.eq("status", status.name()));
         }
         List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries from branch {}{}", documents.size(), branchId,
-                status != null ? "with status " + status : "");
+                status != null ? " with status " + status : "");
         return documents.stream().map(Delivery::fromDocument).toList();
     }
 

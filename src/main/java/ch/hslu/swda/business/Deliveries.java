@@ -1,6 +1,7 @@
 package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Delivery;
+import ch.hslu.swda.entities.DeliveryStatus;
 import com.mongodb.lang.Nullable;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public interface Deliveries {
      * @param status   Status filter of the deliveries.
      * @return List of all deliveries.
      */
-    List<Delivery> getAll(long branchId, @Nullable final String status);
+    List<Delivery> getAll(long branchId, @Nullable final DeliveryStatus status);
 
     /**
      * Adds a delivery for the branch.

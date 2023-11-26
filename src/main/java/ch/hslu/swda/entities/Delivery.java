@@ -12,13 +12,13 @@ import java.util.Objects;
  * @param status      Status of the delivery.
  * @param articles    Articles of the delivery.
  */
-public record Delivery(long orderNumber, String status, List<DeliveryArticle> articles) {
+public record Delivery(long orderNumber, DeliveryStatus status, List<DeliveryArticle> articles) {
     public Delivery {
         if (orderNumber < 1) {
             throw new IllegalArgumentException("orderNumber should not be lower than 1");
         }
-        if (status.isBlank()) {
-            throw new IllegalArgumentException("status should not be blank");
+        if (status == null) {
+            throw new IllegalArgumentException("status should not be null");
         }
         if (articles.isEmpty()) {
             throw new IllegalArgumentException("articles should not be empty");
@@ -34,7 +34,7 @@ public record Delivery(long orderNumber, String status, List<DeliveryArticle> ar
     public static Delivery fromDocument(final Document document) {
         return new Delivery(
                 document.getLong("orderNumber"),
-                document.getString("status"),
+                DeliveryStatus.valueOf(document.getString("status")),
                 document.getList("articles", Document.class).stream().map(DeliveryArticle::fromDocument).toList()
         );
     }
@@ -48,7 +48,7 @@ public record Delivery(long orderNumber, String status, List<DeliveryArticle> ar
     public static Document toDocument(final Delivery delivery) {
         return new Document()
                 .append("orderNumber", delivery.orderNumber())
-                .append("status", delivery.status())
+                .append("status", delivery.status().name())
                 .append("articles", delivery.articles().stream().map(DeliveryArticle::toDocument).toList());
     }
 

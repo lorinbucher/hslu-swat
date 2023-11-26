@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryArticle;
+import ch.hslu.swda.entities.DeliveryStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -37,15 +38,15 @@ class DeliveriesDBTestIT {
 
         String host = mongoContainer.getHost() + ":" + mongoContainer.getMappedPort(27017);
         deliveriesDB = new DeliveriesDB(host, "", "");
-        Delivery delivery1 = new Delivery(1L, "new", articles);
-        Delivery delivery2 = new Delivery(2L, "completed", articles);
+        Delivery delivery1 = new Delivery(1L, DeliveryStatus.NEW, articles);
+        Delivery delivery2 = new Delivery(2L, DeliveryStatus.COMPLETED, articles);
         deliveriesDB.create(1L, delivery1);
         deliveriesDB.create(1L, delivery2);
     }
 
     @Test
     void testGetByIdExisting() {
-        Delivery existing = new Delivery(1L, "new", articles);
+        Delivery existing = new Delivery(1L, DeliveryStatus.NEW, articles);
         Delivery delivery = deliveriesDB.getById(1L, 1L);
         assertThat(delivery).isNotNull();
         assertThat(delivery).isEqualTo(existing);
@@ -73,14 +74,14 @@ class DeliveriesDBTestIT {
 
     @Test
     void testGetAllByStatus() {
-        List<Delivery> deliveries = deliveriesDB.getAll(1L, "completed");
+        List<Delivery> deliveries = deliveriesDB.getAll(1L, DeliveryStatus.COMPLETED);
         assertThat(deliveries).hasSize(1);
-        assertThat(deliveries.get(0).status()).isEqualTo("completed");
+        assertThat(deliveries.get(0).status()).isEqualTo(DeliveryStatus.COMPLETED);
     }
 
     @Test
     void testCreateExisting() {
-        Delivery delivery = new Delivery(1L, "processing", List.of(articles.get(0)));
+        Delivery delivery = new Delivery(1L, DeliveryStatus.WAITING, List.of(articles.get(0)));
         Delivery created = deliveriesDB.create(1L, delivery);
         assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
         assertThat(created).isEqualTo(delivery);
@@ -90,7 +91,7 @@ class DeliveriesDBTestIT {
 
     @Test
     void testCreateNotExisting() {
-        Delivery delivery = new Delivery(5L, "new", articles);
+        Delivery delivery = new Delivery(5L, DeliveryStatus.NEW, articles);
         Delivery created = deliveriesDB.create(1L, delivery);
         assertThat(deliveriesDB.getAll(1L, null)).hasSize(3);
         assertThat(deliveriesDB.getById(1L, 5L)).isEqualTo(delivery);
@@ -101,7 +102,7 @@ class DeliveriesDBTestIT {
 
     @Test
     void testUpdateExisting() {
-        Delivery delivery = new Delivery(1L, "processing", List.of(articles.get(0)));
+        Delivery delivery = new Delivery(1L, DeliveryStatus.WAITING, List.of(articles.get(0)));
         Delivery updated = deliveriesDB.update(1L, 1L, delivery);
         assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
         assertThat(deliveriesDB.getById(1L, 1L)).isEqualTo(delivery);
@@ -112,7 +113,7 @@ class DeliveriesDBTestIT {
 
     @Test
     void testUpdateExistingIdMismatch() {
-        Delivery delivery = new Delivery(5L, "processing", List.of(articles.get(0)));
+        Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(0)));
         Delivery updated = deliveriesDB.update(1L, 1L, delivery);
         assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
         assertThat(updated.orderNumber()).isEqualTo(1L);
@@ -122,7 +123,7 @@ class DeliveriesDBTestIT {
 
     @Test
     void testUpdateNotExisting() {
-        Delivery delivery = new Delivery(5L, "processing", List.of(articles.get(0)));
+        Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(0)));
         Delivery updated = deliveriesDB.update(1L, 5L, delivery);
         assertThat(deliveriesDB.getAll(1L, null)).hasSize(3);
         assertThat(deliveriesDB.getById(1L, 5L)).isEqualTo(delivery);

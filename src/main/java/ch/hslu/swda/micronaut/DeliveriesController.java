@@ -2,6 +2,7 @@ package ch.hslu.swda.micronaut;
 
 import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.entities.Delivery;
+import ch.hslu.swda.entities.DeliveryStatus;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -32,10 +33,10 @@ public final class DeliveriesController {
      */
     @Tag(name = "delivery")
     @Get("/{branchId}")
-    public List<Delivery> getAll(final long branchId, @QueryValue("status") @Nullable final String status) {
+    public List<Delivery> getAll(final long branchId, @QueryValue("status") @Nullable final DeliveryStatus status) {
         final List<Delivery> result = deliveries.getAll(branchId, status);
         LOG.info("REST: All {} deliveries from branch {}{} returned.", result.size(), branchId,
-                status != null ? "with status " + status : "");
+                status != null ? " with status " + status : "");
         return result;
     }
 
