@@ -2,6 +2,7 @@ package ch.hslu.swda.entities;
 
 import org.bson.Document;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,8 +21,8 @@ public record Delivery(long orderNumber, DeliveryStatus status, List<DeliveryArt
         if (status == null) {
             throw new IllegalArgumentException("status should not be null");
         }
-        if (articles.isEmpty()) {
-            throw new IllegalArgumentException("articles should not be empty");
+        if (articles == null) {
+            articles = Collections.emptyList();
         }
     }
 

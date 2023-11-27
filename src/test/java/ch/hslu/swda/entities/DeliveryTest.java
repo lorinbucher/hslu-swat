@@ -44,39 +44,34 @@ public class DeliveryTest {
 
     @Test
     void testOrderNumberInvalid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        assertThatThrownBy(() -> new Delivery(0L, DeliveryStatus.NEW, List.of(deliveryArticle)))
+        assertThatThrownBy(() -> new Delivery(0L, DeliveryStatus.NEW, List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("orderNumber should not be lower than 1");
     }
 
     @Test
     void testOrderNumberValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle));
+        final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of());
         assertThat(delivery.orderNumber()).isEqualTo(1L);
     }
 
     @Test
     void testStatusInvalid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        assertThatThrownBy(() -> new Delivery(1L, null, List.of(deliveryArticle)))
+        assertThatThrownBy(() -> new Delivery(1L, null, List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("status should not be null");
     }
 
     @Test
     void testStatusValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle));
+        final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of());
         assertThat(delivery.status()).isEqualTo(DeliveryStatus.NEW);
     }
 
     @Test
-    void testArticlesInvalid() {
-        assertThatThrownBy(() -> new Delivery(1L, DeliveryStatus.NEW, List.of()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("articles should not be empty");
+    void testArticlesNull() {
+        final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, null);
+        assertThat(delivery.articles()).isEmpty();
     }
 
     @Test
