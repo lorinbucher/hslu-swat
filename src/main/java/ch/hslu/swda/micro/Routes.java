@@ -9,7 +9,7 @@ public final class Routes {
     static final String ARTICLE_GET = "article.get";
     static final String ARTICLE_RETURN = "article.return";
     static final String LOG_EVENT = "log.event";
-    static final String ORDER_CONFIRMED = "order.confirmed.warehouse";
+    static final String NEW_ORDER = "order.warehouse";
 
     /**
      * No instance allowed.
