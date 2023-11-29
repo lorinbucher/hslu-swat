@@ -2,10 +2,7 @@ package ch.hslu.swda.micro;
 
 import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.business.ProductCatalog;
-import ch.hslu.swda.entities.Delivery;
-import ch.hslu.swda.entities.DeliveryArticle;
-import ch.hslu.swda.entities.DeliveryArticleStatus;
-import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.entities.*;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +36,24 @@ public class DeliveryProcessor {
     public Delivery changeToCompleted(final long branchId, final long orderNumber) {
         Delivery delivery = deliveries.getById(branchId, orderNumber);
         if (delivery != null) {
-            // TODO (lorin): Temporary disabled until delivery processing is working
+            // TODO (lorin): Temporary disabled until delivery processing is implemented
             //if (delivery.status() != DeliveryStatus.READY) {
             //    LOG.warn("REST: Delivery {} from branch {} is not ready yet", orderNumber, branchId);
             //    throw new IllegalStateException("Delivery is not ready yet");
             //}
+
+            // TODO (lorin): Remove after delivery processing is implemented
+            for (DeliveryArticle deliveryArticle : delivery.articles()) {
+                Article article = productCatalog.getById(branchId, deliveryArticle.articleId());
+                if (article == null || article.stock() < deliveryArticle.quantity()) {
+                    throw new IllegalStateException("Not all articles in stock");
+                }
+            }
+
+            for (DeliveryArticle deliveryArticle : delivery.articles()) {
+                productCatalog.changeStock(branchId, deliveryArticle.articleId(), deliveryArticle.quantity());
+            }
+
             Delivery completedDelivery = new Delivery(orderNumber, DeliveryStatus.COMPLETED, delivery.articles()
                     .stream()
                     .map(a -> new DeliveryArticle(a.articleId(), a.quantity(), DeliveryArticleStatus.DELIVERED))
