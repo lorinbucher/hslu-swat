@@ -10,14 +10,14 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test cases for the article response DTO.
+ * Test cases for the article return DTO.
  */
-class ArticleResponseDTOTest {
+class ArticleReturnDTOTest {
 
     @Test
     void testToJsonString() {
-        ArticleOrderDTO orderDTO = new ArticleOrderDTO(1L, "Test", new BigDecimal("50.25"), 1);
-        ArticleResponseDTO responseDTO = new ArticleResponseDTO(1L, 1L, List.of(orderDTO), List.of("Error"));
+        ArticleOrderDTO orderDTO = new ArticleOrderDTO(1L, "Test", new BigDecimal("50.25"), null);
+        ArticleReturnDTO responseDTO = new ArticleReturnDTO(1L, 1L, List.of(orderDTO), List.of("Error"));
         String start = "{\"branchId\":1,\"orderNumber\":1,\"articles\":[{";
         String end = "}],\"error\":[\"Error\"]}";
         try {

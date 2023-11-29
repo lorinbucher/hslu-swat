@@ -15,9 +15,9 @@ import java.io.IOException;
  * Implements the article delivered message handler.
  */
 @Singleton
-public class DeliveryMessageHandler {
+public class OrderMessageHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeliveryMessageHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OrderMessageHandler.class);
 
     private final RabbitMqConfig config;
     private final BusConnector bus;
@@ -25,7 +25,7 @@ public class DeliveryMessageHandler {
     /**
      * Constructor.
      */
-    public DeliveryMessageHandler() {
+    public OrderMessageHandler() {
         this.config = new RabbitMqConfig();
         this.bus = new BusConnector(config);
         this.bus.connectWithRetry();

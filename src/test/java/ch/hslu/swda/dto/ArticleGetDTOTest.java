@@ -10,16 +10,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Test cases for the article request DTO.
+ * Test cases for the article get DTO.
  */
-class ArticleRequestDTOTest {
+class ArticleGetDTOTest {
 
     @Test
     void testFromJsonString() {
-        String json = "{\"branchId\":1,\"orderNumber\":1,\"articles\":[{\"articleId\":100001,\"quantity\":1}," +
-                "{\"articleId\":100002,\"quantity\":2},{\"articleId\":100003,\"quantity\":3}]}";
+        String json = "{\"branchId\":1,\"orderNumber\":1,\"articles\":[100001,100002,100003]}";
         try {
-            ArticleRequestDTO dto = new ObjectMapper().readValue(json, ArticleRequestDTO.class);
+            ArticleGetDTO dto = new ObjectMapper().readValue(json, ArticleGetDTO.class);
             assertThat(dto.orderNumber()).isEqualTo(1L);
             assertThat(dto.branchId()).isEqualTo(1L);
             assertThat(dto.articles()).hasSize(3);
@@ -30,20 +29,20 @@ class ArticleRequestDTOTest {
 
     @Test
     void testNoArticles() {
-        ArticleRequestDTO dto = new ArticleRequestDTO(1L, 1L, null);
+        ArticleGetDTO dto = new ArticleGetDTO(1L, 1L, null);
         assertThat(dto.articles()).hasSize(0);
     }
 
     @Test
     void testBranchIdInvalid() {
-        assertThatThrownBy(() -> new ArticleRequestDTO(0L, 1L, List.of()))
+        assertThatThrownBy(() -> new ArticleGetDTO(0L, 1L, List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("branchId should not be lower than 1");
     }
 
     @Test
     void testOrderNumberInvalid() {
-        assertThatThrownBy(() -> new ArticleRequestDTO(1L, 0L, List.of()))
+        assertThatThrownBy(() -> new ArticleGetDTO(1L, 0L, List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("orderNumber should not be lower than 1");
     }

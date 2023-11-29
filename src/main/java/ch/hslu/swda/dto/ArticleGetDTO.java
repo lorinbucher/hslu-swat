@@ -10,8 +10,8 @@ import java.util.List;
  * @param orderNumber Order Number of the request.
  * @param articles    List of articles of the request.
  */
-public record ArticleRequestDTO(long branchId, long orderNumber, List<ArticleOrderDTO> articles) {
-    public ArticleRequestDTO {
+public record ArticleGetDTO(long branchId, long orderNumber, List<Long> articles) {
+    public ArticleGetDTO {
         if (branchId < 1) {
             throw new IllegalArgumentException("branchId should not be lower than 1");
         }

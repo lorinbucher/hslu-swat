@@ -2,8 +2,6 @@ package ch.hslu.swda.micro;
 
 import ch.hslu.swda.bus.BusConnector;
 import ch.hslu.swda.bus.RabbitMqConfig;
-import ch.hslu.swda.business.Deliveries;
-import ch.hslu.swda.business.DeliveriesDB;
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.business.ProductCatalogDB;
 import org.slf4j.Logger;
@@ -20,7 +18,6 @@ public final class ArticleMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArticleMessageHandler.class);
 
-    private final Deliveries deliveries;
     private final ProductCatalog productCatalog;
 
     private final RabbitMqConfig config;
@@ -30,7 +27,6 @@ public final class ArticleMessageHandler {
      * Constructor.
      */
     public ArticleMessageHandler() {
-        this.deliveries = new DeliveriesDB();
         this.productCatalog = new ProductCatalogDB();
         this.config = new RabbitMqConfig();
         this.bus = new BusConnector(config);
@@ -77,7 +73,7 @@ public final class ArticleMessageHandler {
         LOG.info("Received message with routing [{}] {}", route, message);
 
         try {
-            ArticleMessageProcessor messageProcessor = new ArticleMessageProcessor(deliveries, productCatalog);
+            ArticleMessageProcessor messageProcessor = new ArticleMessageProcessor(productCatalog);
             String response = messageProcessor.process(message);
             bus.talkAsync(config.getExchange(), Routes.ARTICLE_RETURN, response);
         } catch (IllegalArgumentException e) {

@@ -10,5 +10,5 @@ import java.util.List;
  * @param articles    List of articles of the request.
  * @param error       List of errors.
  */
-public record ArticleResponseDTO(long branchId, long orderNumber, List<ArticleOrderDTO> articles, List<String> error) {
+public record ArticleReturnDTO(long branchId, long orderNumber, List<ArticleOrderDTO> articles, List<String> error) {
 }

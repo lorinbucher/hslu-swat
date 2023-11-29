@@ -23,4 +23,15 @@ class ArticleOrderDTOTest {
             assertThat(e).isNull();
         }
     }
+
+    @Test
+    void testToJsonStringQuantityNull() {
+        ArticleOrderDTO dto = new ArticleOrderDTO(100001L, "Test", new BigDecimal("50.25"), null);
+        String json = "{\"articleId\":100001,\"name\":\"Test\",\"price\":50.25}";
+        try {
+            assertThat(new ObjectMapper().writeValueAsString(dto)).isEqualTo(json);
+        } catch (JsonProcessingException e) {
+            assertThat(e).isNull();
+        }
+    }
 }

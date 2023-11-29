@@ -1,5 +1,8 @@
 package ch.hslu.swda.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mongodb.lang.Nullable;
+
 import java.math.BigDecimal;
 
 /**
@@ -10,5 +13,6 @@ import java.math.BigDecimal;
  * @param price     Price of the article.
  * @param quantity  Number of articles.
  */
-public record ArticleOrderDTO(long articleId, String name, BigDecimal price, int quantity) {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record ArticleOrderDTO(long articleId, String name, BigDecimal price, @Nullable Integer quantity) {
 }
