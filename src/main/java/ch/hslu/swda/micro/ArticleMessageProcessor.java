@@ -6,6 +6,7 @@ import ch.hslu.swda.dto.ArticleGetDTO;
 import ch.hslu.swda.dto.OrderDTO;
 import ch.hslu.swda.entities.Article;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,8 @@ public final class ArticleMessageProcessor {
      */
     private ArticleGetDTO parseMessage(final String message) {
         ArticleGetDTO dto = null;
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             dto = mapper.readValue(message, ArticleGetDTO.class);
             LOG.info("Parsed article request message: {}", dto);

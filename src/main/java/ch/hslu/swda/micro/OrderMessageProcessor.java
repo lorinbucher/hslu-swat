@@ -7,6 +7,7 @@ import ch.hslu.swda.entities.DeliveryArticle;
 import ch.hslu.swda.entities.DeliveryArticleStatus;
 import ch.hslu.swda.entities.DeliveryStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +100,8 @@ public class OrderMessageProcessor {
      */
     private OrderDTO parseMessage(final String message) {
         OrderDTO dto = null;
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             dto = mapper.readValue(message, OrderDTO.class);
             LOG.info("Parsed order message: {}", dto);
