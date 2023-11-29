@@ -2,11 +2,9 @@ package ch.hslu.swda.entities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -15,32 +13,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Test cases for the delivery entity.
  */
 public class DeliveryTest {
-
-    @Test
-    void testFromDocument() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        Document document = new Document()
-                .append("orderNumber", 1L)
-                .append("status", DeliveryStatus.NEW.name())
-                .append("articles", Stream.of(deliveryArticle).map(DeliveryArticle::toDocument).toList());
-        final Delivery delivery = Delivery.fromDocument(document);
-        assertThat(delivery.orderNumber()).isEqualTo(1L);
-        assertThat(delivery.status()).isEqualTo(DeliveryStatus.NEW);
-        assertThat(delivery.articles()).hasSize(1);
-        assertThat(delivery.articles().get(0)).isEqualTo(deliveryArticle);
-    }
-
-    @Test
-    void testToDocument() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        final Delivery delivery = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle));
-        Document document = Delivery.toDocument(delivery);
-        assertThat(document.getLong("orderNumber")).isEqualTo(delivery.orderNumber());
-        assertThat(document.getString("status")).isEqualTo(delivery.status().name());
-        assertThat(document.getList("articles", Document.class)).hasSize(1);
-        Document articleDocument = document.getList("articles", Document.class).get(0);
-        assertThat(DeliveryArticle.fromDocument(articleDocument)).isEqualTo(deliveryArticle);
-    }
 
     @Test
     void testOrderNumberInvalid() {

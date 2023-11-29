@@ -1,13 +1,11 @@
 package ch.hslu.swda.entities;
 
-import org.bson.Document;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * A delivery for an order.
+ * A delivery for an order of a branch.
  *
  * @param orderNumber Order Number of the delivery.
  * @param status      Status of the delivery.
@@ -24,33 +22,6 @@ public record Delivery(long orderNumber, DeliveryStatus status, List<DeliveryArt
         if (articles == null) {
             articles = Collections.emptyList();
         }
-    }
-
-    /**
-     * Creates a delivery from a MongoDB document.
-     *
-     * @param document MongoDB document.
-     * @return Delivery.
-     */
-    public static Delivery fromDocument(final Document document) {
-        return new Delivery(
-                document.getLong("orderNumber"),
-                DeliveryStatus.valueOf(document.getString("status")),
-                document.getList("articles", Document.class).stream().map(DeliveryArticle::fromDocument).toList()
-        );
-    }
-
-    /**
-     * Creates a MongoDB document from a delivery.
-     *
-     * @param delivery Delivery.
-     * @return MongoDB document.
-     */
-    public static Document toDocument(final Delivery delivery) {
-        return new Document()
-                .append("orderNumber", delivery.orderNumber())
-                .append("status", delivery.status().name())
-                .append("articles", delivery.articles().stream().map(DeliveryArticle::toDocument).toList());
     }
 
     /**

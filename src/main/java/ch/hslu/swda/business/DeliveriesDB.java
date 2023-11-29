@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.entities.WarehouseDelivery;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -66,7 +67,7 @@ public class DeliveriesDB implements Deliveries {
         LOG.info("DB: read delivery from branch {} with id {}", branchId, orderNumber);
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
         Document exists = this.collection.find(filter).first();
-        return exists != null ? Delivery.fromDocument(exists) : null;
+        return exists != null ? WarehouseDelivery.fromDocument(exists).delivery() : null;
     }
 
     @Override
@@ -78,7 +79,7 @@ public class DeliveriesDB implements Deliveries {
         List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries from branch {}{}", documents.size(), branchId,
                 status != null ? " with status " + status : "");
-        return documents.stream().map(Delivery::fromDocument).toList();
+        return documents.stream().map(WarehouseDelivery::fromDocument).map(WarehouseDelivery::delivery).toList();
     }
 
     @Override
@@ -86,13 +87,13 @@ public class DeliveriesDB implements Deliveries {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", delivery.orderNumber()));
         Document exists = this.collection.find(filter).first();
         if (exists == null) {
-            Document doc = Delivery.toDocument(delivery).append("branchId", branchId);
+            Document doc = WarehouseDelivery.toDocument(new WarehouseDelivery(branchId, delivery));
             this.collection.insertOne(doc);
             LOG.info("DB: created delivery for branch {} with id {}", branchId, delivery.orderNumber());
         } else {
             LOG.warn("DB: delivery {} already exists for branch {}", delivery.orderNumber(), branchId);
         }
-        return exists == null ? delivery : Delivery.fromDocument(exists);
+        return exists == null ? delivery : WarehouseDelivery.fromDocument(exists).delivery();
     }
 
     @Override
@@ -102,7 +103,7 @@ public class DeliveriesDB implements Deliveries {
         }
 
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
-        Document deliveryDocument = Delivery.toDocument(delivery).append("branchId", branchId);
+        Document deliveryDocument = WarehouseDelivery.toDocument(new WarehouseDelivery(branchId, delivery));
         Document exists = this.collection.findOneAndReplace(filter, deliveryDocument);
         Delivery updated;
         if (exists != null) {

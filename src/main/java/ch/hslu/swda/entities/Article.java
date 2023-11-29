@@ -1,13 +1,11 @@
 package ch.hslu.swda.entities;
 
-import org.bson.Document;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
- * An article of the warehouse.
+ * An article from the catalog of a branch.
  *
  * @param articleId ID of the article.
  * @param name      Name of the article.
@@ -40,37 +38,6 @@ public record Article(long articleId, String name, BigDecimal price, int minStoc
         if (new BigDecimal("0.05").compareTo(price.setScale(2, RoundingMode.HALF_UP)) > 0) {
             throw new IllegalArgumentException("price should be 0.05 or higher");
         }
-    }
-
-    /**
-     * Creates an article from a MongoDB document.
-     *
-     * @param document MongoDB document.
-     * @return Article.
-     */
-    public static Article fromDocument(final Document document) {
-        return new Article(
-                document.getLong("articleId"),
-                document.getString("name"),
-                new BigDecimal(document.getString("price")),
-                document.getInteger("minStock"),
-                document.getInteger("stock")
-        );
-    }
-
-    /**
-     * Creates a MongoDB document from an article.
-     *
-     * @param article Article.
-     * @return MongoDB document.
-     */
-    public static Document toDocument(final Article article) {
-        return new Document()
-                .append("articleId", article.articleId())
-                .append("name", article.name())
-                .append("price", article.price().toPlainString())
-                .append("minStock", article.minStock())
-                .append("stock", article.stock());
     }
 
     /**
