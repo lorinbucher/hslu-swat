@@ -51,7 +51,7 @@ public class DeliveryProcessor {
             }
 
             for (DeliveryArticle deliveryArticle : delivery.articles()) {
-                productCatalog.changeStock(branchId, deliveryArticle.articleId(), deliveryArticle.quantity());
+                productCatalog.changeStock(branchId, deliveryArticle.articleId(), -deliveryArticle.quantity());
             }
 
             Delivery completedDelivery = new Delivery(orderNumber, DeliveryStatus.COMPLETED, delivery.articles()
