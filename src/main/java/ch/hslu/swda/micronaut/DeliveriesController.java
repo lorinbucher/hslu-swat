@@ -1,12 +1,21 @@
 package ch.hslu.swda.micronaut;
 
 import ch.hslu.swda.business.Deliveries;
+import ch.hslu.swda.dto.ArticleDeliveredDTO;
+import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.micro.DeliveryMessageHandler;
+import ch.hslu.swda.micro.DeliveryProcessor;
+import ch.hslu.swda.micro.EventLogger;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Nullable;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Error;
+import io.micronaut.http.annotation.*;
+import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.http.hateoas.Link;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -23,6 +32,16 @@ public final class DeliveriesController {
 
     @Inject
     private Deliveries deliveries;
+
+    @Inject
+    private DeliveryMessageHandler deliveryMessageHandler;
+
+    @Inject
+    private DeliveryProcessor deliveryProcessor;
+
+    @Inject
+    private EventLogger eventLogger;
+
 
     /**
      * Get all deliveries of the branch.
@@ -53,5 +72,48 @@ public final class DeliveriesController {
         final Delivery delivery = deliveries.getById(branchId, orderNumber);
         LOG.info("REST: Delivery {} from branch {} {}.", orderNumber, branchId, delivery != null ? "returned" : "not found");
         return delivery;
+    }
+
+
+    /**
+     * Change status of the delivery for the specified order number of the branch.
+     * Only supports changing the status to `COMPLETED`, the other status are handled by the system.
+     *
+     * @param branchId    ID of the branch.
+     * @param orderNumber Order number.
+     * @param status      Updated delivery status.
+     * @return Delivery.
+     */
+    @Tag(name = "delivery")
+    @Patch("/{branchId}/{orderNumber}")
+    public Delivery changeState(final long branchId, final long orderNumber, @JsonProperty DeliveryStatus status) {
+        if (status != DeliveryStatus.COMPLETED) {
+            LOG.warn("REST: Delivery status cannot be changed to {}", status);
+            throw new IllegalArgumentException("Delivery status can only be changed to COMPLETED");
+        }
+
+        Delivery delivery = deliveryProcessor.changeToCompleted(branchId, orderNumber);
+        if (delivery != null) {
+            LOG.info("REST: Delivery {} from branch {} completed: {}", orderNumber, branchId, delivery);
+            deliveryMessageHandler.publishDelivered(new ArticleDeliveredDTO(branchId, orderNumber));
+            eventLogger.publishLog(new LogEventDTO(branchId, "delivery.completed", delivery.toString()));
+        } else {
+            LOG.error("REST: Delivery {} from branch {} not completed", orderNumber, branchId);
+        }
+        return delivery;
+    }
+
+    @Error(exception = IllegalArgumentException.class, global = true)
+    public HttpResponse<JsonError> invalidStatus(HttpRequest request, IllegalArgumentException ex) {
+        JsonError error = new JsonError(ex.getMessage())
+                .link(Link.SELF, Link.of(request.getUri()));
+        return HttpResponse.<JsonError>badRequest().body(error);
+    }
+
+    @Error(exception = IllegalStateException.class, global = true)
+    public HttpResponse<JsonError> notReady(HttpRequest request, IllegalStateException ex) {
+        JsonError error = new JsonError(ex.getMessage())
+                .link(Link.SELF, Link.of(request.getUri()));
+        return HttpResponse.<JsonError>badRequest().body(error);
     }
 }

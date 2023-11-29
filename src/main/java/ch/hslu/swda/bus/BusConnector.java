@@ -149,6 +149,28 @@ public final class BusConnector implements AutoCloseable {
         });
     }
 
+
+    /**
+     * Connects to Rabbit MQ.
+     */
+    public void connectWithRetry() {
+        boolean connected = false;
+        while (!connected) {
+            try {
+                LOG.info("Try connecting to message bus...");
+                connect();
+                connected = true;
+            } catch (IOException | TimeoutException e) {
+                LOG.error(e.getMessage(), e);
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException ie) {
+                    LOG.warn("Reconnection timeout interrupted: {}", ie.getMessage());
+                }
+            }
+        }
+    }
+
     /**
      * Öffnet die Verbindung zu RabbitMQ.
      *

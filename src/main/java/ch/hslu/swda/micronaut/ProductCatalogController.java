@@ -19,7 +19,9 @@ import java.util.List;
 @Controller("/api/v1/catalog")
 public final class ProductCatalogController {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogController.class);
-    private final EventLogger eventLogger = new EventLogger();
+
+    @Inject
+    private EventLogger eventLogger;
 
     @Inject
     private ProductCatalog productCatalog;
