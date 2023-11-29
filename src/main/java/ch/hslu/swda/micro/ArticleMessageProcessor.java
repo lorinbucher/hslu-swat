@@ -3,7 +3,7 @@ package ch.hslu.swda.micro;
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.dto.ArticleOrderDTO;
 import ch.hslu.swda.dto.ArticleGetDTO;
-import ch.hslu.swda.dto.ArticleReturnDTO;
+import ch.hslu.swda.dto.OrderDTO;
 import ch.hslu.swda.entities.Article;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,8 +55,8 @@ public final class ArticleMessageProcessor {
             }
         }
 
-        ArticleReturnDTO resDto = new ArticleReturnDTO(request.branchId(), request.orderNumber(), articles, error);
-        return serializeMessage(resDto);
+        OrderDTO orderDTO = new OrderDTO(request.branchId(), request.orderNumber(), articles, error);
+        return serializeMessage(orderDTO);
     }
 
     /**
@@ -80,14 +80,14 @@ public final class ArticleMessageProcessor {
     /**
      * Serializes the article response message.
      *
-     * @param returnDTO Article response.
+     * @param orderDTO Article response.
      * @return Article response message.
      */
-    private String serializeMessage(final ArticleReturnDTO returnDTO) {
+    private String serializeMessage(final OrderDTO orderDTO) {
         String response = "{}";
         ObjectMapper mapper = new ObjectMapper();
         try {
-            response = mapper.writeValueAsString(returnDTO);
+            response = mapper.writeValueAsString(orderDTO);
             LOG.info("Serialized article response message: {}", response);
         } catch (JsonProcessingException e) {
             LOG.error("Failed to serialize article response message: {}", e.getMessage());
