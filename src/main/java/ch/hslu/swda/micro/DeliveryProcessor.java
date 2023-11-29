@@ -39,10 +39,11 @@ public class DeliveryProcessor {
     public Delivery changeToCompleted(final long branchId, final long orderNumber) {
         Delivery delivery = deliveries.getById(branchId, orderNumber);
         if (delivery != null) {
-            if (delivery.status() != DeliveryStatus.READY) {
-                LOG.warn("REST: Delivery {} from branch {} is not ready yet", orderNumber, branchId);
-                throw new IllegalStateException("Delivery is not ready yet");
-            }
+            // TODO (lorin): Temporary disabled until delivery processing is working
+            //if (delivery.status() != DeliveryStatus.READY) {
+            //    LOG.warn("REST: Delivery {} from branch {} is not ready yet", orderNumber, branchId);
+            //    throw new IllegalStateException("Delivery is not ready yet");
+            //}
             Delivery completedDelivery = new Delivery(orderNumber, DeliveryStatus.COMPLETED, delivery.articles()
                     .stream()
                     .map(a -> new DeliveryArticle(a.articleId(), a.quantity(), DeliveryArticleStatus.DELIVERED))
