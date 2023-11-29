@@ -68,7 +68,8 @@ public final class ProductCatalogController {
     public Article create(final long branchId, @Body final Article article) {
         final Article created = productCatalog.create(branchId, article);
         LOG.info("REST: Article {} added to branch {}.", created, branchId);
-        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.added", created.toString()));
+        String message = "Added article " + article.articleId() + " in catalog";
+        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.added", message));
         return created;
     }
 
@@ -85,7 +86,8 @@ public final class ProductCatalogController {
     public Article update(final long branchId, final long articleId, @Body final Article article) {
         Article updated = productCatalog.update(branchId, articleId, article);
         LOG.info("REST: Article {} from branch {} updated.", updated, branchId);
-        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.changed", updated.toString()));
+        String message = "Updated article " + articleId + " in catalog";
+        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.changed", message));
         return updated;
     }
 
@@ -101,7 +103,8 @@ public final class ProductCatalogController {
         final boolean deleted = productCatalog.delete(branchId, articleId);
         LOG.info("REST: Article {} {}removed from branch {}.", articleId, deleted ? "" : "not ", branchId);
         if (deleted) {
-            this.eventLogger.publishLog(new LogEventDTO(branchId, "article.removed", "Article[articleId=" + articleId + "]"));
+            String message = "Removed article " + articleId + " from catalog";
+            this.eventLogger.publishLog(new LogEventDTO(branchId, "article.removed", message));
         }
     }
 }

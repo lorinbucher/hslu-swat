@@ -96,7 +96,8 @@ public final class DeliveriesController {
         if (delivery != null) {
             LOG.info("REST: Delivery {} from branch {} completed: {}", orderNumber, branchId, delivery);
             orderMessageHandler.publishDelivered(new ArticleDeliveredDTO(branchId, orderNumber));
-            eventLogger.publishLog(new LogEventDTO(branchId, "delivery.completed", delivery.toString()));
+            String message = "Delivered articles for order number " + orderNumber;
+            eventLogger.publishLog(new LogEventDTO(branchId, "delivery.completed", message));
         } else {
             LOG.error("REST: Delivery {} from branch {} not completed", orderNumber, branchId);
         }
