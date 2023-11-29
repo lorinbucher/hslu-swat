@@ -115,4 +115,26 @@ public final class ProductCatalogDB implements ProductCatalog {
         LOG.info("DB: {}removed article from branch {} with id {}", removed != null ? "" : "not ", branchId, articleId);
         return removed != null;
     }
+
+    @Override
+    public boolean changeStock(long branchId, long articleId, int amount) {
+        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
+        Article article = this.collection.find(filter).map(Article::fromDocument).first();
+
+        boolean result = false;
+        if (article != null) {
+            int newStock = article.stock() + amount;
+            if (newStock >= 0) {
+                Article changed = new Article(articleId, article.name(), article.price(), article.minStock(), newStock);
+                Document articleDocument = Article.toDocument(changed).append("branchId", branchId);
+                result = this.collection.findOneAndReplace(filter, articleDocument) != null;
+                LOG.info("DB: updated stock of article from branch {} with id {} -> {}", branchId, articleId, newStock);
+            } else {
+                LOG.info("DB: article from branch {} with id {} has not enough in stock", branchId, articleId);
+            }
+        } else {
+            LOG.warn("DB: article from branch {} with id {} doesn't exist", branchId, articleId);
+        }
+        return result;
+    }
 }

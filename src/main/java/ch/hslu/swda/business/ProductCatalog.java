@@ -53,4 +53,14 @@ public interface ProductCatalog {
      * @return True if successful, false if not.
      */
     boolean delete(long branchId, long articleId);
+
+    /**
+     * Changes the stock of an article by the specified amount.
+     *
+     * @param branchId  ID of the branch.
+     * @param articleId ID of the article.
+     * @param amount    Amount to change the stock by.
+     * @return True if successful, false if not.
+     */
+    boolean changeStock(long branchId, long articleId, int amount);
 }

@@ -59,4 +59,19 @@ public class ProductCatalogMemory implements ProductCatalog {
         }
         return branchId == 1;
     }
+
+    @Override
+    public boolean changeStock(long branchId, long articleId, int amount) {
+        boolean result = false;
+        Article article = catalog.get(articleId);
+        if (branchId == 1 && article != null) {
+            int newStock = article.stock() + amount;
+            if (newStock >= 0) {
+                article = new Article(articleId, article.name(), article.price(), article.minStock(), newStock);
+                catalog.put(articleId, article);
+                result = true;
+            }
+        }
+        return result;
+    }
 }

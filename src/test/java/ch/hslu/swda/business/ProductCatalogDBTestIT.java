@@ -141,4 +141,34 @@ class ProductCatalogDBTestIT {
         assertThat(result).isFalse();
         assertThat(productCatalog.getAll(1L)).hasSize(2);
     }
+
+    @Test
+    void testChangeStockNotExisting() {
+        boolean result = productCatalog.changeStock(1L, 100005L, 2);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void testChangeStockIncrease() {
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(1);
+        boolean result = productCatalog.changeStock(1L, 100001L, 2);
+        assertThat(result).isTrue();
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(3);
+    }
+
+    @Test
+    void testChangeStockDecrease() {
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(1);
+        boolean result = productCatalog.changeStock(1L, 100001L, -1);
+        assertThat(result).isTrue();
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(0);
+    }
+
+    @Test
+    void testChangeStockDecreaseMore() {
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(1);
+        boolean result = productCatalog.changeStock(1L, 100001L, -2);
+        assertThat(result).isFalse();
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(1);
+    }
 }
