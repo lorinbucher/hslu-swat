@@ -5,7 +5,7 @@ import ch.hslu.swda.dto.ArticleDeliveredDTO;
 import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
-import ch.hslu.swda.micro.OrderMessageHandler;
+import ch.hslu.swda.micro.DeliveryMessageHandler;
 import ch.hslu.swda.micro.DeliveryProcessor;
 import ch.hslu.swda.micro.EventLogger;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,14 +34,13 @@ public final class DeliveriesController {
     private Deliveries deliveries;
 
     @Inject
+    private DeliveryMessageHandler deliveryMessageHandler;
+
+    @Inject
     private DeliveryProcessor deliveryProcessor;
 
     @Inject
     private EventLogger eventLogger;
-
-    @Inject
-    private OrderMessageHandler orderMessageHandler;
-
 
     /**
      * Get all deliveries of the branch.
@@ -95,7 +94,7 @@ public final class DeliveriesController {
         Delivery delivery = deliveryProcessor.changeToCompleted(branchId, orderNumber);
         if (delivery != null) {
             LOG.info("REST: Delivery {} from branch {} completed: {}", orderNumber, branchId, delivery);
-            orderMessageHandler.publishDelivered(new ArticleDeliveredDTO(branchId, orderNumber));
+            deliveryMessageHandler.publishDelivered(new ArticleDeliveredDTO(branchId, orderNumber));
             String message = "Delivered articles for order number " + orderNumber;
             eventLogger.publishLog(new LogEventDTO(branchId, "delivery.completed", message));
         } else {

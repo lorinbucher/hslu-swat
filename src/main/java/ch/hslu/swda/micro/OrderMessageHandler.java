@@ -4,10 +4,6 @@ import ch.hslu.swda.bus.BusConnector;
 import ch.hslu.swda.bus.RabbitMqConfig;
 import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.business.DeliveriesDB;
-import ch.hslu.swda.dto.ArticleDeliveredDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Implements the article delivered message handler.
+ * Implements the order message handler.
  */
-@Singleton
 public class OrderMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderMessageHandler.class);
@@ -35,6 +30,10 @@ public class OrderMessageHandler {
         this.deliveries = new DeliveriesDB();
         this.config = new RabbitMqConfig();
         this.bus = new BusConnector(config);
+
+        String threadName = Thread.currentThread().getName();
+        LOG.info("[Thread: {}] Service started", threadName);
+
         this.connectToBus();
     }
 
@@ -60,23 +59,6 @@ public class OrderMessageHandler {
                     LOG.warn("Reconnection timeout interrupted: {}", ie.getMessage());
                 }
             }
-        }
-    }
-
-    /**
-     * Publishes a article delivered message.
-     *
-     * @param delivered Log event.
-     */
-    public void publishDelivered(final ArticleDeliveredDTO delivered) {
-        try {
-            String message = new ObjectMapper().writeValueAsString(delivered);
-            LOG.info("Sending article delivered message: {}", message);
-            this.bus.talkAsync(config.getExchange(), Routes.ARTICLE_DELIVERED, message);
-        } catch (JsonProcessingException e) {
-            LOG.error("Failed to serialize article delivered message: {}", e.getMessage());
-        } catch (IOException e) {
-            LOG.error("Failed to send article delivered message: {}", e.getMessage());
         }
     }
 }

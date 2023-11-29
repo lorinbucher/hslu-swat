@@ -1,6 +1,7 @@
 package ch.hslu.swda.micronaut;
 
 import ch.hslu.swda.micro.ArticleMessageHandler;
+import ch.hslu.swda.micro.OrderMessageHandler;
 import io.micronaut.runtime.Micronaut;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -40,5 +41,6 @@ public final class Application {
     public static void main(final String[] args) {
         Micronaut.run(Application.class);
         new Thread(ArticleMessageHandler::new, "ArticleMessageHandler").start();
+        new Thread(OrderMessageHandler::new, "OrderMessageHandler").start();
     }
 }
