@@ -47,7 +47,7 @@ public class OrderMessageHandler {
                 LOG.info("Try connecting to message bus...");
                 bus.connect();
                 LOG.info("Starting listening for messages with routing [{}]", Routes.NEW_ORDER);
-                bus.listenFor(config.getExchange(), "OrderService <- " + Routes.NEW_ORDER,
+                bus.listenFor(config.getExchange(), "WarehouseService <- " + Routes.NEW_ORDER,
                         Routes.NEW_ORDER, (String route, String replyTo, String corrId, String message) ->
                                 new OrderMessageProcessor(deliveries).process(message));
                 connected = true;
