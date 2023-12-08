@@ -49,6 +49,16 @@ public interface Deliveries {
     Delivery update(long branchId, long orderNumber, Delivery delivery);
 
     /**
+     * Updates the status of a delivery of the branch.
+     *
+     * @param branchId    ID of the branch.
+     * @param orderNumber Order number.
+     * @param status      Delivery status.
+     * @return Delivery.
+     */
+    Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status);
+
+    /**
      * Deletes a delivery from the branch.
      *
      * @param branchId    ID of the branch.

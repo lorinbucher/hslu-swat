@@ -106,7 +106,7 @@ class DeliveriesDBTestIT {
 
     @Test
     void testUpdateExisting() {
-        Delivery delivery = new Delivery(1L, DeliveryStatus.WAITING, List.of(articles.get(0)));
+        Delivery delivery = new Delivery(1L, DeliveryStatus.DELIVERED, List.of(articles.get(1)));
         Delivery updated = deliveriesDB.update(1L, 1L, delivery);
         assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
         assertThat(deliveriesDB.getById(1L, 1L)).isEqualTo(delivery);
@@ -117,7 +117,7 @@ class DeliveriesDBTestIT {
 
     @Test
     void testUpdateExistingIdMismatch() {
-        Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(0)));
+        Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(1)));
         Delivery updated = deliveriesDB.update(1L, 1L, delivery);
         assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
         assertThat(updated.orderNumber()).isEqualTo(1L);
@@ -127,11 +127,27 @@ class DeliveriesDBTestIT {
 
     @Test
     void testUpdateNotExisting() {
-        Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(0)));
+        Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(1)));
         Delivery updated = deliveriesDB.update(1L, 5L, delivery);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(3);
-        assertThat(deliveriesDB.getById(1L, 5L)).isEqualTo(delivery);
-        assertThat(updated).isEqualTo(delivery);
+        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getById(1L, 5L)).isNull();
+        assertThat(updated).isNull();
+    }
+
+    @Test
+    void testUpdateStatusExisting() {
+        Delivery updated = deliveriesDB.updateStatus(1L, 1L, DeliveryStatus.DELIVERED);
+        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getById(1L, 1L)).isEqualTo(updated);
+        assertThat(deliveriesDB.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.DELIVERED);
+    }
+
+    @Test
+    void testUpdateStatusNotExisting() {
+        Delivery updated = deliveriesDB.updateStatus(1L, 5L, DeliveryStatus.DELIVERED);
+        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getById(1L, 5L)).isNull();
+        assertThat(updated).isNull();
     }
 
     @Test

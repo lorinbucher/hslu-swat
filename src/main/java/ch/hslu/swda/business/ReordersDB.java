@@ -102,6 +102,7 @@ public class ReordersDB implements Reorders {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderId));
         Document updated = null;
         Document exists = this.collection.find(filter).first();
+        // TODO: use findOneAndUpdate function to make it atomic
         if (exists != null) {
             Reorder reorder = WarehouseReorder.fromDocument(exists).reorder();
             reorder = new Reorder(reorder.reorderId(), status, reorder.date(), reorder.articleId(), reorder.quantity());

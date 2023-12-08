@@ -47,11 +47,22 @@ public class DeliveriesMemory implements Deliveries {
     public Delivery update(long branchId, long orderNumber, Delivery delivery) {
         Delivery updated = null;
         if (branchId == 1) {
-            updated = new Delivery(orderNumber, delivery.status(), delivery.articles());
             if (deliveries.containsKey(orderNumber)) {
+                updated = new Delivery(orderNumber, delivery.status(), delivery.articles());
                 deliveries.put(orderNumber, updated);
-            } else {
-                updated = create(branchId, updated);
+            }
+        }
+        return updated;
+    }
+
+    @Override
+    public Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status) {
+        Delivery updated = null;
+        if (branchId == 1) {
+            updated = deliveries.get(orderNumber);
+            if (updated != null) {
+                Delivery delivery = new Delivery(orderNumber, status, updated.articles());
+                updated = deliveries.put(orderNumber, delivery);
             }
         }
         return updated;

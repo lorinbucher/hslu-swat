@@ -105,7 +105,7 @@ class ReordersDBTestIT {
     }
 
     @Test
-    void testUpdateExisting() {
+    void testUpdateStatusExisting() {
         Reorder updated = reordersDB.updateStatus(1L, 1L, ReorderStatus.WAITING);
         assertThat(reordersDB.getAll(1L, null)).hasSize(2);
         assertThat(reordersDB.getById(1L, 1L)).isEqualTo(updated);
@@ -117,7 +117,7 @@ class ReordersDBTestIT {
     }
 
     @Test
-    void testUpdateNotExisting() {
+    void testUpdateStatusNotExisting() {
         Reorder updated = reordersDB.updateStatus(1L, 5L, ReorderStatus.COMPLETED);
         assertThat(reordersDB.getAll(1L, null)).hasSize(2);
         assertThat(reordersDB.getById(1L, 5L)).isNull();

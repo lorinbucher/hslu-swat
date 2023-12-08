@@ -28,5 +28,10 @@ public enum DeliveryStatus {
     /**
      * All articles of the order were delivered.
      */
+    DELIVERED,
+
+    /**
+     * The delivery process has been completed.
+     */
     COMPLETED
 }

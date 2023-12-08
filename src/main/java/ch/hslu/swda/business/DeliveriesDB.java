@@ -8,6 +8,8 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.lang.Nullable;
 import jakarta.inject.Singleton;
 import org.bson.Document;
@@ -104,15 +106,30 @@ public class DeliveriesDB implements Deliveries {
 
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
         Document deliveryDocument = WarehouseDelivery.toDocument(new WarehouseDelivery(branchId, delivery));
-        Document exists = this.collection.findOneAndReplace(filter, deliveryDocument);
-        Delivery updated;
+        FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
+        Document updated = this.collection.findOneAndReplace(filter, deliveryDocument, options);
+        LOG.info("DB: {}updated delivery for branch {} with id {}",
+                updated != null ? "" : "not ", branchId, orderNumber);
+        return updated != null ? WarehouseDelivery.fromDocument(updated).delivery() : null;
+    }
+
+    @Override
+    public Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status) {
+        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
+        Document updated = null;
+        Document exists = this.collection.find(filter).first();
+        // TODO: use findOneAndUpdate function to make it atomic
         if (exists != null) {
-            updated = delivery;
-            LOG.info("DB: updated delivery from branch {} with id {}", branchId, orderNumber);
-        } else {
-            updated = create(branchId, delivery);
+            Delivery delivery = WarehouseDelivery.fromDocument(exists).delivery();
+            delivery = new Delivery(delivery.orderNumber(), status, delivery.articles());
+            Document deliveryDocument = WarehouseDelivery.toDocument(new WarehouseDelivery(branchId, delivery));
+            FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
+            updated = this.collection.findOneAndReplace(filter, deliveryDocument, options);
         }
-        return updated;
+
+        LOG.info("DB: {}updated delivery status for branch {} with id {} to {}",
+                updated != null ? "" : "not ", branchId, orderNumber, status);
+        return updated != null ? WarehouseDelivery.fromDocument(updated).delivery() : null;
     }
 
     @Override

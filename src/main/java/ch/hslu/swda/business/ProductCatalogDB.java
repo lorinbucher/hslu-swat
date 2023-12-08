@@ -96,6 +96,7 @@ public final class ProductCatalogDB implements ProductCatalog {
             article = new Article(articleId, article.name(), article.price(), article.minStock(), article.stock());
         }
 
+        // TODO: use findOneAndUpdate without updating stock to make it atomic
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
         Document articleDocument = WarehouseArticle.toDocument(new WarehouseArticle(branchId, article));
         Document exists = this.collection.findOneAndReplace(filter, articleDocument);
@@ -125,6 +126,7 @@ public final class ProductCatalogDB implements ProductCatalog {
                 .map(WarehouseArticle::article)
                 .first();
 
+        // TODO: use findOneAndUpdate with condition enough in stock to make it atomic
         boolean result = false;
         if (article != null) {
             int newStock = article.stock() + amount;
