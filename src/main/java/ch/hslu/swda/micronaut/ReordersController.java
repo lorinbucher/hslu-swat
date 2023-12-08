@@ -92,14 +92,14 @@ public final class ReordersController {
         return null;
     }
 
-    @Error(exception = IllegalArgumentException.class, global = true)
+    @Error(exception = IllegalArgumentException.class)
     public HttpResponse<JsonError> invalidStatus(HttpRequest request, IllegalArgumentException ex) {
         JsonError error = new JsonError(ex.getMessage())
                 .link(Link.SELF, Link.of(request.getUri()));
         return HttpResponse.<JsonError>badRequest().body(error);
     }
 
-    @Error(exception = IllegalStateException.class, global = true)
+    @Error(exception = IllegalStateException.class)
     public HttpResponse<JsonError> notReady(HttpRequest request, IllegalStateException ex) {
         JsonError error = new JsonError(ex.getMessage())
                 .link(Link.SELF, Link.of(request.getUri()));
