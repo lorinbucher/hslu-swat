@@ -3,6 +3,7 @@
 /.settings/
 /.classpath
 /.project
+.fleet
 .idea
 .vscode
 *.iml

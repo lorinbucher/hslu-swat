@@ -17,6 +17,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Test cases for the deliveries db class.
+ */
 @Testcontainers
 class DeliveriesDBTestIT {
 

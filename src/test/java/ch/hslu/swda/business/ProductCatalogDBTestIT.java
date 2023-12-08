@@ -15,6 +15,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Test cases for the product catalog db class.
+ */
 @Testcontainers
 class ProductCatalogDBTestIT {
 
