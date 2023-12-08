@@ -18,5 +18,10 @@ public enum ReorderStatus {
     /**
      * The reorder was delivered from the central warehouse.
      */
+    DELIVERED,
+
+    /**
+     * The reorder process has been completed.
+     */
     COMPLETED
 }

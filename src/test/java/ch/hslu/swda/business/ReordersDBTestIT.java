@@ -39,7 +39,7 @@ class ReordersDBTestIT {
         reordersDB = new ReordersDB(host, "", "");
         reordersDB.create(1L, 100001L, 1);
         reordersDB.create(1L, 100002L, 2);
-        reordersDB.update(1L, 2L, ReorderStatus.COMPLETED);
+        reordersDB.updateStatus(1L, 2L, ReorderStatus.DELIVERED);
     }
 
     @Test
@@ -73,9 +73,9 @@ class ReordersDBTestIT {
 
     @Test
     void testGetAllByStatus() {
-        List<Reorder> reorders = reordersDB.getAll(1L, ReorderStatus.COMPLETED);
+        List<Reorder> reorders = reordersDB.getAll(1L, ReorderStatus.DELIVERED);
         assertThat(reorders).hasSize(1);
-        assertThat(reorders.get(0).status()).isEqualTo(ReorderStatus.COMPLETED);
+        assertThat(reorders.get(0).status()).isEqualTo(ReorderStatus.DELIVERED);
     }
 
     @Test
@@ -106,7 +106,7 @@ class ReordersDBTestIT {
 
     @Test
     void testUpdateExisting() {
-        Reorder updated = reordersDB.update(1L, 1L, ReorderStatus.WAITING);
+        Reorder updated = reordersDB.updateStatus(1L, 1L, ReorderStatus.WAITING);
         assertThat(reordersDB.getAll(1L, null)).hasSize(2);
         assertThat(reordersDB.getById(1L, 1L)).isEqualTo(updated);
         assertThat(updated.reorderId()).isEqualTo(1L);
@@ -118,7 +118,7 @@ class ReordersDBTestIT {
 
     @Test
     void testUpdateNotExisting() {
-        Reorder updated = reordersDB.update(1L, 5L, ReorderStatus.WAITING);
+        Reorder updated = reordersDB.updateStatus(1L, 5L, ReorderStatus.COMPLETED);
         assertThat(reordersDB.getAll(1L, null)).hasSize(2);
         assertThat(reordersDB.getById(1L, 5L)).isNull();
         assertThat(updated).isNull();

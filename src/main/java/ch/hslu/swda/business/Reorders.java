@@ -47,7 +47,7 @@ public interface Reorders {
      * @param status    Reorder status.
      * @return Reorder.
      */
-    Reorder update(long branchId, long reorderId, ReorderStatus status);
+    Reorder updateStatus(long branchId, long reorderId, ReorderStatus status);
 
     /**
      * Deletes a reorder from the branch.

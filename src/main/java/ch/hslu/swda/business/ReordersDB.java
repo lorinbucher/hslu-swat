@@ -98,7 +98,7 @@ public class ReordersDB implements Reorders {
     }
 
     @Override
-    public Reorder update(long branchId, long reorderId, ReorderStatus status) {
+    public Reorder updateStatus(long branchId, long reorderId, ReorderStatus status) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderId));
         Document updated = null;
         Document exists = this.collection.find(filter).first();
