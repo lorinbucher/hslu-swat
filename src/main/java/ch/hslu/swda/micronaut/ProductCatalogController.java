@@ -3,7 +3,8 @@ package ch.hslu.swda.micronaut;
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Article;
-import ch.hslu.swda.micro.EventLogger;
+import ch.hslu.swda.micro.MessagePublisher;
+import ch.hslu.swda.micro.Routes;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +22,7 @@ public final class ProductCatalogController {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogController.class);
 
     @Inject
-    private EventLogger eventLogger;
+    private MessagePublisher<LogEventDTO> eventLogger;
 
     @Inject
     private ProductCatalog productCatalog;
@@ -69,7 +70,7 @@ public final class ProductCatalogController {
         final Article created = productCatalog.create(branchId, article);
         LOG.info("REST: Article {} added to branch {}.", created, branchId);
         String message = "Added article " + article.articleId() + " in catalog";
-        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.added", message));
+        this.eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "article.added", message));
         return created;
     }
 
@@ -87,7 +88,7 @@ public final class ProductCatalogController {
         Article updated = productCatalog.update(branchId, articleId, article);
         LOG.info("REST: Article {} from branch {} updated.", updated, branchId);
         String message = "Updated article " + articleId + " in catalog";
-        this.eventLogger.publishLog(new LogEventDTO(branchId, "article.changed", message));
+        this.eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "article.changed", message));
         return updated;
     }
 
@@ -104,7 +105,7 @@ public final class ProductCatalogController {
         LOG.info("REST: Article {} {}removed from branch {}.", articleId, deleted ? "" : "not ", branchId);
         if (deleted) {
             String message = "Removed article " + articleId + " from catalog";
-            this.eventLogger.publishLog(new LogEventDTO(branchId, "article.removed", message));
+            this.eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "article.removed", message));
         }
     }
 }

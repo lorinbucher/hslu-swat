@@ -4,7 +4,8 @@ import ch.hslu.swda.business.Reorders;
 import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
-import ch.hslu.swda.micro.EventLogger;
+import ch.hslu.swda.micro.MessagePublisher;
+import ch.hslu.swda.micro.Routes;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -31,7 +32,7 @@ public final class ReordersController {
     private Reorders reorders;
 
     @Inject
-    private EventLogger eventLogger;
+    private MessagePublisher<LogEventDTO> eventLogger;
 
     /**
      * Get all reorders of the branch.
@@ -85,7 +86,7 @@ public final class ReordersController {
         if (reorder != null) {
             LOG.info("REST: Reorder {} from branch {} was delivered", reorderId, branchId);
             String message = "Received delivery for reorder " + reorderId + " from central warehouse";
-            eventLogger.publishLog(new LogEventDTO(branchId, "reorder.delivered", message));
+            eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "reorder.delivered", message));
         } else {
             LOG.error("REST: Failed to set status of reorder {} from branch {} to delivered", reorderId, branchId);
         }

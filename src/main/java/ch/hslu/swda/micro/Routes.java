@@ -5,11 +5,12 @@ package ch.hslu.swda.micro;
  */
 public final class Routes {
 
-    static final String ARTICLE_DELIVERED = "article.delivered";
-    static final String ARTICLE_GET = "article.get";
-    static final String ARTICLE_RETURN = "article.return";
-    static final String LOG_EVENT = "log.event";
-    static final String NEW_ORDER = "order.warehouse";
+    static public final String ARTICLE_DELIVERED = "article.delivered";
+    static public final String ARTICLE_GET = "article.get";
+    static public final String ARTICLE_RETURN = "article.return";
+    static public final String LOG_EVENT = "log.event";
+    static public final String NEW_ORDER = "order.warehouse";
+    static public final String UPDATE_ORDER = "order.update";
 
     /**
      * No instance allowed.

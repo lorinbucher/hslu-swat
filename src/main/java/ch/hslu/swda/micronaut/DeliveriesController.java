@@ -5,8 +5,8 @@ import ch.hslu.swda.dto.ArticleDeliveredDTO;
 import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
-import ch.hslu.swda.micro.DeliveryMessageHandler;
-import ch.hslu.swda.micro.EventLogger;
+import ch.hslu.swda.micro.MessagePublisher;
+import ch.hslu.swda.micro.Routes;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -33,10 +33,10 @@ public final class DeliveriesController {
     private Deliveries deliveries;
 
     @Inject
-    private DeliveryMessageHandler deliveryMessageHandler;
+    private MessagePublisher<ArticleDeliveredDTO> deliveryPublisher;
 
     @Inject
-    private EventLogger eventLogger;
+    private MessagePublisher<LogEventDTO> eventLogger;
 
     /**
      * Get all deliveries of the branch.
@@ -86,13 +86,12 @@ public final class DeliveriesController {
             throw new IllegalArgumentException("Delivery status can only be changed to DELIVERED");
         }
 
-        // TODO: make generic message sender class
         Delivery delivery = deliveries.updateStatus(branchId, orderNumber, status);
         if (delivery != null) {
             LOG.info("REST: Delivery {} from branch {} was delivered", orderNumber, branchId);
-            deliveryMessageHandler.publishDelivered(new ArticleDeliveredDTO(branchId, orderNumber));
+            deliveryPublisher.sendMessage(Routes.ARTICLE_DELIVERED, new ArticleDeliveredDTO(branchId, orderNumber));
             String message = "Delivered articles for order number " + orderNumber;
-            eventLogger.publishLog(new LogEventDTO(branchId, "delivery.delivered", message));
+            eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "delivery.delivered", message));
         } else {
             LOG.error("REST: Failed to set status of delivery {} from branch {} to delivered", orderNumber, branchId);
         }
