@@ -3,14 +3,12 @@ package ch.hslu.swda.micro;
 import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.entities.*;
-import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Implements order delivery processing.
  */
-@Singleton
 public class DeliveryProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryProcessor.class);

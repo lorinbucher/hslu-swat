@@ -6,7 +6,6 @@ import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
 import ch.hslu.swda.micro.DeliveryMessageHandler;
-import ch.hslu.swda.micro.DeliveryProcessor;
 import ch.hslu.swda.micro.EventLogger;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Nullable;
@@ -35,9 +34,6 @@ public final class DeliveriesController {
 
     @Inject
     private DeliveryMessageHandler deliveryMessageHandler;
-
-    @Inject
-    private DeliveryProcessor deliveryProcessor;
 
     @Inject
     private EventLogger eventLogger;
@@ -73,10 +69,9 @@ public final class DeliveriesController {
         return delivery;
     }
 
-
     /**
      * Change status of the delivery for the specified order number of the branch.
-     * Only supports changing the status to `COMPLETED`, the other status are handled by the system.
+     * Only supports changing the status to `DELIVERED`, the other status are handled by the system.
      *
      * @param branchId    ID of the branch.
      * @param orderNumber Order number.
@@ -86,19 +81,20 @@ public final class DeliveriesController {
     @Tag(name = "delivery")
     @Patch("/{branchId}/{orderNumber}")
     public Delivery changeState(final long branchId, final long orderNumber, @JsonProperty DeliveryStatus status) {
-        if (status != DeliveryStatus.COMPLETED) {
+        if (status != DeliveryStatus.DELIVERED) {
             LOG.warn("REST: Delivery status cannot be changed to {}", status);
-            throw new IllegalArgumentException("Delivery status can only be changed to COMPLETED");
+            throw new IllegalArgumentException("Delivery status can only be changed to DELIVERED");
         }
 
-        Delivery delivery = deliveryProcessor.changeToCompleted(branchId, orderNumber);
+        // TODO: make generic message sender class
+        Delivery delivery = deliveries.updateStatus(branchId, orderNumber, status);
         if (delivery != null) {
-            LOG.info("REST: Delivery {} from branch {} completed: {}", orderNumber, branchId, delivery);
+            LOG.info("REST: Delivery {} from branch {} was delivered", orderNumber, branchId);
             deliveryMessageHandler.publishDelivered(new ArticleDeliveredDTO(branchId, orderNumber));
             String message = "Delivered articles for order number " + orderNumber;
-            eventLogger.publishLog(new LogEventDTO(branchId, "delivery.completed", message));
+            eventLogger.publishLog(new LogEventDTO(branchId, "delivery.delivered", message));
         } else {
-            LOG.error("REST: Delivery {} from branch {} not completed", orderNumber, branchId);
+            LOG.error("REST: Failed to set status of delivery {} from branch {} to delivered", orderNumber, branchId);
         }
         return delivery;
     }
