@@ -11,7 +11,8 @@ import java.util.Objects;
  * @param quantity  Number of articles ordered.
  * @param status    Status of the article in the warehouse.
  */
-public record DeliveryArticle(long articleId, int quantity, DeliveryArticleStatus status) {
+public record DeliveryArticle(long articleId, int quantity, DeliveryArticleStatus status)
+        implements Entity<DeliveryArticle> {
     public DeliveryArticle {
         if (articleId < 100000) {
             throw new IllegalArgumentException("articleId should not be lower than 100000");
@@ -31,10 +32,9 @@ public record DeliveryArticle(long articleId, int quantity, DeliveryArticleStatu
      * Creates a delivery article from a MongoDB document.
      *
      * @param document MongoDB document.
-     * @return Delivery article.
      */
-    public static DeliveryArticle fromDocument(final Document document) {
-        return new DeliveryArticle(
+    public DeliveryArticle(final Document document) {
+        this(
                 document.getLong("articleId"),
                 document.getInteger("quantity"),
                 DeliveryArticleStatus.valueOf(document.getString("status"))
@@ -44,14 +44,13 @@ public record DeliveryArticle(long articleId, int quantity, DeliveryArticleStatu
     /**
      * Creates a MongoDB document from a delivery article.
      *
-     * @param deliveryArticle Delivery article.
      * @return MongoDB document.
      */
-    public static Document toDocument(final DeliveryArticle deliveryArticle) {
+    public Document toDocument() {
         return new Document()
-                .append("articleId", deliveryArticle.articleId())
-                .append("quantity", deliveryArticle.quantity())
-                .append("status", deliveryArticle.status().name());
+                .append("articleId", articleId)
+                .append("quantity", quantity)
+                .append("status", status.name());
     }
 
     /**

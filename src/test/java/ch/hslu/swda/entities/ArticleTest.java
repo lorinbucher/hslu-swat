@@ -2,6 +2,7 @@ package ch.hslu.swda.entities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -117,6 +118,7 @@ public class ArticleTest {
     void testNotEqual() {
         final Article article1 = new Article(100001L, "Test1", new BigDecimal("1.00"), 1, 0);
         final Article article2 = new Article(100002L, "Test2", new BigDecimal("2.00"), 1, 1);
+        assertThat(article1).isNotEqualTo(1L);
         assertThat(article1).isNotEqualTo(article2);
     }
 
@@ -151,5 +153,32 @@ public class ArticleTest {
         } catch (JsonProcessingException e) {
             assertThat(e).isNull();
         }
+    }
+
+    @Test
+    void testFromDocument() {
+        Document document = new Document()
+                .append("articleId", 100005L)
+                .append("name", "Test")
+                .append("price", "5.95")
+                .append("minStock", 5)
+                .append("stock", 10);
+        final Article article = new Article(document);
+        assertThat(article.articleId()).isEqualTo(100005L);
+        assertThat(article.name()).isEqualTo("Test");
+        assertThat(article.price().compareTo(new BigDecimal("5.95"))).isEqualTo(0);
+        assertThat(article.minStock()).isEqualTo(5);
+        assertThat(article.stock()).isEqualTo(10);
+    }
+
+    @Test
+    void testToDocument() {
+        final Article article = new Article(100005L, "Test", new BigDecimal("5.95"), 5, 10);
+        Document document = article.toDocument();
+        assertThat(document.getLong("articleId")).isEqualTo(article.articleId());
+        assertThat(document.getString("name")).isEqualTo(article.name());
+        assertThat(new BigDecimal(document.getString("price"))).isEqualTo(article.price());
+        assertThat(document.getInteger("minStock")).isEqualTo(article.minStock());
+        assertThat(document.getInteger("stock")).isEqualTo(article.stock());
     }
 }

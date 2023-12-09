@@ -2,10 +2,12 @@ package ch.hslu.swda.entities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -86,6 +88,7 @@ class ReorderTest {
     void testNotEqual() {
         final Reorder reorder1 = new Reorder(1L, ReorderStatus.NEW, "", 100000L, 1);
         final Reorder reorder2 = new Reorder(2L, ReorderStatus.WAITING, "", 100001L, 2);
+        assertThat(reorder1).isNotEqualTo("");
         assertThat(reorder1).isNotEqualTo(reorder2);
     }
 
@@ -122,5 +125,33 @@ class ReorderTest {
         } catch (JsonProcessingException e) {
             assertThat(e).isNull();
         }
+    }
+
+    @Test
+    void testFromDocument() {
+        String date = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        Document document = new Document()
+                .append("reorderId", 1L)
+                .append("status", ReorderStatus.NEW.name())
+                .append("date", new Date())
+                .append("articleId", 100001L)
+                .append("quantity", 5);
+        final Reorder reorder = new Reorder(document);
+        assertThat(reorder.reorderId()).isEqualTo(1L);
+        assertThat(reorder.status()).isEqualTo(ReorderStatus.NEW);
+        assertThat(reorder.date()).isEqualTo(date);
+        assertThat(reorder.articleId()).isEqualTo(100001L);
+        assertThat(reorder.quantity()).isEqualTo(5);
+    }
+
+    @Test
+    void testToDocument() {
+        final Reorder reorder = new Reorder(1L, ReorderStatus.NEW, "", 100001L, 5);
+        Document document = reorder.toDocument();
+        assertThat(document.getLong("reorderId")).isEqualTo(reorder.reorderId());
+        assertThat(document.getString("status")).isEqualTo(reorder.status().name());
+        assertThat(document.getDate("date")).isEqualTo(reorder.date());
+        assertThat(document.getLong("articleId")).isEqualTo(reorder.articleId());
+        assertThat(document.getInteger("quantity")).isEqualTo(reorder.quantity());
     }
 }

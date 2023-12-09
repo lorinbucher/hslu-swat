@@ -1,5 +1,7 @@
 package ch.hslu.swda.entities;
 
+import org.bson.Document;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -11,7 +13,8 @@ import java.util.Objects;
  * @param status      Status of the delivery.
  * @param articles    Articles of the delivery.
  */
-public record Delivery(long orderNumber, DeliveryStatus status, List<DeliveryArticle> articles) {
+public record Delivery(long orderNumber, DeliveryStatus status, List<DeliveryArticle> articles)
+        implements Entity<Delivery> {
     public Delivery {
         if (orderNumber < 1) {
             throw new IllegalArgumentException("orderNumber should not be lower than 1");
@@ -22,6 +25,32 @@ public record Delivery(long orderNumber, DeliveryStatus status, List<DeliveryArt
         if (articles == null) {
             articles = Collections.emptyList();
         }
+    }
+
+    /**
+     * Creates a delivery from a MongoDB document.
+     *
+     * @param document MongoDB document.
+     */
+    public Delivery(final Document document) {
+        this(
+                document.getLong("orderNumber"),
+                DeliveryStatus.valueOf(document.getString("status")),
+                document.getList("articles", Document.class).stream().map(DeliveryArticle::new).toList()
+        );
+    }
+
+    /**
+     * Creates a MongoDB document from a delivery.
+     *
+     * @return MongoDB document.
+     */
+    @Override
+    public Document toDocument() {
+        return new Document()
+                .append("orderNumber", orderNumber)
+                .append("status", status.name())
+                .append("articles", articles.stream().map(DeliveryArticle::toDocument).toList());
     }
 
     /**

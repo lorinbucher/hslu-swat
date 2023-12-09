@@ -1,7 +1,7 @@
 package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Article;
-import ch.hslu.swda.entities.WarehouseArticle;
+import ch.hslu.swda.entities.WarehouseEntity;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -65,7 +65,7 @@ public final class ProductCatalogDB implements ProductCatalog {
         LOG.info("DB: read article from branch {} with id {}", branchId, articleId);
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
         Document exists = this.collection.find(filter).first();
-        return exists != null ? WarehouseArticle.fromDocument(exists).article() : null;
+        return exists != null ? new Article(exists) : null;
     }
 
     @Override
@@ -73,7 +73,7 @@ public final class ProductCatalogDB implements ProductCatalog {
         Bson filter = Filters.eq("branchId", branchId);
         List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} articles from branch {}", documents.size(), branchId);
-        return documents.stream().map(WarehouseArticle::fromDocument).map(WarehouseArticle::article).toList();
+        return documents.stream().map(Article::new).toList();
     }
 
     @Override
@@ -81,13 +81,13 @@ public final class ProductCatalogDB implements ProductCatalog {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", article.articleId()));
         Document exists = this.collection.find(filter).first();
         if (exists == null) {
-            Document doc = WarehouseArticle.toDocument(new WarehouseArticle(branchId, article));
-            this.collection.insertOne(doc);
+            WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, article);
+            this.collection.insertOne(warehouseEntity.toDocument());
             LOG.info("DB: created article for branch {} with id {}", branchId, article.articleId());
         } else {
             LOG.warn("DB: article {} already exists for branch {}", article.articleId(), branchId);
         }
-        return exists == null ? article : WarehouseArticle.fromDocument(exists).article();
+        return exists == null ? article : new Article(exists);
     }
 
     @Override
@@ -98,8 +98,8 @@ public final class ProductCatalogDB implements ProductCatalog {
 
         // TODO: use findOneAndUpdate without updating stock to make it atomic
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Document articleDocument = WarehouseArticle.toDocument(new WarehouseArticle(branchId, article));
-        Document exists = this.collection.findOneAndReplace(filter, articleDocument);
+        WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, article);
+        Document exists = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument());
         Article updated;
         if (exists != null) {
             updated = article;
@@ -121,10 +121,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public boolean changeStock(long branchId, long articleId, int amount) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Article article = this.collection.find(filter)
-                .map(WarehouseArticle::fromDocument)
-                .map(WarehouseArticle::article)
-                .first();
+        Article article = this.collection.find(filter).map(Article::new).first();
 
         // TODO: use findOneAndUpdate with condition enough in stock to make it atomic
         boolean result = false;
@@ -132,8 +129,8 @@ public final class ProductCatalogDB implements ProductCatalog {
             int newStock = article.stock() + amount;
             if (newStock >= 0) {
                 Article changed = new Article(articleId, article.name(), article.price(), article.minStock(), newStock);
-                Document articleDocument = WarehouseArticle.toDocument(new WarehouseArticle(branchId, changed));
-                result = this.collection.findOneAndReplace(filter, articleDocument) != null;
+                WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, changed);
+                result = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument()) != null;
                 LOG.info("DB: updated stock of article from branch {} with id {} -> {}", branchId, articleId, newStock);
             } else {
                 LOG.info("DB: article from branch {} with id {} has not enough in stock", branchId, articleId);

@@ -1,5 +1,7 @@
 package ch.hslu.swda.entities;
 
+import org.bson.Document;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -13,7 +15,8 @@ import java.util.Objects;
  * @param minStock  Minimum number of articles in stock.
  * @param stock     Number of articles in stock.
  */
-public record Article(long articleId, String name, BigDecimal price, int minStock, int stock) {
+public record Article(long articleId, String name, BigDecimal price, int minStock, int stock)
+        implements Entity<Article> {
     public Article {
         if (articleId < 100000) {
             throw new IllegalArgumentException("articleId should not be lower than 100000");
@@ -38,6 +41,36 @@ public record Article(long articleId, String name, BigDecimal price, int minStoc
         if (new BigDecimal("0.05").compareTo(price.setScale(2, RoundingMode.HALF_UP)) > 0) {
             throw new IllegalArgumentException("price should be 0.05 or higher");
         }
+    }
+
+    /**
+     * Creates an article from a MongoDB document.
+     *
+     * @param document MongoDB document.
+     */
+    public Article(final Document document) {
+        this(
+                document.getLong("articleId"),
+                document.getString("name"),
+                new BigDecimal(document.getString("price")),
+                document.getInteger("minStock"),
+                document.getInteger("stock")
+        );
+    }
+
+    /**
+     * Creates a MongoDB document from an article.
+     *
+     * @return MongoDB document.
+     */
+    @Override
+    public Document toDocument() {
+        return new Document()
+                .append("articleId", articleId)
+                .append("name", name)
+                .append("price", price.toPlainString())
+                .append("minStock", minStock)
+                .append("stock", stock);
     }
 
     /**

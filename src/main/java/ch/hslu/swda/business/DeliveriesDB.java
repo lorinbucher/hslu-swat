@@ -2,7 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
-import ch.hslu.swda.entities.WarehouseDelivery;
+import ch.hslu.swda.entities.WarehouseEntity;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -69,7 +69,7 @@ public class DeliveriesDB implements Deliveries {
         LOG.info("DB: read delivery from branch {} with id {}", branchId, orderNumber);
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
         Document exists = this.collection.find(filter).first();
-        return exists != null ? WarehouseDelivery.fromDocument(exists).delivery() : null;
+        return exists != null ? new Delivery(exists) : null;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class DeliveriesDB implements Deliveries {
         List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries from branch {}{}", documents.size(), branchId,
                 status != null ? " with status " + status : "");
-        return documents.stream().map(WarehouseDelivery::fromDocument).map(WarehouseDelivery::delivery).toList();
+        return documents.stream().map(Delivery::new).toList();
     }
 
     @Override
@@ -89,13 +89,13 @@ public class DeliveriesDB implements Deliveries {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", delivery.orderNumber()));
         Document exists = this.collection.find(filter).first();
         if (exists == null) {
-            Document doc = WarehouseDelivery.toDocument(new WarehouseDelivery(branchId, delivery));
-            this.collection.insertOne(doc);
+            WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
+            this.collection.insertOne(warehouseEntity.toDocument());
             LOG.info("DB: created delivery for branch {} with id {}", branchId, delivery.orderNumber());
         } else {
             LOG.warn("DB: delivery {} already exists for branch {}", delivery.orderNumber(), branchId);
         }
-        return exists == null ? delivery : WarehouseDelivery.fromDocument(exists).delivery();
+        return exists == null ? delivery : new Delivery(exists);
     }
 
     @Override
@@ -105,12 +105,12 @@ public class DeliveriesDB implements Deliveries {
         }
 
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
-        Document deliveryDocument = WarehouseDelivery.toDocument(new WarehouseDelivery(branchId, delivery));
+        WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
         FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-        Document updated = this.collection.findOneAndReplace(filter, deliveryDocument, options);
+        Document updated = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument(), options);
         LOG.info("DB: {}updated delivery for branch {} with id {}",
                 updated != null ? "" : "not ", branchId, orderNumber);
-        return updated != null ? WarehouseDelivery.fromDocument(updated).delivery() : null;
+        return updated != null ? new Delivery(updated) : null;
     }
 
     @Override
@@ -120,16 +120,16 @@ public class DeliveriesDB implements Deliveries {
         Document exists = this.collection.find(filter).first();
         // TODO: use findOneAndUpdate function to make it atomic
         if (exists != null) {
-            Delivery delivery = WarehouseDelivery.fromDocument(exists).delivery();
+            Delivery delivery = new Delivery(exists);
             delivery = new Delivery(delivery.orderNumber(), status, delivery.articles());
-            Document deliveryDocument = WarehouseDelivery.toDocument(new WarehouseDelivery(branchId, delivery));
+            WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
             FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-            updated = this.collection.findOneAndReplace(filter, deliveryDocument, options);
+            updated = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument(), options);
         }
 
         LOG.info("DB: {}updated delivery status for branch {} with id {} to {}",
                 updated != null ? "" : "not ", branchId, orderNumber, status);
-        return updated != null ? WarehouseDelivery.fromDocument(updated).delivery() : null;
+        return updated != null ? new Delivery(updated) : null;
     }
 
     @Override

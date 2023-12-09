@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -12,27 +14,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Test cases for the delivery article entity.
  */
 public class DeliveryArticleTest {
-
-    @Test
-    void testFromDocument() {
-        Document document = new Document()
-                .append("articleId", 100005L)
-                .append("quantity", 2)
-                .append("status", DeliveryArticleStatus.PROCESSING.name());
-        final DeliveryArticle deliveryArticle = DeliveryArticle.fromDocument(document);
-        assertThat(deliveryArticle.articleId()).isEqualTo(100005L);
-        assertThat(deliveryArticle.quantity()).isEqualTo(2);
-        assertThat(deliveryArticle.status()).isEqualTo(DeliveryArticleStatus.PROCESSING);
-    }
-
-    @Test
-    void testToDocument() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100005L, 2, DeliveryArticleStatus.PROCESSING);
-        Document document = DeliveryArticle.toDocument(deliveryArticle);
-        assertThat(document.getLong("articleId")).isEqualTo(deliveryArticle.articleId());
-        assertThat(document.getInteger("quantity")).isEqualTo(deliveryArticle.quantity());
-        assertThat(document.getString("status")).isEqualTo(deliveryArticle.status().name());
-    }
 
     @Test
     void testArticleIdInvalidMin() {
@@ -84,6 +65,7 @@ public class DeliveryArticleTest {
     void testNotEqual() {
         final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.ORDERED);
         final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100002L, 2, DeliveryArticleStatus.ORDERED);
+        assertThat(deliveryArticle1).isNotEqualTo(new Article(100001L, "Test", new BigDecimal("1.00"), 1, 1));
         assertThat(deliveryArticle1).isNotEqualTo(deliveryArticle2);
     }
 
@@ -118,5 +100,26 @@ public class DeliveryArticleTest {
         } catch (JsonProcessingException e) {
             assertThat(e).isNull();
         }
+    }
+
+    @Test
+    void testFromDocument() {
+        Document document = new Document()
+                .append("articleId", 100005L)
+                .append("quantity", 2)
+                .append("status", DeliveryArticleStatus.PROCESSING.name());
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(document);
+        assertThat(deliveryArticle.articleId()).isEqualTo(100005L);
+        assertThat(deliveryArticle.quantity()).isEqualTo(2);
+        assertThat(deliveryArticle.status()).isEqualTo(DeliveryArticleStatus.PROCESSING);
+    }
+
+    @Test
+    void testToDocument() {
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100005L, 2, DeliveryArticleStatus.PROCESSING);
+        Document document = deliveryArticle.toDocument();
+        assertThat(document.getLong("articleId")).isEqualTo(deliveryArticle.articleId());
+        assertThat(document.getInteger("quantity")).isEqualTo(deliveryArticle.quantity());
+        assertThat(document.getString("status")).isEqualTo(deliveryArticle.status().name());
     }
 }

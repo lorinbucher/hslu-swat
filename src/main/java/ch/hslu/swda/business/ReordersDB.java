@@ -2,7 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
-import ch.hslu.swda.entities.WarehouseReorder;
+import ch.hslu.swda.entities.WarehouseEntity;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -67,7 +67,7 @@ public class ReordersDB implements Reorders {
         LOG.info("DB: read reorder from branch {} with id {}", branchId, reorderId);
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderId));
         Document exists = this.collection.find(filter).first();
-        return exists != null ? WarehouseReorder.fromDocument(exists).reorder() : null;
+        return exists != null ? new Reorder(exists) : null;
     }
 
     @Override
@@ -79,20 +79,20 @@ public class ReordersDB implements Reorders {
         List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} reorders from branch {}{}", documents.size(), branchId,
                 status != null ? " with status " + status : "");
-        return documents.stream().map(WarehouseReorder::fromDocument).map(WarehouseReorder::reorder).toList();
+        return documents.stream().map(Reorder::new).toList();
     }
 
     @Override
     public Reorder create(long branchId, long articleId, int quantity) {
-        Document lastDoc = this.collection.find().sort(Sorts.descending("reorderId")).limit(1).first();
+        Document lastDocument = this.collection.find().sort(Sorts.descending("reorderId")).limit(1).first();
         long newReorderId = 1L;
-        if (lastDoc != null) {
-            newReorderId = WarehouseReorder.fromDocument(lastDoc).reorder().reorderId() + 1;
+        if (lastDocument != null) {
+            newReorderId = new Reorder(lastDocument).reorderId() + 1;
         }
 
         Reorder reorder = new Reorder(newReorderId, ReorderStatus.NEW, "", articleId, quantity);
-        Document doc = WarehouseReorder.toDocument(new WarehouseReorder(branchId, reorder));
-        this.collection.insertOne(doc);
+        WarehouseEntity<Reorder> warehouseEntity = new WarehouseEntity<>(branchId, reorder);
+        this.collection.insertOne(warehouseEntity.toDocument());
         LOG.info("DB: created reorder for branch {} with id {}", branchId, reorder.reorderId());
         return reorder;
     }
@@ -104,16 +104,16 @@ public class ReordersDB implements Reorders {
         Document exists = this.collection.find(filter).first();
         // TODO: use findOneAndUpdate function to make it atomic
         if (exists != null) {
-            Reorder reorder = WarehouseReorder.fromDocument(exists).reorder();
+            Reorder reorder = new Reorder(exists);
             reorder = new Reorder(reorder.reorderId(), status, reorder.date(), reorder.articleId(), reorder.quantity());
-            Document reorderDocument = WarehouseReorder.toDocument(new WarehouseReorder(branchId, reorder));
+            WarehouseEntity<Reorder> warehouseEntity = new WarehouseEntity<>(branchId, reorder);
             FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-            updated = this.collection.findOneAndReplace(filter, reorderDocument, options);
+            updated = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument(), options);
         }
 
         LOG.info("DB: {}updated reorder status for branch {} with id {} to {}",
                 updated != null ? "" : "not ", branchId, reorderId, status);
-        return updated != null ? WarehouseReorder.fromDocument(updated).reorder() : null;
+        return updated != null ? new Reorder(updated) : null;
     }
 
     @Override
