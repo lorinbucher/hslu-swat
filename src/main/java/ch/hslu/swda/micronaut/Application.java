@@ -1,5 +1,7 @@
 package ch.hslu.swda.micronaut;
 
+import ch.hslu.swda.business.Deliveries;
+import ch.hslu.swda.business.DeliveriesDB;
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.business.ProductCatalogDB;
 import ch.hslu.swda.dto.OrderDTO;
@@ -42,6 +44,7 @@ public final class Application {
     public static void main(final String[] args) {
         Micronaut.run(Application.class);
 
+        Deliveries deliveries = new DeliveriesDB();
         ProductCatalog productCatalog = new ProductCatalogDB();
 
         MessageListener messageListener = new MessageListenerRMQ();
@@ -49,7 +52,6 @@ public final class Application {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
         executorService.submit(new ArticleMessageProcessor(messageListener, articleMessagePublisher, productCatalog));
-
-        new Thread(OrderMessageHandler::new, "OrderMessageHandler").start();
+        executorService.submit(new OrderMessageProcessor(messageListener, deliveries));
     }
 }

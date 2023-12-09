@@ -18,17 +18,31 @@ import java.util.stream.Stream;
 /**
  * Implements the order message processing.
  */
-public class OrderMessageProcessor {
+public class OrderMessageProcessor implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderMessageProcessor.class);
+
+    private final MessageListener messageListener;
 
     private final Deliveries deliveries;
 
     /**
      * Constructor.
+     *
+     * @param listener   Message listener.
+     * @param deliveries Deliveries warehouse.
      */
-    public OrderMessageProcessor(final Deliveries deliveries) {
+    public OrderMessageProcessor(final MessageListener listener, final Deliveries deliveries) {
+        this.messageListener = listener;
         this.deliveries = deliveries;
+    }
+
+    /**
+     * Listens for incoming messages and processes them.
+     */
+    @Override
+    public void run() {
+        messageListener.receiveMessages(Routes.NEW_ORDER, this::process);
     }
 
     /**

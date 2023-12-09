@@ -28,6 +28,10 @@ public final class ArticleMessageProcessor implements Runnable {
 
     /**
      * Constructor.
+     *
+     * @param listener       Message listener.
+     * @param publisher      Message publisher.
+     * @param productCatalog Product catalog warehouse.
      */
     public ArticleMessageProcessor(final MessageListener listener, final MessagePublisher<OrderDTO> publisher,
                                    final ProductCatalog productCatalog) {
