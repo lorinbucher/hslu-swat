@@ -17,21 +17,21 @@ public class DeliveryArticleTest {
 
     @Test
     void testArticleIdInvalidMin() {
-        assertThatThrownBy(() -> new DeliveryArticle(99999L, 2, DeliveryArticleStatus.ORDERED))
+        assertThatThrownBy(() -> new DeliveryArticle(99999L, 2, DeliveryArticleStatus.ADD))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("articleId should not be lower than 100000");
     }
 
     @Test
     void testArticleIdInvalidMax() {
-        assertThatThrownBy(() -> new DeliveryArticle(Integer.MAX_VALUE + 1L, 2, DeliveryArticleStatus.ORDERED))
+        assertThatThrownBy(() -> new DeliveryArticle(Integer.MAX_VALUE + 1L, 2, DeliveryArticleStatus.MODIFY))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("articleId should not be higher than " + Integer.MAX_VALUE);
     }
 
     @Test
     void testArticleIdValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100000L, 2, DeliveryArticleStatus.ORDERED);
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100000L, 2, DeliveryArticleStatus.REMOVE);
         assertThat(deliveryArticle.articleId()).isEqualTo(100000L);
     }
 

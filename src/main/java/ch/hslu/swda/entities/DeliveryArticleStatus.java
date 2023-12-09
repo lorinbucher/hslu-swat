@@ -6,6 +6,21 @@ package ch.hslu.swda.entities;
 public enum DeliveryArticleStatus {
 
     /**
+     * The article should be added to the delivery.
+     */
+    ADD,
+
+    /**
+     * The article should be modified in the delivery.
+     */
+    MODIFY,
+
+    /**
+     * The article should be removed from the delivery.
+     */
+    REMOVE,
+
+    /**
      * The article is processed by the warehouse.
      */
     PROCESSING,

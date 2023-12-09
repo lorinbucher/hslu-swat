@@ -68,7 +68,7 @@ public class DeliveryTest {
     @Test
     void testEqual() {
         final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.CHANGED, List.of(deliveryArticle));
+        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.MODIFIED, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle, deliveryArticle));
         assertThat(delivery1).isEqualTo(delivery1);
         assertThat(delivery1).isEqualTo(delivery2);
@@ -85,7 +85,7 @@ public class DeliveryTest {
     @Test
     void testHashCode() {
         final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
-        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.CHANGED, List.of(deliveryArticle));
+        final Delivery delivery1 = new Delivery(1L, DeliveryStatus.MODIFIED, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle, deliveryArticle));
         assertThat(delivery1).hasSameHashCodeAs(delivery2);
     }

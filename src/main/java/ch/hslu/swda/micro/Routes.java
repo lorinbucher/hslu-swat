@@ -10,7 +10,6 @@ public final class Routes {
     static public final String ARTICLE_RETURN = "article.return";
     static public final String LOG_EVENT = "log.event";
     static public final String NEW_ORDER = "order.warehouse";
-    static public final String UPDATE_ORDER = "order.update";
 
     /**
      * No instance allowed.

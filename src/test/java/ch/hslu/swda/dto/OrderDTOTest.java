@@ -11,13 +11,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Test cases for the article return DTO.
+ * Test cases for the order DTO.
  */
 class OrderDTOTest {
 
     @Test
     void testToJsonString() {
-        ArticleOrderDTO articleOrderDTO = new ArticleOrderDTO(1L, "Test", new BigDecimal("50.25"), 2);
+        ArticleOrderDTO articleOrderDTO = new ArticleOrderDTO(1L, "Test", new BigDecimal("50.25"), 2, null);
         OrderDTO orderDTO = new OrderDTO(1L, 1L, List.of(articleOrderDTO), List.of("Error"));
         String start = "{\"branchId\":1,\"orderNumber\":1,\"articles\":[{";
         String end = "}],\"error\":[\"Error\"]}";

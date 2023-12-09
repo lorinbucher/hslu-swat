@@ -86,18 +86,18 @@ public class OrderMessageProcessor implements Runnable {
             case NEW:
                 delivery = new Delivery(existing.orderNumber(), DeliveryStatus.NEW, deliveryArticles);
                 break;
-            case CHANGED:
+            case MODIFIED:
                 deliveryArticles = Stream.concat(
                         existing.articles().stream().filter(a -> a.status() != DeliveryArticleStatus.PROCESSING),
                         articles.stream()).toList();
-                delivery = new Delivery(existing.orderNumber(), DeliveryStatus.CHANGED, deliveryArticles);
+                delivery = new Delivery(existing.orderNumber(), DeliveryStatus.MODIFIED, deliveryArticles);
                 break;
             case COMPLETED:
                 LOG.error("Delivery {} for branch {} already completed", existing.orderNumber(), branchId);
                 break;
             default:
                 deliveryArticles = Stream.concat(existing.articles().stream(), articles.stream()).toList();
-                delivery = new Delivery(existing.orderNumber(), DeliveryStatus.CHANGED, deliveryArticles);
+                delivery = new Delivery(existing.orderNumber(), DeliveryStatus.MODIFIED, deliveryArticles);
                 break;
         }
 

@@ -61,7 +61,7 @@ public final class ArticleMessageProcessor implements Runnable {
             for (long articleId : request.articles()) {
                 Article a = productCatalog.getById(request.branchId(), articleId);
                 if (a != null) {
-                    ArticleOrderDTO dto = new ArticleOrderDTO(a.articleId(), a.name(), a.price(), null);
+                    ArticleOrderDTO dto = new ArticleOrderDTO(a.articleId(), a.name(), a.price(), null, null);
                     articles.add(dto);
                 } else {
                     error.add("article " + articleId + " not found in catalog");
