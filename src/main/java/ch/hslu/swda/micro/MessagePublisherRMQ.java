@@ -35,7 +35,7 @@ public final class MessagePublisherRMQ<T> implements MessagePublisher<T> {
         String message = "";
         try {
             message = new ObjectMapper().writeValueAsString(messageObject);
-            LOG.info("Sending message to route '{}': {}", route, message);
+            LOG.info("Sending message with routing '{}': {}", route, message);
             this.bus.talkAsync(config.getExchange(), route, message);
         } catch (JsonProcessingException e) {
             LOG.error("Failed to serialize message: {}", e.getMessage());

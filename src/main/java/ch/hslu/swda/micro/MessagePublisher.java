@@ -12,6 +12,6 @@ public interface MessagePublisher<T> {
      * @param messageObject Message object.
      * @return Sent message.
      */
-    public String sendMessage(String route, T messageObject);
+    String sendMessage(String route, T messageObject);
 
 }

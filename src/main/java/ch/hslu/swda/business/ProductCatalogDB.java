@@ -123,7 +123,7 @@ public final class ProductCatalogDB implements ProductCatalog {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
         Article article = this.collection.find(filter).map(Article::new).first();
 
-        // TODO: use findOneAndUpdate with condition enough in stock to make it atomic
+        // TODO: use findOneAndUpdate and inc function with condition enough in stock to make it atomic
         boolean result = false;
         if (article != null) {
             int newStock = article.stock() + amount;
