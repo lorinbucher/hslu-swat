@@ -17,47 +17,57 @@ import java.util.List;
 /**
  * Implements the article message processing.
  */
-public final class ArticleMessageProcessor {
+public final class ArticleMessageProcessor implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArticleMessageProcessor.class);
+
+    private final MessageListener messageListener;
+    private final MessagePublisher<OrderDTO> messagePublisher;
 
     private final ProductCatalog productCatalog;
 
     /**
      * Constructor.
      */
-    public ArticleMessageProcessor(final ProductCatalog productCatalog) {
+    public ArticleMessageProcessor(final MessageListener listener, final MessagePublisher<OrderDTO> publisher,
+                                   final ProductCatalog productCatalog) {
+        this.messageListener = listener;
+        this.messagePublisher = publisher;
         this.productCatalog = productCatalog;
+    }
+
+    /**
+     * Listens for incoming messages and processes them.
+     */
+    @Override
+    public void run() {
+        messageListener.receiveMessages(Routes.ARTICLE_GET, this::process);
     }
 
     /**
      * Queries the articles from the DB and returns the response message.
      *
      * @param message Received article request message.
-     * @return Article response message.
-     * @throws IllegalArgumentException If the message cannot be parsed.
      */
-
-    public String process(final String message) throws IllegalArgumentException {
+    private void process(final String message) throws IllegalArgumentException {
         ArticleGetDTO request = parseMessage(message);
-        if (request == null) {
-            throw new IllegalArgumentException("Cannot parse received article message");
-        }
-
-        List<ArticleOrderDTO> articles = new ArrayList<>();
-        List<String> error = new ArrayList<>();
-        for (long articleId : request.articles()) {
-            Article a = productCatalog.getById(request.branchId(), articleId);
-            if (a != null) {
-                ArticleOrderDTO dto = new ArticleOrderDTO(a.articleId(), a.name(), a.price(), null);
-                articles.add(dto);
-            } else {
-                error.add("article " + articleId + " not found in catalog");
+        if (request != null) {
+            List<ArticleOrderDTO> articles = new ArrayList<>();
+            List<String> error = new ArrayList<>();
+            for (long articleId : request.articles()) {
+                Article a = productCatalog.getById(request.branchId(), articleId);
+                if (a != null) {
+                    ArticleOrderDTO dto = new ArticleOrderDTO(a.articleId(), a.name(), a.price(), null);
+                    articles.add(dto);
+                } else {
+                    error.add("article " + articleId + " not found in catalog");
+                }
             }
+            OrderDTO orderDTO = new OrderDTO(request.branchId(), request.orderNumber(), articles, error);
+            messagePublisher.sendMessage(Routes.ARTICLE_RETURN, orderDTO);
+        } else {
+            LOG.error("Parsing message failed, not sending a response");
         }
-
-        OrderDTO orderDTO = new OrderDTO(request.branchId(), request.orderNumber(), articles, error);
-        return serializeMessage(orderDTO);
     }
 
     /**
@@ -68,8 +78,7 @@ public final class ArticleMessageProcessor {
      */
     private ArticleGetDTO parseMessage(final String message) {
         ArticleGetDTO dto = null;
-        ObjectMapper mapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             dto = mapper.readValue(message, ArticleGetDTO.class);
             LOG.info("Parsed article request message: {}", dto);
@@ -77,23 +86,5 @@ public final class ArticleMessageProcessor {
             LOG.error("Failed to parse article request message: {}", e.getMessage());
         }
         return dto;
-    }
-
-    /**
-     * Serializes the article response message.
-     *
-     * @param orderDTO Article response.
-     * @return Article response message.
-     */
-    private String serializeMessage(final OrderDTO orderDTO) {
-        String response = "{}";
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            response = mapper.writeValueAsString(orderDTO);
-            LOG.info("Serialized article response message: {}", response);
-        } catch (JsonProcessingException e) {
-            LOG.error("Failed to serialize article response message: {}", e.getMessage());
-        }
-        return response;
     }
 }

@@ -1,14 +1,17 @@
 package ch.hslu.swda.micronaut;
 
-import ch.hslu.swda.micro.ArticleMessageHandler;
-import ch.hslu.swda.micro.OrderMessageHandler;
+import ch.hslu.swda.business.ProductCatalog;
+import ch.hslu.swda.business.ProductCatalogDB;
+import ch.hslu.swda.dto.OrderDTO;
+import ch.hslu.swda.micro.*;
 import io.micronaut.runtime.Micronaut;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.servers.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Main Application.
@@ -25,8 +28,6 @@ import org.slf4j.LoggerFactory;
 )
 public final class Application {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-
     /**
      * Private Constructor.
      */
@@ -40,7 +41,15 @@ public final class Application {
      */
     public static void main(final String[] args) {
         Micronaut.run(Application.class);
-        new Thread(ArticleMessageHandler::new, "ArticleMessageHandler").start();
+
+        ProductCatalog productCatalog = new ProductCatalogDB();
+
+        MessageListener messageListener = new MessageListenerRMQ();
+        MessagePublisher<OrderDTO> articleMessagePublisher = new MessagePublisherRMQ<>();
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        executorService.submit(new ArticleMessageProcessor(messageListener, articleMessagePublisher, productCatalog));
+
         new Thread(OrderMessageHandler::new, "OrderMessageHandler").start();
     }
 }
