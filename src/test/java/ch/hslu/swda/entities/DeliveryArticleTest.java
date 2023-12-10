@@ -37,14 +37,14 @@ public class DeliveryArticleTest {
 
     @Test
     void testQuantityInvalid() {
-        assertThatThrownBy(() -> new DeliveryArticle(100001L, 0, DeliveryArticleStatus.ORDERED))
+        assertThatThrownBy(() -> new DeliveryArticle(100001L, 0, DeliveryArticleStatus.RESERVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("quantity should not be lower than 1");
     }
 
     @Test
     void testQuantityValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 1, DeliveryArticleStatus.ORDERED);
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 1, DeliveryArticleStatus.RESERVED);
         assertThat(deliveryArticle.quantity()).isEqualTo(1);
     }
 
@@ -57,14 +57,14 @@ public class DeliveryArticleTest {
 
     @Test
     void testStatusValid() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.ORDERED);
-        assertThat(deliveryArticle.status()).isEqualTo(DeliveryArticleStatus.ORDERED);
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
+        assertThat(deliveryArticle.status()).isEqualTo(DeliveryArticleStatus.RESERVED);
     }
 
     @Test
     void testNotEqual() {
-        final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.ORDERED);
-        final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100002L, 2, DeliveryArticleStatus.ORDERED);
+        final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
+        final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100002L, 2, DeliveryArticleStatus.RESERVED);
         assertThat(deliveryArticle1).isNotEqualTo(new Article(100001L, "Test", new BigDecimal("1.00"), 1, 1));
         assertThat(deliveryArticle1).isNotEqualTo(deliveryArticle2);
     }
@@ -79,8 +79,8 @@ public class DeliveryArticleTest {
 
     @Test
     void testHashCodeDiffers() {
-        final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.ORDERED);
-        final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100002L, 2, DeliveryArticleStatus.ORDERED);
+        final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
+        final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100002L, 2, DeliveryArticleStatus.RESERVED);
         assertThat(deliveryArticle1).doesNotHaveSameHashCodeAs(deliveryArticle2);
     }
 
@@ -107,16 +107,16 @@ public class DeliveryArticleTest {
         Document document = new Document()
                 .append("articleId", 100005L)
                 .append("quantity", 2)
-                .append("status", DeliveryArticleStatus.PROCESSING.name());
+                .append("status", DeliveryArticleStatus.MODIFY.name());
         final DeliveryArticle deliveryArticle = new DeliveryArticle(document);
         assertThat(deliveryArticle.articleId()).isEqualTo(100005L);
         assertThat(deliveryArticle.quantity()).isEqualTo(2);
-        assertThat(deliveryArticle.status()).isEqualTo(DeliveryArticleStatus.PROCESSING);
+        assertThat(deliveryArticle.status()).isEqualTo(DeliveryArticleStatus.MODIFY);
     }
 
     @Test
     void testToDocument() {
-        final DeliveryArticle deliveryArticle = new DeliveryArticle(100005L, 2, DeliveryArticleStatus.PROCESSING);
+        final DeliveryArticle deliveryArticle = new DeliveryArticle(100005L, 2, DeliveryArticleStatus.MODIFY);
         Document document = deliveryArticle.toDocument();
         assertThat(document.getLong("articleId")).isEqualTo(deliveryArticle.articleId());
         assertThat(document.getInteger("quantity")).isEqualTo(deliveryArticle.quantity());

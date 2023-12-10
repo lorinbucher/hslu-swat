@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ArticleMessageProcessorTest {
 
-    private MessageListenerDummy messageListener;
-    private MessagePublisherDummy<OrderDTO> messagePublisher;
+    private MessageListenerDummy listener;
+    private MessagePublisherDummy<OrderDTO> publisher;
 
     @BeforeEach
     void initializeEnv() {
@@ -26,27 +26,27 @@ class ArticleMessageProcessorTest {
         productCatalog.create(1, new Article(100001L, "Article 1", new BigDecimal("5.25"), 1, 1));
         productCatalog.create(1, new Article(100002L, "Article 2", new BigDecimal("9.95"), 2, 2));
 
-        messageListener = new MessageListenerDummy();
-        messagePublisher = new MessagePublisherDummy<>();
-        ArticleMessageProcessor articleMessageProcessor = new ArticleMessageProcessor(messageListener, messagePublisher, productCatalog);
-        articleMessageProcessor.run();
+        listener = new MessageListenerDummy();
+        publisher = new MessagePublisherDummy<>();
+        ArticleMessageProcessor processor = new ArticleMessageProcessor(listener, publisher, productCatalog);
+        processor.run();
     }
 
     @Test
     void testInvalidMessageReceived() throws InterruptedException {
         String message = "{}";
-        messageListener.mockMessage(Routes.ARTICLE_GET, message);
+        listener.mockMessage(Routes.ARTICLE_GET, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        String response = messagePublisher.getMessage(Routes.ARTICLE_RETURN);
+        String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isNull();
     }
 
     @Test
     void testValidMessageReceivedError() throws InterruptedException {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100005]}";
-        messageListener.mockMessage(Routes.ARTICLE_GET, message);
+        listener.mockMessage(Routes.ARTICLE_GET, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        String response = messagePublisher.getMessage(Routes.ARTICLE_RETURN);
+        String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
                 "\"articles\":[],\"error\":[\"article 100005 not found in catalog\"]}");
     }
@@ -54,9 +54,9 @@ class ArticleMessageProcessorTest {
     @Test
     void testValidMessageReceivedNoError() throws InterruptedException {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100001]}";
-        messageListener.mockMessage(Routes.ARTICLE_GET, message);
+        listener.mockMessage(Routes.ARTICLE_GET, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        String response = messagePublisher.getMessage(Routes.ARTICLE_RETURN);
+        String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
                 "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}],\"error\":[]}");
     }
@@ -64,9 +64,9 @@ class ArticleMessageProcessorTest {
     @Test
     void testValidMessageReceivedMixed() throws InterruptedException {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100001,100005]}";
-        messageListener.mockMessage(Routes.ARTICLE_GET, message);
+        listener.mockMessage(Routes.ARTICLE_GET, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        String response = messagePublisher.getMessage(Routes.ARTICLE_RETURN);
+        String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
                 "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}]," +
                 "\"error\":[\"article 100005 not found in catalog\"]}");

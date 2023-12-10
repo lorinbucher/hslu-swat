@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Implements the order message processing.
@@ -42,7 +42,7 @@ public final class OrderMessageProcessor implements Runnable {
      */
     @Override
     public void run() {
-        messageListener.receiveMessages(Routes.NEW_ORDER, this::process);
+        messageListener.receiveMessages(Routes.ORDER, this::process);
     }
 
     /**
@@ -54,11 +54,13 @@ public final class OrderMessageProcessor implements Runnable {
         OrderDTO order = parseMessage(message);
         if (order != null) {
             List<DeliveryArticle> deliveryArticles = order.articles().stream()
-                    .map(a -> new DeliveryArticle(a.articleId(), a.quantity(), DeliveryArticleStatus.PROCESSING))
+                    .map(a -> new DeliveryArticle(a.articleId(), a.quantity(),
+                            a.action() != null ? a.action() : DeliveryArticleStatus.ADD))
                     .toList();
+
             Delivery exists = deliveries.getById(order.branchId(), order.orderNumber());
             if (deliveryArticles.isEmpty() && exists == null) {
-                LOG.info("Not registering new delivery {} for branch {}", order.orderNumber(), order.branchId());
+                LOG.info("Not registering empty delivery {} for branch {}", order.orderNumber(), order.branchId());
             } else if (exists == null) {
                 LOG.info("Registering new delivery {} for branch {}", order.orderNumber(), order.branchId());
                 Delivery delivery = new Delivery(order.orderNumber(), DeliveryStatus.NEW, deliveryArticles);
@@ -80,29 +82,19 @@ public final class OrderMessageProcessor implements Runnable {
      * @param articles Updated list of delivery articles.
      */
     private void updateDelivery(final long branchId, final Delivery existing, final List<DeliveryArticle> articles) {
-        Delivery delivery = null;
-        List<DeliveryArticle> deliveryArticles = articles;
-        switch (existing.status()) {
-            case NEW:
-                delivery = new Delivery(existing.orderNumber(), DeliveryStatus.NEW, deliveryArticles);
-                break;
-            case MODIFIED:
-                deliveryArticles = Stream.concat(
-                        existing.articles().stream().filter(a -> a.status() != DeliveryArticleStatus.PROCESSING),
-                        articles.stream()).toList();
-                delivery = new Delivery(existing.orderNumber(), DeliveryStatus.MODIFIED, deliveryArticles);
-                break;
-            case COMPLETED:
-                LOG.error("Delivery {} for branch {} already completed", existing.orderNumber(), branchId);
-                break;
-            default:
-                deliveryArticles = Stream.concat(existing.articles().stream(), articles.stream()).toList();
-                delivery = new Delivery(existing.orderNumber(), DeliveryStatus.MODIFIED, deliveryArticles);
-                break;
-        }
-
-        if (delivery != null) {
+        if (existing.status() != DeliveryStatus.DELIVERED && existing.status() != DeliveryStatus.COMPLETED) {
+            List<DeliveryArticle> deliveryArticles = new ArrayList<>(existing.articles());
+            if (articles.isEmpty()) {
+                deliveryArticles.addAll(existing.articles().stream()
+                        .map(a -> new DeliveryArticle(a.articleId(), a.quantity(), DeliveryArticleStatus.REMOVE))
+                        .toList());
+            } else {
+                deliveryArticles.addAll(articles);
+            }
+            Delivery delivery = new Delivery(existing.orderNumber(), DeliveryStatus.MODIFIED, deliveryArticles);
             deliveries.update(branchId, existing.orderNumber(), delivery);
+        } else {
+            LOG.error("Delivery {} for branch {} already delivered", existing.orderNumber(), branchId);
         }
     }
 

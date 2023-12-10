@@ -21,19 +21,9 @@ public enum DeliveryArticleStatus {
     REMOVE,
 
     /**
-     * The article is processed by the warehouse.
-     */
-    PROCESSING,
-
-    /**
      * The article is reserved in the warehouse.
      */
     RESERVED,
-
-    /**
-     * The article is awaiting a delivery from the central warehouse.
-     */
-    ORDERED,
 
     /**
      * The article was delivered.
