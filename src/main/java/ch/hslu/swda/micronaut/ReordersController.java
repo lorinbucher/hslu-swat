@@ -40,13 +40,13 @@ public final class ReordersController {
      * Roles: Branch Manager
      *
      * @param branchId ID of the branch.
-     * @param status   Reorder status filter.
+     * @param status   Status filter of the reorders.
      * @return List of all reorders.
      */
     @Tag(name = "reorder")
     @Get("/{branchId}")
     public List<Reorder> getAll(final long branchId, @QueryValue("status") @Nullable final ReorderStatus status) {
-        final List<Reorder> result = reorders.getAll(branchId, status);
+        final List<Reorder> result = reorders.getAll(branchId, status, null);
         LOG.info("REST: All {} reorders from branch {}{} returned.", result.size(), branchId,
                 status != null ? " with status " + status : "");
         return result;

@@ -48,14 +48,17 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAll(long branchId, @Nullable ReorderStatus status) {
+    public List<Reorder> getAll(long branchId, @Nullable ReorderStatus status, @Nullable Long articleId) {
         Bson filter = Filters.eq("branchId", branchId);
         if (status != null) {
             filter = Filters.and(filter, Filters.eq("status", status.name()));
         }
+        if (articleId != null) {
+            filter = Filters.and(filter, Filters.eq("articleId", articleId));
+        }
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
-        LOG.info("DB: read all {} reorders from branch {}{}", documents.size(), branchId,
-                status != null ? " with status " + status : "");
+        LOG.info("DB: read all {} reorders from branch {} with filters:{}{}", documents.size(), branchId,
+                status != null ? " status: " + status : "", articleId != null ? " articleId: " + articleId : "");
         return documents.stream().map(Reorder::new).toList();
     }
 

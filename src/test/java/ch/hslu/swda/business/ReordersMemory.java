@@ -3,7 +3,11 @@ package ch.hslu.swda.business;
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * In-memory implementation of the reorders used for testing.
@@ -18,10 +22,13 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAll(long branchId, ReorderStatus status) {
+    public List<Reorder> getAll(long branchId, ReorderStatus status, Long articleId) {
         List<Reorder> result = new ArrayList<>(reorders.values());
         if (status != null) {
-            result = result.stream().filter(d -> d.status() == status).toList();
+            result = result.stream().filter(r -> r.status() == status).toList();
+        }
+        if (articleId != null) {
+            result = result.stream().filter(r -> r.articleId() == articleId).toList();
         }
         return branchId == 1 ? result : List.of();
     }

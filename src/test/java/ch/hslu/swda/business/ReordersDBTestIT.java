@@ -39,7 +39,6 @@ class ReordersDBTestIT {
         reordersDB = new ReordersDB(new MongoDBConnector(ReordersDB.COLLECTION, host, "", ""));
         reordersDB.create(1L, 100001L, 1);
         reordersDB.create(1L, 100002L, 2);
-        reordersDB.updateStatus(1L, 2L, ReorderStatus.DELIVERED);
     }
 
     @Test
@@ -61,27 +60,43 @@ class ReordersDBTestIT {
 
     @Test
     void testGetAll() {
-        List<Reorder> reorders = reordersDB.getAll(1L, null);
+        List<Reorder> reorders = reordersDB.getAll(1L, null, null);
         assertThat(reorders).hasSize(2);
     }
 
     @Test
     void testGetAllEmpty() {
-        List<Reorder> reorders = reordersDB.getAll(2L, null);
+        List<Reorder> reorders = reordersDB.getAll(2L, null, null);
         assertThat(reorders).isEmpty();
     }
 
     @Test
     void testGetAllByStatus() {
-        List<Reorder> reorders = reordersDB.getAll(1L, ReorderStatus.DELIVERED);
+        reordersDB.updateStatus(1L, 2L, ReorderStatus.DELIVERED);
+        List<Reorder> reorders = reordersDB.getAll(1L, ReorderStatus.DELIVERED, null);
         assertThat(reorders).hasSize(1);
         assertThat(reorders.get(0).status()).isEqualTo(ReorderStatus.DELIVERED);
     }
 
     @Test
+    void testGetAllByArticleId() {
+        List<Reorder> reorders = reordersDB.getAll(1L, null, 100001L);
+        assertThat(reorders).hasSize(1);
+        assertThat(reorders.get(0).articleId()).isEqualTo(100001L);
+    }
+
+    @Test
+    void testGetAllByStatusAndArticleId() {
+        List<Reorder> reorders = reordersDB.getAll(1L, ReorderStatus.NEW, 100001L);
+        assertThat(reorders).hasSize(1);
+        assertThat(reorders.get(0).status()).isEqualTo(ReorderStatus.NEW);
+        assertThat(reorders.get(0).articleId()).isEqualTo(100001L);
+    }
+
+    @Test
     void testCreate() {
         Reorder created = reordersDB.create(1L, 100003L, 3);
-        assertThat(reordersDB.getAll(1L, null)).hasSize(3);
+        assertThat(reordersDB.getAll(1L, null, null)).hasSize(3);
         assertThat(reordersDB.getById(1L, 3L)).isEqualTo(created);
         assertThat(created.status()).isEqualTo(ReorderStatus.NEW);
         assertThat(created.date()).isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
@@ -94,7 +109,7 @@ class ReordersDBTestIT {
         for (int i = 3; i <= 1000; i++) {
             reordersDB.create(1L, 100000L + i, i);
         }
-        assertThat(reordersDB.getAll(1L, null)).hasSize(1000);
+        assertThat(reordersDB.getAll(1L, null, null)).hasSize(1000);
         for (int i = 1; i <= 1000; i++) {
             Reorder reorder = reordersDB.getById(1L, i);
             assertThat(reorder).isNotNull();
@@ -107,7 +122,7 @@ class ReordersDBTestIT {
     @Test
     void testUpdateStatusExisting() {
         Reorder updated = reordersDB.updateStatus(1L, 1L, ReorderStatus.WAITING);
-        assertThat(reordersDB.getAll(1L, null)).hasSize(2);
+        assertThat(reordersDB.getAll(1L, null, null)).hasSize(2);
         assertThat(reordersDB.getById(1L, 1L)).isEqualTo(updated);
         assertThat(updated.reorderId()).isEqualTo(1L);
         assertThat(updated.status()).isEqualTo(ReorderStatus.WAITING);
@@ -119,7 +134,7 @@ class ReordersDBTestIT {
     @Test
     void testUpdateStatusNotExisting() {
         Reorder updated = reordersDB.updateStatus(1L, 5L, ReorderStatus.COMPLETED);
-        assertThat(reordersDB.getAll(1L, null)).hasSize(2);
+        assertThat(reordersDB.getAll(1L, null, null)).hasSize(2);
         assertThat(reordersDB.getById(1L, 5L)).isNull();
         assertThat(updated).isNull();
     }
@@ -128,7 +143,7 @@ class ReordersDBTestIT {
     void testDeleteExisting() {
         boolean result = reordersDB.delete(1L, 1L);
         assertThat(result).isTrue();
-        assertThat(reordersDB.getAll(1L, null)).hasSize(1);
+        assertThat(reordersDB.getAll(1L, null, null)).hasSize(1);
         assertThat(reordersDB.getById(1L, 1L)).isNull();
     }
 
@@ -136,6 +151,6 @@ class ReordersDBTestIT {
     void testDeleteNotExisting() {
         boolean result = reordersDB.delete(1L, 5L);
         assertThat(result).isFalse();
-        assertThat(reordersDB.getAll(1L, null)).hasSize(2);
+        assertThat(reordersDB.getAll(1L, null, null)).hasSize(2);
     }
 }
