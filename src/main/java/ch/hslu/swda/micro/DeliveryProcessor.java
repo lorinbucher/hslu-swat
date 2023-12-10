@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Implements order delivery processing.
  */
-public class DeliveryProcessor {
+public final class DeliveryProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryProcessor.class);
 

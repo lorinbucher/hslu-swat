@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 /**
  * Implements the order message processing.
  */
-public class OrderMessageProcessor implements Runnable {
+public final class OrderMessageProcessor implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderMessageProcessor.class);
 
