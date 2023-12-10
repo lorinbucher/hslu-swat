@@ -10,8 +10,7 @@ public interface MessagePublisher<T> {
      *
      * @param route         Message queue.
      * @param messageObject Message object.
-     * @return Sent message.
      */
-    String sendMessage(String route, T messageObject);
+    void sendMessage(String route, T messageObject);
 
 }

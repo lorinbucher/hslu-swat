@@ -31,10 +31,9 @@ public final class MessagePublisherRMQ<T> implements MessagePublisher<T> {
     }
 
     @Override
-    public String sendMessage(final String route, final T messageObject) {
-        String message = "";
+    public void sendMessage(final String route, final T messageObject) {
         try {
-            message = new ObjectMapper().writeValueAsString(messageObject);
+            String message = new ObjectMapper().writeValueAsString(messageObject);
             LOG.info("Sending message with routing '{}': {}", route, message);
             this.bus.talkAsync(config.getExchange(), route, message);
         } catch (JsonProcessingException e) {
@@ -42,6 +41,5 @@ public final class MessagePublisherRMQ<T> implements MessagePublisher<T> {
         } catch (IOException e) {
             LOG.error("Failed to send message: {}", e.getMessage());
         }
-        return message;
     }
 }

@@ -1,22 +1,28 @@
 package ch.hslu.swda.micro;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Dummy implementation of the message publisher used for testing.
  */
 public class MessagePublisherDummy<T> implements MessagePublisher<T> {
 
+    private final Map<String, String> messages = new HashMap<>();
+
     @Override
-    public String sendMessage(final String route, final T messageObject) {
-        String message = "";
+    public void sendMessage(final String route, final T messageObject) {
         try {
-            message = new ObjectMapper().writeValueAsString(messageObject);
+            messages.put(route, new ObjectMapper().writeValueAsString(messageObject));
         } catch (JsonProcessingException e) {
-            message = "Failed to serialize message: {}" + e.getMessage();
+            messages.put(route, "Failed to serialize message: {}" + e.getMessage());
         }
-        return message;
+    }
+
+    public String getMessage(final String route) {
+        return messages.get(route);
     }
 }
