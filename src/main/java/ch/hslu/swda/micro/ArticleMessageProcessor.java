@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implements the article message processing.
@@ -58,8 +59,9 @@ public final class ArticleMessageProcessor implements Runnable {
         if (request != null) {
             List<ArticleOrderDTO> articles = new ArrayList<>();
             List<String> error = new ArrayList<>();
+            Map<Long, Article> articleMap = productCatalog.getById(request.branchId(), request.articles());
             for (long articleId : request.articles()) {
-                Article a = productCatalog.getById(request.branchId(), articleId);
+                Article a = articleMap.get(articleId);
                 if (a != null) {
                     articles.add(new ArticleOrderDTO(a.articleId(), a.name(), a.price(), null, null));
                 } else {
