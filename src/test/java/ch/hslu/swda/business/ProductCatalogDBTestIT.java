@@ -12,6 +12,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,6 +59,19 @@ class ProductCatalogDBTestIT {
     void testGetByIdNotExisting() {
         Article article = productCatalog.getById(2L, 100001L);
         assertThat(article).isNull();
+    }
+
+    @Test
+    void testGetByIdListNotExisting() {
+        Map<Long, Article> articles = productCatalog.getById(1L, List.of(100005L));
+        assertThat(articles).isEmpty();
+    }
+
+    @Test
+    void testGetByIdListExisting() {
+        Map<Long, Article> articles = productCatalog.getById(1L, List.of(100001L, 100002L, 100005L));
+        assertThat(articles).hasSize(2);
+        assertThat(articles).containsKeys(100001L, 100002L);
     }
 
     @Test

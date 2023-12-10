@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the product catalog using MongoDB.
@@ -43,6 +45,14 @@ public final class ProductCatalogDB implements ProductCatalog {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
         Document exists = this.db.collection().find(filter).first();
         return exists != null ? new Article(exists) : null;
+    }
+
+    @Override
+    public Map<Long, Article> getById(long branchId, List<Long> articleIds) {
+        LOG.info("DB: read articles from branch {} with ids {}", branchId, articleIds);
+        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.in("articleId", articleIds));
+        List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
+        return documents.stream().map(Article::new).collect(Collectors.toMap(Article::articleId, a -> a));
     }
 
     @Override

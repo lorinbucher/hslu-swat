@@ -4,6 +4,7 @@ import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.WarehouseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Management of the product catalog.
@@ -18,6 +19,15 @@ public interface ProductCatalog {
      * @return Article.
      */
     Article getById(long branchId, long articleId);
+
+    /**
+     * Returns the articles with the specified article IDs in the branch's catalog.
+     *
+     * @param branchId   ID of the branch.
+     * @param articleIds IDs of the article.
+     * @return Pairs of article ID and article.
+     */
+    Map<Long, Article> getById(long branchId, List<Long> articleIds);
 
     /**
      * Returns all articles in the product catalog of the branch.

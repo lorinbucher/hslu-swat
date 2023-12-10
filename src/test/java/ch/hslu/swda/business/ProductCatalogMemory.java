@@ -21,6 +21,17 @@ public class ProductCatalogMemory implements ProductCatalog {
     }
 
     @Override
+    public Map<Long, Article> getById(long branchId, List<Long> articleIds) {
+        Map<Long, Article> articles = new HashMap<>();
+        for (long articleId : articleIds) {
+            if (branchId == 1 && catalog.containsKey(articleId)) {
+                articles.put(articleId, catalog.get(articleId));
+            }
+        }
+        return articles;
+    }
+
+    @Override
     public List<Article> getAll(long branchId) {
         return branchId == 1 ? new ArrayList<>(catalog.values()) : List.of();
     }
