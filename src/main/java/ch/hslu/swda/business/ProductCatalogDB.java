@@ -143,4 +143,13 @@ public final class ProductCatalogDB implements ProductCatalog {
         }
         return result;
     }
+
+    @Override
+    public List<WarehouseEntity<Article>> getLowStock() {
+        String expression = "{ $lt: [ { $subtract: ['$stock', '$reserved'] }, '$minStock' ] }";
+        Bson filter = Filters.expr(Document.parse(expression));
+        List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
+        LOG.info("DB: read all {} articles with low stock", documents.size());
+        return documents.stream().map(d -> new WarehouseEntity<>(d.getLong("branchId"), new Article(d))).toList();
+    }
 }

@@ -1,6 +1,7 @@
 package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Article;
+import ch.hslu.swda.entities.WarehouseEntity;
 
 import java.util.List;
 
@@ -73,4 +74,11 @@ public interface ProductCatalog {
      * @return True if successful, false if not.
      */
     boolean changeReserved(long branchId, long articleId, int amount);
+
+    /**
+     * Returns all articles with low stock from all branches.
+     *
+     * @return List of all articles with low stock.
+     */
+    List<WarehouseEntity<Article>> getLowStock();
 }

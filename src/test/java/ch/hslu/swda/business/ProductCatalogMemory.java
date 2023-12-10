@@ -1,6 +1,7 @@
 package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Article;
+import ch.hslu.swda.entities.WarehouseEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,5 +92,13 @@ public class ProductCatalogMemory implements ProductCatalog {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<WarehouseEntity<Article>> getLowStock() {
+        return catalog.values().stream()
+                .filter(article -> (article.stock() - article.reserved()) < article.minStock())
+                .map(article -> new WarehouseEntity<>(1L, article))
+                .toList();
     }
 }

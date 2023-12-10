@@ -209,4 +209,20 @@ class ProductCatalogDBTestIT {
         assertThat(result).isFalse();
         assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
     }
+
+    @Test
+    void testGetLowStock() {
+        Article articleOk = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5, 0);
+        Article articleStock = new Article(100006L, "Test", new BigDecimal("1.00"), 6, 5, 0);
+        Article articleReserved = new Article(100007L, "Test", new BigDecimal("1.00"), 7, 7, 1);
+        productCatalog.create(2L, articleOk);
+        productCatalog.create(3L, articleStock);
+        productCatalog.create(4L, articleReserved);
+        assertThat(productCatalog.getLowStock()).hasSize(4);
+        assertThat(productCatalog.getLowStock().get(0).branchId()).isEqualTo(1L);
+        assertThat(productCatalog.getLowStock().get(1).branchId()).isEqualTo(1L);
+        assertThat(productCatalog.getLowStock().get(2).branchId()).isEqualTo(3L);
+        assertThat(productCatalog.getLowStock().get(2).entity()).isEqualTo(articleStock);
+        assertThat(productCatalog.getLowStock().get(3).entity()).isEqualTo(articleReserved);
+    }
 }
