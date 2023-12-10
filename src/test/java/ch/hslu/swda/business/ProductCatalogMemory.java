@@ -42,7 +42,8 @@ public class ProductCatalogMemory implements ProductCatalog {
     public Article update(long branchId, long articleId, Article article) {
         Article updated = null;
         if (branchId == 1) {
-            updated = new Article(articleId, article.name(), article.price(), article.minStock(), article.stock());
+            updated = new Article(articleId, article.name(), article.price(), article.minStock(),
+                    article.stock(), article.reserved());
             if (catalog.containsKey(articleId)) {
                 catalog.put(articleId, updated);
             } else {
@@ -67,7 +68,24 @@ public class ProductCatalogMemory implements ProductCatalog {
         if (branchId == 1 && article != null) {
             int newStock = article.stock() + amount;
             if (newStock >= 0) {
-                article = new Article(articleId, article.name(), article.price(), article.minStock(), newStock);
+                article = new Article(articleId, article.name(), article.price(), article.minStock(),
+                        newStock, article.reserved());
+                catalog.put(articleId, article);
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean changeReserved(long branchId, long articleId, int amount) {
+        boolean result = false;
+        Article article = catalog.get(articleId);
+        if (branchId == 1 && article != null) {
+            int newReserved = article.reserved() + amount;
+            if (newReserved >= 0) {
+                article = new Article(articleId, article.name(), article.price(), article.minStock(),
+                        article.stock(), newReserved);
                 catalog.put(articleId, article);
                 result = true;
             }

@@ -14,8 +14,9 @@ import java.util.Objects;
  * @param price     Price per article.
  * @param minStock  Minimum number of articles in stock.
  * @param stock     Number of articles in stock.
+ * @param reserved  Number of articles reserved for deliveries.
  */
-public record Article(long articleId, String name, BigDecimal price, int minStock, int stock)
+public record Article(long articleId, String name, BigDecimal price, int minStock, int stock, int reserved)
         implements Entity<Article> {
     public Article {
         if (articleId < 100000) {
@@ -27,14 +28,17 @@ public record Article(long articleId, String name, BigDecimal price, int minStoc
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("name should not be blank");
         }
+        if (price == null) {
+            throw new IllegalArgumentException("price should be 0.05 or higher");
+        }
         if (minStock < 0) {
             throw new IllegalArgumentException("minStock should not be lower than 0");
         }
         if (stock < 0) {
             throw new IllegalArgumentException("stock should not be lower than 0");
         }
-        if (price == null) {
-            throw new IllegalArgumentException("price should be 0.05 or higher");
+        if (reserved < 0) {
+            throw new IllegalArgumentException("reserved should not be lower than 0");
         }
 
         price = price.setScale(2, RoundingMode.HALF_UP);
@@ -54,7 +58,8 @@ public record Article(long articleId, String name, BigDecimal price, int minStoc
                 document.getString("name"),
                 new BigDecimal(document.getString("price")),
                 document.getInteger("minStock"),
-                document.getInteger("stock")
+                document.getInteger("stock"),
+                document.getInteger("reserved")
         );
     }
 
@@ -70,7 +75,8 @@ public record Article(long articleId, String name, BigDecimal price, int minStoc
                 .append("name", name)
                 .append("price", price.toPlainString())
                 .append("minStock", minStock)
-                .append("stock", stock);
+                .append("stock", stock)
+                .append("reserved", reserved);
     }
 
     /**

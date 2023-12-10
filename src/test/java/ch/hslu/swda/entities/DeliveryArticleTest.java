@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -65,7 +63,7 @@ public class DeliveryArticleTest {
     void testNotEqual() {
         final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100002L, 2, DeliveryArticleStatus.RESERVED);
-        assertThat(deliveryArticle1).isNotEqualTo(new Article(100001L, "Test", new BigDecimal("1.00"), 1, 1));
+        assertThat(deliveryArticle1).isNotEqualTo(100001L);
         assertThat(deliveryArticle1).isNotEqualTo(deliveryArticle2);
     }
 

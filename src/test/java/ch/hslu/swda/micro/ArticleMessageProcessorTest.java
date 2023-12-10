@@ -23,8 +23,8 @@ class ArticleMessageProcessorTest {
     @BeforeEach
     void initializeEnv() {
         ProductCatalog productCatalog = new ProductCatalogMemory();
-        productCatalog.create(1, new Article(100001L, "Article 1", new BigDecimal("5.25"), 1, 1));
-        productCatalog.create(1, new Article(100002L, "Article 2", new BigDecimal("9.95"), 2, 2));
+        productCatalog.create(1, new Article(100001L, "Article 1", new BigDecimal("5.25"), 1, 1, 1));
+        productCatalog.create(1, new Article(100002L, "Article 2", new BigDecimal("9.95"), 2, 2, 2));
 
         listener = new MessageListenerDummy();
         publisher = new MessagePublisherDummy<>();

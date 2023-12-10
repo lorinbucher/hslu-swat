@@ -35,15 +35,15 @@ class ProductCatalogDBTestIT {
     void initializeEnv() {
         String host = mongoContainer.getHost() + ":" + mongoContainer.getMappedPort(27017);
         productCatalog = new ProductCatalogDB(new MongoDBConnector(ProductCatalogDB.COLLECTION, host, "", ""));
-        Article article1 = new Article(100001L, "Test1", new BigDecimal("5.25"), 1, 1);
-        Article article2 = new Article(100002L, "Test2", new BigDecimal("9.95"), 2, 2);
+        Article article1 = new Article(100001L, "Test1", new BigDecimal("5.25"), 1, 1, 1);
+        Article article2 = new Article(100002L, "Test2", new BigDecimal("9.95"), 2, 2, 2);
         productCatalog.create(1L, article1);
         productCatalog.create(1L, article2);
     }
 
     @Test
     void testGetByIdExisting() {
-        Article existing = new Article(100001L, "Test1", new BigDecimal("5.25"), 1, 1);
+        Article existing = new Article(100001L, "Test1", new BigDecimal("5.25"), 1, 1, 1);
         Article article = productCatalog.getById(1L, 100001L);
         assertThat(article).isNotNull();
         assertThat(article).isEqualTo(existing);
@@ -51,6 +51,7 @@ class ProductCatalogDBTestIT {
         assertThat(article.price()).isEqualTo(existing.price());
         assertThat(article.minStock()).isEqualTo(existing.minStock());
         assertThat(article.stock()).isEqualTo(existing.stock());
+        assertThat(article.reserved()).isEqualTo(existing.reserved());
     }
 
     @Test
@@ -73,7 +74,7 @@ class ProductCatalogDBTestIT {
 
     @Test
     void testCreateExisting() {
-        Article article = new Article(100001L, "Test", new BigDecimal("1.00"), 5, 5);
+        Article article = new Article(100001L, "Test", new BigDecimal("1.00"), 5, 5, 5);
         Article created = productCatalog.create(1L, article);
         assertThat(productCatalog.getAll(1L)).hasSize(2);
         assertThat(created).isEqualTo(article);
@@ -81,11 +82,12 @@ class ProductCatalogDBTestIT {
         assertThat(created.price()).isNotEqualTo(article.price());
         assertThat(created.minStock()).isNotEqualTo(article.minStock());
         assertThat(created.stock()).isNotEqualTo(article.stock());
+        assertThat(created.reserved()).isNotEqualTo(article.reserved());
     }
 
     @Test
     void testCreateNotExisting() {
-        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5);
+        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5, 5);
         Article created = productCatalog.create(1L, article);
         assertThat(productCatalog.getAll(1L)).hasSize(3);
         assertThat(productCatalog.getById(1L, 100005L)).isEqualTo(article);
@@ -94,11 +96,12 @@ class ProductCatalogDBTestIT {
         assertThat(created.price()).isEqualTo(article.price());
         assertThat(created.minStock()).isEqualTo(article.minStock());
         assertThat(created.stock()).isEqualTo(article.stock());
+        assertThat(created.reserved()).isEqualTo(article.reserved());
     }
 
     @Test
     void testUpdateExisting() {
-        Article article = new Article(100001L, "Test", new BigDecimal("1.00"), 5, 5);
+        Article article = new Article(100001L, "Test", new BigDecimal("1.00"), 5, 5, 5);
         Article updated = productCatalog.update(1L, 100001L, article);
         assertThat(productCatalog.getAll(1L)).hasSize(2);
         assertThat(productCatalog.getById(1L, 100001L)).isEqualTo(article);
@@ -107,11 +110,12 @@ class ProductCatalogDBTestIT {
         assertThat(updated.price()).isEqualTo(article.price());
         assertThat(updated.minStock()).isEqualTo(article.minStock());
         assertThat(updated.stock()).isEqualTo(article.stock());
+        assertThat(updated.reserved()).isEqualTo(article.reserved());
     }
 
     @Test
     void testUpdateExistingIdMismatch() {
-        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5);
+        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5, 5);
         Article updated = productCatalog.update(1L, 100001L, article);
         assertThat(productCatalog.getAll(1L)).hasSize(2);
         assertThat(updated.articleId()).isEqualTo(100001L);
@@ -119,11 +123,12 @@ class ProductCatalogDBTestIT {
         assertThat(updated.price()).isEqualTo(article.price());
         assertThat(updated.minStock()).isEqualTo(article.minStock());
         assertThat(updated.stock()).isEqualTo(article.stock());
+        assertThat(updated.reserved()).isEqualTo(article.reserved());
     }
 
     @Test
     void testUpdateNotExisting() {
-        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5);
+        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5, 5);
         Article updated = productCatalog.update(1L, 100005L, article);
         assertThat(productCatalog.getAll(1L)).hasSize(3);
         assertThat(productCatalog.getById(1L, 100005L)).isEqualTo(article);
@@ -173,5 +178,35 @@ class ProductCatalogDBTestIT {
         boolean result = productCatalog.changeStock(1L, 100001L, -2);
         assertThat(result).isFalse();
         assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(1);
+    }
+
+    @Test
+    void testChangeReservedNotExisting() {
+        boolean result = productCatalog.changeReserved(1L, 100005L, 2);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void testChangeReservedIncrease() {
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
+        boolean result = productCatalog.changeReserved(1L, 100001L, 2);
+        assertThat(result).isTrue();
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(3);
+    }
+
+    @Test
+    void testChangeReservedDecrease() {
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
+        boolean result = productCatalog.changeReserved(1L, 100001L, -1);
+        assertThat(result).isTrue();
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(0);
+    }
+
+    @Test
+    void testChangeReservedDecreaseMore() {
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
+        boolean result = productCatalog.changeReserved(1L, 100001L, -2);
+        assertThat(result).isFalse();
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
     }
 }

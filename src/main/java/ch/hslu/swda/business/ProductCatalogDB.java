@@ -70,7 +70,8 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public Article update(long branchId, long articleId, Article article) {
         if (articleId != article.articleId()) {
-            article = new Article(articleId, article.name(), article.price(), article.minStock(), article.stock());
+            article = new Article(articleId, article.name(), article.price(),
+                    article.minStock(), article.stock(), article.reserved());
         }
 
         // TODO: use findOneAndUpdate without updating stock to make it atomic
@@ -105,12 +106,37 @@ public final class ProductCatalogDB implements ProductCatalog {
         if (article != null) {
             int newStock = article.stock() + amount;
             if (newStock >= 0) {
-                Article changed = new Article(articleId, article.name(), article.price(), article.minStock(), newStock);
+                Article changed = new Article(articleId, article.name(), article.price(), article.minStock(), newStock, article.reserved());
                 WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, changed);
                 result = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument()) != null;
-                LOG.info("DB: updated stock of article from branch {} with id {} -> {}", branchId, articleId, newStock);
+                LOG.info("DB: updated stocked items of article from branch {} with id {} -> {}", branchId, articleId, newStock);
             } else {
-                LOG.info("DB: article from branch {} with id {} has not enough in stock", branchId, articleId);
+                LOG.info("DB: article from branch {} with id {} cannot have reserved below 0", branchId, articleId);
+            }
+        } else {
+            LOG.warn("DB: article from branch {} with id {} doesn't exist", branchId, articleId);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean changeReserved(long branchId, long articleId, int amount) {
+        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
+        Article article = this.db.collection().find(filter).map(Article::new).first();
+
+        // TODO: maybe use common implementation with stock
+        // TODO: use findOneAndUpdate and inc function with condition enough in stock to make it atomic
+        boolean result = false;
+        if (article != null) {
+            int newReserved = article.reserved() + amount;
+            if (newReserved >= 0) {
+                Article changed = new Article(articleId, article.name(), article.price(), article.minStock(),
+                        article.stock(), newReserved);
+                WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, changed);
+                result = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument()) != null;
+                LOG.info("DB: updated reserved items of article from branch {} with id {} -> {}", branchId, articleId, newReserved);
+            } else {
+                LOG.info("DB: article from branch {} with id {} has not enough stocked items", branchId, articleId);
             }
         } else {
             LOG.warn("DB: article from branch {} with id {} doesn't exist", branchId, articleId);
