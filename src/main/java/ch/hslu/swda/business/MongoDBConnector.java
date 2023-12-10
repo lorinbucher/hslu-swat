@@ -24,10 +24,10 @@ public final class MongoDBConnector {
      */
     public MongoDBConnector(final String collection) {
         this(
+                collection,
                 System.getenv().getOrDefault("MONGO_HOST", "localhost"),
                 System.getenv().getOrDefault("MONGO_USER", ""),
-                System.getenv().getOrDefault("MONGO_PASSWORD", ""),
-                collection
+                System.getenv().getOrDefault("MONGO_PASSWORD", "")
         );
     }
 
