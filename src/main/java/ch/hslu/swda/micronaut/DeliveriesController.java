@@ -40,6 +40,8 @@ public final class DeliveriesController {
 
     /**
      * Get all deliveries of the branch.
+     * <p>
+     * Roles: Branch Manager
      *
      * @param branchId ID of the branch.
      * @param status   Delivery status filter.
@@ -56,6 +58,8 @@ public final class DeliveriesController {
 
     /**
      * Get delivery with the specified order number of the branch.
+     * <p>
+     * Roles: Branch Manager
      *
      * @param branchId    ID of the branch.
      * @param orderNumber Order number.
@@ -72,6 +76,8 @@ public final class DeliveriesController {
     /**
      * Change status of the delivery for the specified order number of the branch.
      * Only supports changing the status to `DELIVERED`, the other status are handled by the system.
+     * <p>
+     * Roles: Data Typist
      *
      * @param branchId    ID of the branch.
      * @param orderNumber Order number.

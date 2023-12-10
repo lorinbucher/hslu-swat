@@ -36,6 +36,8 @@ public final class ReordersController {
 
     /**
      * Get all reorders of the branch.
+     * <p>
+     * Roles: Branch Manager
      *
      * @param branchId ID of the branch.
      * @param status   Reorder status filter.
@@ -52,6 +54,8 @@ public final class ReordersController {
 
     /**
      * Get reorder with the specified reorder ID of the branch.
+     * <p>
+     * Roles: Branch Manager
      *
      * @param branchId  ID of the branch.
      * @param reorderId ID of the reorder.
@@ -68,6 +72,8 @@ public final class ReordersController {
     /**
      * Change status of the reorder for the specified reorder ID of the branch.
      * Only supports changing the status to `DELIVERED`, the other status are handled by the system.
+     * <p>
+     * Roles: Data Typist
      *
      * @param branchId  ID of the branch.
      * @param reorderId ID of the reorder.

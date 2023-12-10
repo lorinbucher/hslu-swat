@@ -29,6 +29,8 @@ public final class ProductCatalogController {
 
     /**
      * Get all articles in the product catalog of the branch.
+     * <p>
+     * Roles: Branch Manager, Seller
      *
      * @param branchId ID of the branch.
      * @return List of all articles.
@@ -43,6 +45,8 @@ public final class ProductCatalogController {
 
     /**
      * Get article with the specified id from the product catalog of the branch.
+     * <p>
+     * Roles: Branch Manager, Seller
      *
      * @param branchId  ID of the branch.
      * @param articleId ID of the article.
@@ -58,6 +62,8 @@ public final class ProductCatalogController {
 
     /**
      * Adds a new article to the product catalog of the branch.
+     * <p>
+     * Roles: Branch Manager
      *
      * @param branchId ID of the branch.
      * @param article  Article.
@@ -76,6 +82,8 @@ public final class ProductCatalogController {
 
     /**
      * Updates an article in the product catalog of the branch.
+     * <p>
+     * Roles: Branch Manager
      *
      * @param branchId  ID of the branch.
      * @param articleId ID of the article.
@@ -94,6 +102,8 @@ public final class ProductCatalogController {
 
     /**
      * Removes an article from the product catalog.
+     * <p>
+     * Roles: Branch Manager
      *
      * @param branchId  ID of the branch.
      * @param articleId ID of the article.
