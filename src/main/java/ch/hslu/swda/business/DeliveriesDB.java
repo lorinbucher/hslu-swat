@@ -3,10 +3,6 @@ package ch.hslu.swda.business;
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
 import ch.hslu.swda.entities.WarehouseEntity;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongodb.client.model.ReturnDocument;
@@ -24,51 +20,32 @@ import java.util.List;
  * Implementation of the deliveries using MongoDB.
  */
 @Singleton
-public class DeliveriesDB implements Deliveries {
+public final class DeliveriesDB implements Deliveries {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogDB.class);
-    private static final String DATABASE = "warehouse";
-    private static final String COLLECTION = "deliveries";
-    private final MongoClient client;
-    private final MongoDatabase database;
-    private final MongoCollection<Document> collection;
+    public static final String COLLECTION = "deliveries";
+
+    private final MongoDBConnector db;
 
     /**
-     * Constructor using environment variables for db configuration.
+     * Constructor with configuration from the environment variables.
      */
     public DeliveriesDB() {
-        this(
-                System.getenv().getOrDefault("MONGO_HOST", "localhost"),
-                System.getenv().getOrDefault("MONGO_USER", ""),
-                System.getenv().getOrDefault("MONGO_PASSWORD", "")
-        );
+        this(new MongoDBConnector(COLLECTION));
     }
 
     /**
-     * Constructor with arguments for db configuration.
-     *
-     * @param host     MongoDB host.
-     * @param user     MongoDB user.
-     * @param password MongoDB password.
+     * Constructor with custom configuration.
      */
-    public DeliveriesDB(final String host, final String user, final String password) {
-        String connectionURI = "mongodb://";
-        if (!user.isBlank() && !password.isBlank()) {
-            connectionURI += String.format("%s:%s@%s", user, password, host);
-        } else {
-            connectionURI += host;
-        }
-
-        this.client = MongoClients.create(connectionURI);
-        this.database = this.client.getDatabase(DATABASE);
-        this.collection = this.database.getCollection(COLLECTION);
+    public DeliveriesDB(final MongoDBConnector connector) {
+        db = connector;
     }
 
     @Override
     public Delivery getById(long branchId, long orderNumber) {
         LOG.info("DB: read delivery from branch {} with id {}", branchId, orderNumber);
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
-        Document exists = this.collection.find(filter).first();
+        Document exists = this.db.collection().find(filter).first();
         return exists != null ? new Delivery(exists) : null;
     }
 
@@ -78,7 +55,7 @@ public class DeliveriesDB implements Deliveries {
         if (status != null) {
             filter = Filters.and(filter, Filters.eq("status", status.name()));
         }
-        List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
+        List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries from branch {}{}", documents.size(), branchId,
                 status != null ? " with status " + status : "");
         return documents.stream().map(Delivery::new).toList();
@@ -87,10 +64,10 @@ public class DeliveriesDB implements Deliveries {
     @Override
     public Delivery create(long branchId, Delivery delivery) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", delivery.orderNumber()));
-        Document exists = this.collection.find(filter).first();
+        Document exists = this.db.collection().find(filter).first();
         if (exists == null) {
             WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
-            this.collection.insertOne(warehouseEntity.toDocument());
+            this.db.collection().insertOne(warehouseEntity.toDocument());
             LOG.info("DB: created delivery for branch {} with id {}", branchId, delivery.orderNumber());
         } else {
             LOG.warn("DB: delivery {} already exists for branch {}", delivery.orderNumber(), branchId);
@@ -107,7 +84,7 @@ public class DeliveriesDB implements Deliveries {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
         WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
         FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-        Document updated = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument(), options);
+        Document updated = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument(), options);
         LOG.info("DB: {}updated delivery for branch {} with id {}",
                 updated != null ? "" : "not ", branchId, orderNumber);
         return updated != null ? new Delivery(updated) : null;
@@ -117,14 +94,14 @@ public class DeliveriesDB implements Deliveries {
     public Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
         Document updated = null;
-        Document exists = this.collection.find(filter).first();
+        Document exists = this.db.collection().find(filter).first();
         // TODO: use findOneAndUpdate function to make it atomic
         if (exists != null) {
             Delivery delivery = new Delivery(exists);
             delivery = new Delivery(delivery.orderNumber(), status, delivery.articles());
             WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
             FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-            updated = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument(), options);
+            updated = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument(), options);
         }
 
         LOG.info("DB: {}updated delivery status for branch {} with id {} to {}",
@@ -135,7 +112,7 @@ public class DeliveriesDB implements Deliveries {
     @Override
     public boolean delete(long branchId, long orderNumber) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
-        Document removed = this.collection.findOneAndDelete(filter);
+        Document removed = this.db.collection().findOneAndDelete(filter);
         LOG.info("DB: {}removed delivery from branch {} with id {}", removed != null ? "" : "not ", branchId, orderNumber);
         return removed != null;
     }

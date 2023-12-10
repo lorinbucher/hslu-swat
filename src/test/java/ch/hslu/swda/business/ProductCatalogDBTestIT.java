@@ -34,7 +34,7 @@ class ProductCatalogDBTestIT {
     @BeforeEach
     void initializeEnv() {
         String host = mongoContainer.getHost() + ":" + mongoContainer.getMappedPort(27017);
-        productCatalog = new ProductCatalogDB(host, "", "");
+        productCatalog = new ProductCatalogDB(new MongoDBConnector(ProductCatalogDB.COLLECTION, host, "", ""));
         Article article1 = new Article(100001L, "Test1", new BigDecimal("5.25"), 1, 1);
         Article article2 = new Article(100002L, "Test2", new BigDecimal("9.95"), 2, 2);
         productCatalog.create(1L, article1);

@@ -2,10 +2,6 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.WarehouseEntity;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import jakarta.inject.Singleton;
 import org.bson.Document;
@@ -23,55 +19,36 @@ import java.util.List;
 public final class ProductCatalogDB implements ProductCatalog {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogDB.class);
-    private static final String DATABASE = "warehouse";
-    private static final String COLLECTION = "catalog";
-    private final MongoClient client;
-    private final MongoDatabase database;
-    private final MongoCollection<Document> collection;
+    public static final String COLLECTION = "catalog";
+
+    private final MongoDBConnector db;
 
     /**
-     * Constructor using environment variables for db configuration.
+     * Constructor with configuration from the environment variables.
      */
     public ProductCatalogDB() {
-        this(
-                System.getenv().getOrDefault("MONGO_HOST", "localhost"),
-                System.getenv().getOrDefault("MONGO_USER", ""),
-                System.getenv().getOrDefault("MONGO_PASSWORD", "")
-        );
+        this(new MongoDBConnector(COLLECTION));
     }
 
     /**
-     * Constructor with arguments for db configuration.
-     *
-     * @param host     MongoDB host.
-     * @param user     MongoDB user.
-     * @param password MongoDB password.
+     * Constructor with custom configuration.
      */
-    public ProductCatalogDB(final String host, final String user, final String password) {
-        String connectionURI = "mongodb://";
-        if (!user.isBlank() && !password.isBlank()) {
-            connectionURI += String.format("%s:%s@%s", user, password, host);
-        } else {
-            connectionURI += host;
-        }
-
-        this.client = MongoClients.create(connectionURI);
-        this.database = this.client.getDatabase(DATABASE);
-        this.collection = this.database.getCollection(COLLECTION);
+    public ProductCatalogDB(final MongoDBConnector connector) {
+        db = connector;
     }
 
     @Override
     public Article getById(long branchId, long articleId) {
         LOG.info("DB: read article from branch {} with id {}", branchId, articleId);
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Document exists = this.collection.find(filter).first();
+        Document exists = this.db.collection().find(filter).first();
         return exists != null ? new Article(exists) : null;
     }
 
     @Override
     public List<Article> getAll(long branchId) {
         Bson filter = Filters.eq("branchId", branchId);
-        List<Document> documents = this.collection.find(filter).into(new ArrayList<>());
+        List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} articles from branch {}", documents.size(), branchId);
         return documents.stream().map(Article::new).toList();
     }
@@ -79,10 +56,10 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public Article create(long branchId, Article article) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", article.articleId()));
-        Document exists = this.collection.find(filter).first();
+        Document exists = this.db.collection().find(filter).first();
         if (exists == null) {
             WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, article);
-            this.collection.insertOne(warehouseEntity.toDocument());
+            this.db.collection().insertOne(warehouseEntity.toDocument());
             LOG.info("DB: created article for branch {} with id {}", branchId, article.articleId());
         } else {
             LOG.warn("DB: article {} already exists for branch {}", article.articleId(), branchId);
@@ -99,7 +76,7 @@ public final class ProductCatalogDB implements ProductCatalog {
         // TODO: use findOneAndUpdate without updating stock to make it atomic
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
         WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, article);
-        Document exists = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument());
+        Document exists = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument());
         Article updated;
         if (exists != null) {
             updated = article;
@@ -113,7 +90,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public boolean delete(long branchId, long articleId) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Document removed = this.collection.findOneAndDelete(filter);
+        Document removed = this.db.collection().findOneAndDelete(filter);
         LOG.info("DB: {}removed article from branch {} with id {}", removed != null ? "" : "not ", branchId, articleId);
         return removed != null;
     }
@@ -121,7 +98,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public boolean changeStock(long branchId, long articleId, int amount) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Article article = this.collection.find(filter).map(Article::new).first();
+        Article article = this.db.collection().find(filter).map(Article::new).first();
 
         // TODO: use findOneAndUpdate and inc function with condition enough in stock to make it atomic
         boolean result = false;
@@ -130,7 +107,7 @@ public final class ProductCatalogDB implements ProductCatalog {
             if (newStock >= 0) {
                 Article changed = new Article(articleId, article.name(), article.price(), article.minStock(), newStock);
                 WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, changed);
-                result = this.collection.findOneAndReplace(filter, warehouseEntity.toDocument()) != null;
+                result = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument()) != null;
                 LOG.info("DB: updated stock of article from branch {} with id {} -> {}", branchId, articleId, newStock);
             } else {
                 LOG.info("DB: article from branch {} with id {} has not enough in stock", branchId, articleId);

@@ -36,7 +36,7 @@ class ReordersDBTestIT {
     @BeforeEach
     void initializeEnv() {
         String host = mongoContainer.getHost() + ":" + mongoContainer.getMappedPort(27017);
-        reordersDB = new ReordersDB(host, "", "");
+        reordersDB = new ReordersDB(new MongoDBConnector(ReordersDB.COLLECTION, host, "", ""));
         reordersDB.create(1L, 100001L, 1);
         reordersDB.create(1L, 100002L, 2);
         reordersDB.updateStatus(1L, 2L, ReorderStatus.DELIVERED);

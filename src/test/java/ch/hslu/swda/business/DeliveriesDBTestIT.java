@@ -41,7 +41,7 @@ class DeliveriesDBTestIT {
         articles = List.of(article1, article2);
 
         String host = mongoContainer.getHost() + ":" + mongoContainer.getMappedPort(27017);
-        deliveriesDB = new DeliveriesDB(host, "", "");
+        deliveriesDB = new DeliveriesDB(new MongoDBConnector(DeliveriesDB.COLLECTION, host, "", ""));
         Delivery delivery1 = new Delivery(1L, DeliveryStatus.NEW, articles);
         Delivery delivery2 = new Delivery(2L, DeliveryStatus.COMPLETED, articles);
         deliveriesDB.create(1L, delivery1);
