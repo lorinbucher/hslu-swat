@@ -23,12 +23,11 @@ public interface Reorders {
     /**
      * Returns all reorders of a branch.
      *
-     * @param branchId  ID of the branch.
-     * @param status    Status filter of the reorders.
-     * @param articleId Article ID filter of the reorders.
+     * @param branchId ID of the branch.
+     * @param status   Status filter of the reorders.
      * @return List of all reorders.
      */
-    List<Reorder> getAll(long branchId, @Nullable final ReorderStatus status, @Nullable final Long articleId);
+    List<Reorder> getAll(long branchId, @Nullable final ReorderStatus status);
 
     /**
      * Adds a reorder for the branch.
@@ -58,4 +57,13 @@ public interface Reorders {
      * @return True if successful, false if not.
      */
     boolean delete(long branchId, long reorderId);
+
+    /**
+     * Counts the number of reordered articles of the specified article of the branch.
+     *
+     * @param branchId  ID of the branch.
+     * @param articleId ID of the article.
+     * @return Number of reordered articles.
+     */
+    int countReorderedArticles(long branchId, long articleId);
 }

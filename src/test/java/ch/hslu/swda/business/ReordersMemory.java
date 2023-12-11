@@ -22,13 +22,10 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAll(long branchId, ReorderStatus status, Long articleId) {
+    public List<Reorder> getAll(long branchId, ReorderStatus status) {
         List<Reorder> result = new ArrayList<>(reorders.values());
         if (status != null) {
             result = result.stream().filter(r -> r.status() == status).toList();
-        }
-        if (articleId != null) {
-            result = result.stream().filter(r -> r.articleId() == articleId).toList();
         }
         return branchId == 1 ? result : List.of();
     }
@@ -65,5 +62,18 @@ public class ReordersMemory implements Reorders {
             reorders.remove(reorderId);
         }
         return branchId == 1;
+    }
+
+    @Override
+    public int countReorderedArticles(long branchId, long articleId) {
+        int count = 0;
+        if (branchId == 1) {
+            count = reorders.values().stream()
+                    .filter(reorder -> reorder.articleId() == articleId)
+                    .filter(reorder -> reorder.status() != ReorderStatus.COMPLETED)
+                    .mapToInt(Reorder::quantity)
+                    .sum();
+        }
+        return count;
     }
 }

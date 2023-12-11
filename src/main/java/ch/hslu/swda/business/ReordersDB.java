@@ -1,5 +1,6 @@
 package ch.hslu.swda.business;
 
+import ch.hslu.swda.entities.DeliveryStatus;
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
 import ch.hslu.swda.entities.WarehouseEntity;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,17 +50,14 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAll(long branchId, @Nullable ReorderStatus status, @Nullable Long articleId) {
+    public List<Reorder> getAll(long branchId, @Nullable ReorderStatus status) {
         Bson filter = Filters.eq("branchId", branchId);
         if (status != null) {
             filter = Filters.and(filter, Filters.eq("status", status.name()));
         }
-        if (articleId != null) {
-            filter = Filters.and(filter, Filters.eq("articleId", articleId));
-        }
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
-        LOG.info("DB: read all {} reorders from branch {} with filters:{}{}", documents.size(), branchId,
-                status != null ? " status: " + status : "", articleId != null ? " articleId: " + articleId : "");
+        LOG.info("DB: read all {} reorders from branch {}{}", documents.size(), branchId,
+                status != null ? " with status " + status : "");
         return documents.stream().map(Reorder::new).toList();
     }
 
@@ -100,7 +99,26 @@ public final class ReordersDB implements Reorders {
     public boolean delete(long branchId, long reorderID) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderID));
         Document removed = this.db.collection().findOneAndDelete(filter);
-        LOG.info("DB: {}removed delivery from branch {} with id {}", removed != null ? "" : "not ", branchId, reorderID);
+        LOG.info("DB: {}removed delivery from branch {} with id {}",
+                removed != null ? "" : "not ", branchId, reorderID);
         return removed != null;
+    }
+
+    @Override
+    public int countReorderedArticles(long branchId, long articleId) {
+        Bson match = Aggregates.match(Filters.and(
+                Filters.eq("branchId", branchId),
+                Filters.eq("articleId", articleId),
+                Filters.ne("status", DeliveryStatus.COMPLETED.name()))
+        );
+        Bson group = Aggregates.group(null, Accumulators.sum("count", "$quantity"));
+        Document document = this.db.collection().aggregate(Arrays.asList(match, group)).first();
+
+        int count = 0;
+        if (document != null) {
+            count = document.getInteger("count");
+        }
+        LOG.info("DB: number of reordered articles from branch {} with id {}: {}", branchId, articleId, count);
+        return count;
     }
 }
