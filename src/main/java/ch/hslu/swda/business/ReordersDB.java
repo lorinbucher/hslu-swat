@@ -96,6 +96,26 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
+    public Reorder updateQuantity(long branchId, long reorderId, int quantity) {
+        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderId));
+        Document updated = null;
+        Document exists = this.db.collection().find(filter).first();
+        // TODO: use findOneAndUpdate function to make it atomic
+        // TODO: use common implementation for update functions
+        if (exists != null) {
+            Reorder reorder = new Reorder(exists);
+            reorder = new Reorder(reorder.reorderId(), reorder.status(), reorder.date(), reorder.articleId(), quantity);
+            WarehouseEntity<Reorder> warehouseEntity = new WarehouseEntity<>(branchId, reorder);
+            FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
+            updated = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument(), options);
+        }
+
+        LOG.info("DB: {}updated reorder quantity for branch {} with id {} to {}",
+                updated != null ? "" : "not ", branchId, reorderId, quantity);
+        return updated != null ? new Reorder(updated) : null;
+    }
+
+    @Override
     public boolean delete(long branchId, long reorderID) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderID));
         Document removed = this.db.collection().findOneAndDelete(filter);

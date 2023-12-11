@@ -113,12 +113,32 @@ class ReordersDBTestIT {
         assertThat(updated.status()).isEqualTo(ReorderStatus.WAITING);
         assertThat(updated.date()).isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
         assertThat(updated.articleId()).isEqualTo(100001L);
-        assertThat(updated.quantity()).isEqualTo(1L);
+        assertThat(updated.quantity()).isEqualTo(1);
     }
 
     @Test
     void testUpdateStatusNotExisting() {
         Reorder updated = reordersDB.updateStatus(1L, 5L, ReorderStatus.COMPLETED);
+        assertThat(reordersDB.getAll(1L, null)).hasSize(2);
+        assertThat(reordersDB.getById(1L, 5L)).isNull();
+        assertThat(updated).isNull();
+    }
+
+    @Test
+    void testUpdateQuantityExisting() {
+        Reorder updated = reordersDB.updateQuantity(1L, 1L, 10);
+        assertThat(reordersDB.getAll(1L, null)).hasSize(2);
+        assertThat(reordersDB.getById(1L, 1L)).isEqualTo(updated);
+        assertThat(updated.reorderId()).isEqualTo(1L);
+        assertThat(updated.status()).isEqualTo(ReorderStatus.NEW);
+        assertThat(updated.date()).isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        assertThat(updated.articleId()).isEqualTo(100001L);
+        assertThat(updated.quantity()).isEqualTo(10);
+    }
+
+    @Test
+    void testUpdateQuantityNotExisting() {
+        Reorder updated = reordersDB.updateQuantity(1L, 5L, 10);
         assertThat(reordersDB.getAll(1L, null)).hasSize(2);
         assertThat(reordersDB.getById(1L, 5L)).isNull();
         assertThat(updated).isNull();

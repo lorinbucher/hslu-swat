@@ -44,10 +44,20 @@ public interface Reorders {
      *
      * @param branchId  ID of the branch.
      * @param reorderId ID of the reorder.
-     * @param status    Reorder status.
+     * @param status    New reorder status.
      * @return Reorder.
      */
     Reorder updateStatus(long branchId, long reorderId, ReorderStatus status);
+
+    /**
+     * Updates the status of a reorder of the branch.
+     *
+     * @param branchId  ID of the branch.
+     * @param reorderId ID of the reorder.
+     * @param quantity  New reorder quantity.
+     * @return Reorder.
+     */
+    Reorder updateQuantity(long branchId, long reorderId, int quantity);
 
     /**
      * Deletes a reorder from the branch.

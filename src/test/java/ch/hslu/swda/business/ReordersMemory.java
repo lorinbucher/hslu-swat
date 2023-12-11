@@ -57,6 +57,19 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
+    public Reorder updateQuantity(long branchId, long reorderId, int quantity) {
+        Reorder updated = null;
+        if (branchId == 1) {
+            Reorder exists = reorders.get(reorderId);
+            if (exists != null) {
+                Reorder reorder = new Reorder(reorderId, exists.status(), exists.date(), exists.articleId(), quantity);
+                updated = reorders.put(reorderId, reorder);
+            }
+        }
+        return updated;
+    }
+
+    @Override
     public boolean delete(long branchId, long reorderId) {
         if (branchId == 1) {
             reorders.remove(reorderId);
