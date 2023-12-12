@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.entities.WarehouseEntity;
 import com.mongodb.lang.Nullable;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public interface Deliveries {
      * @param status Status of the deliveries.
      * @return List of all deliveries.
      */
-    List<Delivery> getAllByStatus(DeliveryStatus status);
+    List<WarehouseEntity<Delivery>> getAllByStatus(DeliveryStatus status);
 
     /**
      * Adds a delivery for the branch.

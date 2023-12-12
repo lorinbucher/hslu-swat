@@ -1,9 +1,6 @@
 package ch.hslu.swda.business;
 
-import ch.hslu.swda.entities.Delivery;
-import ch.hslu.swda.entities.DeliveryArticle;
-import ch.hslu.swda.entities.DeliveryArticleStatus;
-import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.entities.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -88,16 +85,18 @@ class DeliveriesDBTestIT {
         deliveriesDB.create(2L, new Delivery(5L, DeliveryStatus.NEW, List.of()));
         deliveriesDB.updateStatus(1L, 1L, DeliveryStatus.WAITING);
         deliveriesDB.updateStatus(2L, 5L, DeliveryStatus.WAITING);
-        List<Delivery> reorders = deliveriesDB.getAllByStatus(DeliveryStatus.WAITING);
-        assertThat(reorders).hasSize(2);
-        assertThat(reorders.get(0).status()).isEqualTo(DeliveryStatus.WAITING);
-        assertThat(reorders.get(1).status()).isEqualTo(DeliveryStatus.WAITING);
+        List<WarehouseEntity<Delivery>> deliveries = deliveriesDB.getAllByStatus(DeliveryStatus.WAITING);
+        assertThat(deliveries).hasSize(2);
+        assertThat(deliveries.get(0).branchId()).isEqualTo(1L);
+        assertThat(((Delivery) deliveries.get(0).entity()).status()).isEqualTo(DeliveryStatus.WAITING);
+        assertThat(deliveries.get(1).branchId()).isEqualTo(2L);
+        assertThat(((Delivery) deliveries.get(1).entity()).status()).isEqualTo(DeliveryStatus.WAITING);
     }
 
     @Test
     void testGetAllByStatusEmpty() {
-        List<Delivery> reorders = deliveriesDB.getAllByStatus(DeliveryStatus.WAITING);
-        assertThat(reorders).hasSize(0);
+        List<WarehouseEntity<Delivery>> deliveries = deliveriesDB.getAllByStatus(DeliveryStatus.WAITING);
+        assertThat(deliveries).hasSize(0);
     }
 
     @Test

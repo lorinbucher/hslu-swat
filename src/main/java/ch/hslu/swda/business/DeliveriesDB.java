@@ -62,11 +62,11 @@ public final class DeliveriesDB implements Deliveries {
     }
 
     @Override
-    public List<Delivery> getAllByStatus(DeliveryStatus status) {
+    public List<WarehouseEntity<Delivery>> getAllByStatus(DeliveryStatus status) {
         Bson filter = Filters.eq("status", status);
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries with status {}", documents.size(), status);
-        return documents.stream().map(Delivery::new).toList();
+        return documents.stream().map(d -> new WarehouseEntity<>(d.getLong("branchId"), new Delivery(d))).toList();
     }
 
     @Override

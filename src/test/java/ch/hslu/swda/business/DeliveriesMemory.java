@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.entities.WarehouseEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,12 +31,12 @@ public class DeliveriesMemory implements Deliveries {
     }
 
     @Override
-    public List<Delivery> getAllByStatus(DeliveryStatus status) {
+    public List<WarehouseEntity<Delivery>> getAllByStatus(DeliveryStatus status) {
         List<Delivery> result = new ArrayList<>(deliveries.values());
         if (status != null) {
             result = result.stream().filter(d -> d.status() == status).toList();
         }
-        return result;
+        return result.stream().map(d -> new WarehouseEntity<>(1L, d)).toList();
     }
 
     @Override
