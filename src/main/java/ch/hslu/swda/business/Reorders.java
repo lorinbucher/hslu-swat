@@ -24,10 +24,18 @@ public interface Reorders {
      * Returns all reorders of a branch.
      *
      * @param branchId ID of the branch.
-     * @param status   Status filter of the reorders.
+     * @param status   Optional status filter.
+     * @return List of all reorders from a branch.
+     */
+    List<Reorder> getAllByBranch(long branchId, @Nullable ReorderStatus status);
+
+    /**
+     * Returns all reorders.
+     *
+     * @param status Status of the reorders.
      * @return List of all reorders.
      */
-    List<Reorder> getAll(long branchId, @Nullable final ReorderStatus status);
+    List<Reorder> getAllByStatus(ReorderStatus status);
 
     /**
      * Adds a reorder for the branch.

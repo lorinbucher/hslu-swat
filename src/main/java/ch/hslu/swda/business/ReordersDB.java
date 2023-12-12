@@ -50,7 +50,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAll(long branchId, @Nullable ReorderStatus status) {
+    public List<Reorder> getAllByBranch(long branchId, @Nullable ReorderStatus status) {
         Bson filter = Filters.eq("branchId", branchId);
         if (status != null) {
             filter = Filters.and(filter, Filters.eq("status", status.name()));
@@ -58,6 +58,14 @@ public final class ReordersDB implements Reorders {
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} reorders from branch {}{}", documents.size(), branchId,
                 status != null ? " with status " + status : "");
+        return documents.stream().map(Reorder::new).toList();
+    }
+
+    @Override
+    public List<Reorder> getAllByStatus(ReorderStatus status) {
+        Bson filter = Filters.eq("status", status);
+        List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
+        LOG.info("DB: read all {} reorders with status {}", documents.size(), status);
         return documents.stream().map(Reorder::new).toList();
     }
 
@@ -82,6 +90,7 @@ public final class ReordersDB implements Reorders {
         Document updated = null;
         Document exists = this.db.collection().find(filter).first();
         // TODO: use findOneAndUpdate function to make it atomic
+        // TODO: check if status change is allowed, throw IllegalStateException
         if (exists != null) {
             Reorder reorder = new Reorder(exists);
             reorder = new Reorder(reorder.reorderId(), status, reorder.date(), reorder.articleId(), reorder.quantity());

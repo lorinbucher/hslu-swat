@@ -22,12 +22,21 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAll(long branchId, ReorderStatus status) {
+    public List<Reorder> getAllByBranch(long branchId, ReorderStatus status) {
         List<Reorder> result = new ArrayList<>(reorders.values());
         if (status != null) {
             result = result.stream().filter(r -> r.status() == status).toList();
         }
         return branchId == 1 ? result : List.of();
+    }
+
+    @Override
+    public List<Reorder> getAllByStatus(ReorderStatus status) {
+        List<Reorder> result = new ArrayList<>(reorders.values());
+        if (status != null) {
+            result = result.stream().filter(r -> r.status() == status).toList();
+        }
+        return result;
     }
 
     @Override
