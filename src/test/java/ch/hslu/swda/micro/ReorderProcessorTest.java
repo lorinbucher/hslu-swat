@@ -6,6 +6,7 @@ import ch.hslu.swda.business.Reorders;
 import ch.hslu.swda.business.ReordersMemory;
 import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Article;
+import ch.hslu.swda.entities.ReorderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,5 +65,21 @@ class ReorderProcessorTest {
         assertThat(reorders.getAllByBranch(1L, null)).hasSize(3);
         assertThat(reorders.getById(1L, 3L).articleId()).isEqualTo(100002L);
         assertThat(reorders.getById(1L, 3L).quantity()).isEqualTo(6);
+    }
+
+    @Test
+    void testProcessDeliveredReorders() {
+        ReorderProcessor processor = new ReorderProcessor(publisher, productCatalog, reorders);
+        reorders.create(1L, 100001L, 5);
+        reorders.create(1L, 100002L, 10);
+        reorders.create(1L, 100002L, 15);
+        reorders.updateStatus(1L, 1L, ReorderStatus.DELIVERED);
+        reorders.updateStatus(1L, 2L, ReorderStatus.DELIVERED);
+        assertThat(reorders.getAllByStatus(ReorderStatus.DELIVERED)).hasSize(2);
+        processor.run();
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(10);
+        assertThat(productCatalog.getById(1L, 100002L).stock()).isEqualTo(17);
+        assertThat(reorders.getAllByStatus(ReorderStatus.DELIVERED)).hasSize(0);
+        assertThat(reorders.getAllByStatus(ReorderStatus.COMPLETED)).hasSize(2);
     }
 }
