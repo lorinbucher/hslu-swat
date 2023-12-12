@@ -48,6 +48,7 @@ class DeliveryProcessorTest {
         assertThat(deliveries.getAllByStatus(DeliveryStatus.COMPLETED)).hasSize(1);
 
         List<Delivery> processed = deliveries.getAllByBranch(1L, null);
+        assertThat(processed).hasSize(2);
         assertThat(processed.get(0).status()).isEqualTo(DeliveryStatus.DELIVERED);
         assertThat(processed.get(1).status()).isEqualTo(DeliveryStatus.COMPLETED);
         assertThat(processed.get(0).articles().get(0).status()).isEqualTo(DeliveryArticleStatus.RESERVED);
@@ -59,7 +60,6 @@ class DeliveryProcessorTest {
         assertThat(catalog.getById(1L, 100002L).reserved()).isEqualTo(0);
     }
 
-    @Disabled
     @Test
     void testProcessNewAndModifiedDeliveriesAdd() {
         DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.ADD);
@@ -74,6 +74,7 @@ class DeliveryProcessorTest {
         processor.run();
 
         List<Delivery> processed = deliveries.getAllByBranch(1L, null);
+        assertThat(processed).hasSize(2);
         assertThat(processed.get(0).articles()).hasSize(2);
         assertThat(processed.get(1).articles()).hasSize(2);
         assertThat(processed.get(0).articles()).allMatch(a -> a.status() == DeliveryArticleStatus.RESERVED);
@@ -84,7 +85,6 @@ class DeliveryProcessorTest {
         assertThat(catalog.getById(1L, 100002L).reserved()).isEqualTo(9);
     }
 
-    @Disabled
     @Test
     void testProcessNewAndModifiedDeliveriesModify() {
         DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.ADD);
@@ -99,6 +99,7 @@ class DeliveryProcessorTest {
         processor.run();
 
         List<Delivery> processed = deliveries.getAllByBranch(1L, null);
+        assertThat(processed).hasSize(2);
         assertThat(processed.get(0).articles()).hasSize(2);
         assertThat(processed.get(1).articles()).hasSize(2);
         assertThat(processed.get(0).articles()).allMatch(a -> a.status() == DeliveryArticleStatus.RESERVED);
@@ -109,7 +110,6 @@ class DeliveryProcessorTest {
         assertThat(catalog.getById(1L, 100002L).reserved()).isEqualTo(9);
     }
 
-    @Disabled
     @Test
     void testProcessNewAndModifiedDeliveriesRemove() {
         DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.ADD);
@@ -122,9 +122,9 @@ class DeliveryProcessorTest {
 
         DeliveryProcessor processor = new DeliveryProcessor(publisher, catalog, deliveries);
         processor.run();
-        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(1);
 
         List<Delivery> processed = deliveries.getAllByBranch(1L, null);
+        assertThat(processed).hasSize(1);
         assertThat(processed.get(0).articles()).hasSize(1);
         assertThat(processed.get(0).articles()).allMatch(a -> a.status() == DeliveryArticleStatus.RESERVED);
         assertThat(catalog.getById(1L, 100001L).stock()).isEqualTo(5);
