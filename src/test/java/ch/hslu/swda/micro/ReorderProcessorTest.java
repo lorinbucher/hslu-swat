@@ -82,4 +82,29 @@ class ReorderProcessorTest {
         assertThat(reorders.getAllByStatus(ReorderStatus.DELIVERED)).hasSize(0);
         assertThat(reorders.getAllByStatus(ReorderStatus.COMPLETED)).hasSize(2);
     }
+
+    @Test
+    void testProcessNewReorders() {
+        ReorderProcessor processor = new ReorderProcessor(publisher, productCatalog, reorders);
+        reorders.create(1L, 100001L, 5);
+        reorders.create(1L, 100002L, 10);
+        assertThat(reorders.getAllByStatus(ReorderStatus.NEW)).hasSize(2);
+        processor.run();
+        assertThat(reorders.getAllByStatus(ReorderStatus.NEW)).hasSize(0);
+        assertThat(reorders.getAllByStatus(ReorderStatus.WAITING)).hasSize(2);
+        assertThat(reorders.getById(1L, 1L).quantity()).isEqualTo(5);
+        assertThat(reorders.getById(1L, 2L).quantity()).isEqualTo(10);
+    }
+
+    @Test
+    void testProcessNewReordersBig() {
+        ReorderProcessor processor = new ReorderProcessor(publisher, productCatalog, reorders);
+        reorders.create(1L, 100001L, 1000);
+        reorders.create(1L, 100001L, 5);
+        assertThat(reorders.getAllByStatus(ReorderStatus.NEW)).hasSize(2);
+        processor.run();
+        assertThat(reorders.getAllByStatus(ReorderStatus.NEW)).hasSize(1);
+        assertThat(reorders.getAllByStatus(ReorderStatus.WAITING)).hasSize(1);
+        assertThat(reorders.getById(1L, 1L).quantity()).isBetween(1, 1000);
+    }
 }

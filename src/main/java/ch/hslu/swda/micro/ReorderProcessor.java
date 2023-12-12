@@ -7,10 +7,10 @@ import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
 import ch.hslu.swda.entities.WarehouseEntity;
+import ch.hslu.swda.stock.api.Stock;
+import ch.hslu.swda.stock.local.StockLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * Implements reorder processing.
@@ -24,6 +24,8 @@ public final class ReorderProcessor implements Runnable {
     private final ProductCatalog catalog;
     private final Reorders reorders;
 
+    private final Stock stock;
+
     /**
      * Constructor.
      *
@@ -36,6 +38,7 @@ public final class ReorderProcessor implements Runnable {
         this.eventLogger = messagePublisher;
         this.catalog = catalog;
         this.reorders = reorders;
+        this.stock = new StockLocal();
     }
 
     /**
@@ -74,20 +77,17 @@ public final class ReorderProcessor implements Runnable {
      */
     private void processDeliveredReorders() {
         LOG.info("Start processing delivered reorders");
-        for (WarehouseEntity<Reorder> reorderEntity : reorders.getAllByStatus(ReorderStatus.DELIVERED)) {
-            Reorder reorder = (Reorder) reorderEntity.entity();
-            LOG.info("Processing delivered reorder {} from branch {}", reorder.reorderId(), reorderEntity.branchId());
+        for (WarehouseEntity<Reorder> entity : reorders.getAllByStatus(ReorderStatus.DELIVERED)) {
+            Reorder reorder = (Reorder) entity.entity();
+            LOG.info("Processing delivered reorder {} from branch {}", reorder.reorderId(), entity.branchId());
 
-            boolean result = catalog.changeStock(reorderEntity.branchId(), reorder.articleId(), reorder.quantity());
-            if (result) {
-                reorders.updateStatus(reorderEntity.branchId(), reorder.reorderId(), ReorderStatus.COMPLETED);
-                String message = "Received delivery for reorder " + reorder.reorderId() + " from central warehouse";
-                LogEventDTO event = new LogEventDTO(reorderEntity.branchId(), "reorder.delivered", message);
-                eventLogger.sendMessage(Routes.LOG_EVENT, event);
-                LOG.info("Reorder {} from branch {} completed", reorder.reorderId(), reorderEntity.branchId());
-            } else {
-                LOG.error("Reorder {} from branch {} not completed", reorder.reorderId(), reorderEntity.branchId());
-            }
+            catalog.changeStock(entity.branchId(), reorder.articleId(), reorder.quantity());
+            reorders.updateStatus(entity.branchId(), reorder.reorderId(), ReorderStatus.COMPLETED);
+            LOG.info("Completed reorder {} from branch {}", reorder.reorderId(), entity.branchId());
+
+            String message = "Received delivery for reorder " + reorder.reorderId() + " from central warehouse";
+            LogEventDTO event = new LogEventDTO(entity.branchId(), "reorder.delivered", message);
+            eventLogger.sendMessage(Routes.LOG_EVENT, event);
         }
         LOG.info("Finished processing delivered reorders");
     }
@@ -97,6 +97,42 @@ public final class ReorderProcessor implements Runnable {
      */
     private void processNewReorders() {
         LOG.info("Start processing new reorders");
+        for (WarehouseEntity<Reorder> entity : reorders.getAllByStatus(ReorderStatus.NEW)) {
+            Reorder reorder = (Reorder) entity.entity();
+            LOG.info("Processing new reorder {} from branch {}", reorder.reorderId(), entity.branchId());
+
+            int ordered = orderArticles((int) reorder.articleId(), reorder.quantity());
+            if (ordered > 0) {
+                reorders.updateQuantity(entity.branchId(), reorder.reorderId(), ordered);
+                reorders.updateStatus(entity.branchId(), reorder.reorderId(), ReorderStatus.WAITING);
+                LOG.info("Reordered {} items of article {} for branch {}",
+                        ordered, reorder.articleId(), entity.branchId());
+
+                String message = "Ordered " + ordered + " items of " + reorder.articleId() + " from central warehouse";
+                LogEventDTO event = new LogEventDTO(entity.branchId(), "reorder.new", message);
+                eventLogger.sendMessage(Routes.LOG_EVENT, event);
+            } else {
+                LOG.error("Failed to reorder article {} for branch {}", reorder.articleId(), entity.branchId());
+            }
+        }
         LOG.info("Finished processing new reorders");
+    }
+
+    /**
+     * Reorders an article from the central warehouse.
+     *
+     * @param articleId ID of the article.
+     * @param quantity  Number of items to order.
+     */
+    private int orderArticles(int articleId, int quantity) {
+        int stockCount = stock.getItemCount(articleId);
+        int ordered;
+        if (stockCount >= quantity) {
+            ordered = stock.orderItem(articleId, quantity);
+        } else {
+            LOG.info("Not anough articles in central warehouse stock, ordering only {} items", stockCount);
+            ordered = stock.orderItem(articleId, stockCount);
+        }
+        return ordered;
     }
 }
