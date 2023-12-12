@@ -65,29 +65,46 @@ class DeliveriesDBTestIT {
     }
 
     @Test
-    void testGetAll() {
-        List<Delivery> deliveries = deliveriesDB.getAll(1L, null);
+    void testGetAllByBranch() {
+        List<Delivery> deliveries = deliveriesDB.getAllByBranch(1L, null);
         assertThat(deliveries).hasSize(2);
     }
 
     @Test
-    void testGetAllEmpty() {
-        List<Delivery> deliveries = deliveriesDB.getAll(2L, null);
+    void testGetAllByBranchEmpty() {
+        List<Delivery> deliveries = deliveriesDB.getAllByBranch(2L, null);
         assertThat(deliveries).isEmpty();
     }
 
     @Test
-    void testGetAllByStatus() {
-        List<Delivery> deliveries = deliveriesDB.getAll(1L, DeliveryStatus.COMPLETED);
+    void testGetAllByBranchWithStatus() {
+        List<Delivery> deliveries = deliveriesDB.getAllByBranch(1L, DeliveryStatus.COMPLETED);
         assertThat(deliveries).hasSize(1);
         assertThat(deliveries.get(0).status()).isEqualTo(DeliveryStatus.COMPLETED);
+    }
+
+    @Test
+    void testGetAllByStatus() {
+        deliveriesDB.create(2L, new Delivery(5L, DeliveryStatus.NEW, List.of()));
+        deliveriesDB.updateStatus(1L, 1L, DeliveryStatus.WAITING);
+        deliveriesDB.updateStatus(2L, 5L, DeliveryStatus.WAITING);
+        List<Delivery> reorders = deliveriesDB.getAllByStatus(DeliveryStatus.WAITING);
+        assertThat(reorders).hasSize(2);
+        assertThat(reorders.get(0).status()).isEqualTo(DeliveryStatus.WAITING);
+        assertThat(reorders.get(1).status()).isEqualTo(DeliveryStatus.WAITING);
+    }
+
+    @Test
+    void testGetAllByStatusEmpty() {
+        List<Delivery> reorders = deliveriesDB.getAllByStatus(DeliveryStatus.WAITING);
+        assertThat(reorders).hasSize(0);
     }
 
     @Test
     void testCreateExisting() {
         Delivery delivery = new Delivery(1L, DeliveryStatus.WAITING, List.of(articles.get(0)));
         Delivery created = deliveriesDB.create(1L, delivery);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(2);
         assertThat(created).isEqualTo(delivery);
         assertThat(created.status()).isNotEqualTo(delivery.status());
         assertThat(created.articles()).isNotEqualTo(delivery.articles());
@@ -97,7 +114,7 @@ class DeliveriesDBTestIT {
     void testCreateNotExisting() {
         Delivery delivery = new Delivery(5L, DeliveryStatus.NEW, articles);
         Delivery created = deliveriesDB.create(1L, delivery);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(3);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(3);
         assertThat(deliveriesDB.getById(1L, 5L)).isEqualTo(delivery);
         assertThat(created).isEqualTo(delivery);
         assertThat(created.status()).isEqualTo(delivery.status());
@@ -108,7 +125,7 @@ class DeliveriesDBTestIT {
     void testUpdateExisting() {
         Delivery delivery = new Delivery(1L, DeliveryStatus.DELIVERED, List.of(articles.get(1)));
         Delivery updated = deliveriesDB.update(1L, 1L, delivery);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveriesDB.getById(1L, 1L)).isEqualTo(delivery);
         assertThat(updated).isEqualTo(delivery);
         assertThat(updated.status()).isEqualTo(delivery.status());
@@ -119,7 +136,7 @@ class DeliveriesDBTestIT {
     void testUpdateExistingIdMismatch() {
         Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(1)));
         Delivery updated = deliveriesDB.update(1L, 1L, delivery);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(2);
         assertThat(updated.orderNumber()).isEqualTo(1L);
         assertThat(updated.status()).isEqualTo(delivery.status());
         assertThat(updated.articles()).isEqualTo(delivery.articles());
@@ -129,7 +146,7 @@ class DeliveriesDBTestIT {
     void testUpdateNotExisting() {
         Delivery delivery = new Delivery(5L, DeliveryStatus.WAITING, List.of(articles.get(1)));
         Delivery updated = deliveriesDB.update(1L, 5L, delivery);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveriesDB.getById(1L, 5L)).isNull();
         assertThat(updated).isNull();
     }
@@ -137,7 +154,7 @@ class DeliveriesDBTestIT {
     @Test
     void testUpdateStatusExisting() {
         Delivery updated = deliveriesDB.updateStatus(1L, 1L, DeliveryStatus.DELIVERED);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveriesDB.getById(1L, 1L)).isEqualTo(updated);
         assertThat(deliveriesDB.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.DELIVERED);
     }
@@ -145,7 +162,7 @@ class DeliveriesDBTestIT {
     @Test
     void testUpdateStatusNotExisting() {
         Delivery updated = deliveriesDB.updateStatus(1L, 5L, DeliveryStatus.DELIVERED);
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveriesDB.getById(1L, 5L)).isNull();
         assertThat(updated).isNull();
     }
@@ -154,7 +171,7 @@ class DeliveriesDBTestIT {
     void testDeleteExisting() {
         boolean result = deliveriesDB.delete(1L, 1L);
         assertThat(result).isTrue();
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(1);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(1);
         assertThat(deliveriesDB.getById(1L, 1L)).isNull();
     }
 
@@ -162,6 +179,6 @@ class DeliveriesDBTestIT {
     void testDeleteNotExisting() {
         boolean result = deliveriesDB.delete(1L, 5L);
         assertThat(result).isFalse();
-        assertThat(deliveriesDB.getAll(1L, null)).hasSize(2);
+        assertThat(deliveriesDB.getAllByBranch(1L, null)).hasSize(2);
     }
 }

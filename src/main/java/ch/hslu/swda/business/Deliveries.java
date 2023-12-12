@@ -24,10 +24,18 @@ public interface Deliveries {
      * Returns all deliveries of a branch.
      *
      * @param branchId ID of the branch.
-     * @param status   Status filter of the deliveries.
+     * @param status   Optional status filter.
+     * @return List of all deliveries from a branch.
+     */
+    List<Delivery> getAllByBranch(long branchId, @Nullable DeliveryStatus status);
+
+    /**
+     * Returns all deliveries.
+     *
+     * @param status Status of the deliveries.
      * @return List of all deliveries.
      */
-    List<Delivery> getAll(long branchId, @Nullable final DeliveryStatus status);
+    List<Delivery> getAllByStatus(DeliveryStatus status);
 
     /**
      * Adds a delivery for the branch.

@@ -50,7 +50,7 @@ public final class DeliveriesDB implements Deliveries {
     }
 
     @Override
-    public List<Delivery> getAll(long branchId, @Nullable DeliveryStatus status) {
+    public List<Delivery> getAllByBranch(long branchId, @Nullable DeliveryStatus status) {
         Bson filter = Filters.eq("branchId", branchId);
         if (status != null) {
             filter = Filters.and(filter, Filters.eq("status", status.name()));
@@ -58,6 +58,14 @@ public final class DeliveriesDB implements Deliveries {
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries from branch {}{}", documents.size(), branchId,
                 status != null ? " with status " + status : "");
+        return documents.stream().map(Delivery::new).toList();
+    }
+
+    @Override
+    public List<Delivery> getAllByStatus(DeliveryStatus status) {
+        Bson filter = Filters.eq("status", status);
+        List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
+        LOG.info("DB: read all {} deliveries with status {}", documents.size(), status);
         return documents.stream().map(Delivery::new).toList();
     }
 
@@ -96,6 +104,7 @@ public final class DeliveriesDB implements Deliveries {
         Document updated = null;
         Document exists = this.db.collection().find(filter).first();
         // TODO: use findOneAndUpdate function to make it atomic
+        // TODO: check if status change is allowed, throw IllegalStateException
         if (exists != null) {
             Delivery delivery = new Delivery(exists);
             delivery = new Delivery(delivery.orderNumber(), status, delivery.articles());

@@ -39,7 +39,7 @@ class OrderMessageProcessorTest {
     void testInvalidMessageReceived() throws InterruptedException {
         listener.mockMessage(Routes.ORDER, "{}");
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
     }
 
     @Test
@@ -47,7 +47,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(5L, List.of());
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
     }
 
     @Test
@@ -55,7 +55,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(1L, List.of());
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).articles().get(0).articleId()).isEqualTo(100001L);
@@ -72,7 +72,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(5L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(3);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(3);
         assertThat(deliveries.getById(1L, 5L).status()).isEqualTo(DeliveryStatus.NEW);
         assertThat(deliveries.getById(1L, 5L).articles()).hasSize(1);
         assertThat(deliveries.getById(1L, 5L).articles().get(0).articleId()).isEqualTo(100001L);
@@ -86,7 +86,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(5L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(3);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(3);
         assertThat(deliveries.getById(1L, 5L).status()).isEqualTo(DeliveryStatus.NEW);
         assertThat(deliveries.getById(1L, 5L).articles()).hasSize(1);
         assertThat(deliveries.getById(1L, 5L).articles().get(0).articleId()).isEqualTo(100001L);
@@ -100,7 +100,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).articles().get(0).articleId()).isEqualTo(100001L);
@@ -118,7 +118,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).articles().get(0).articleId()).isEqualTo(100001L);
@@ -136,7 +136,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).articles().get(0).articleId()).isEqualTo(100001L);
@@ -154,7 +154,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).articles().get(0).articleId()).isEqualTo(100001L);
@@ -172,7 +172,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(2L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 2L).status()).isEqualTo(DeliveryStatus.DELIVERED);
         assertThat(deliveries.getById(1L, 2L).articles()).hasSize(1);
         assertThat(deliveries.getById(1L, 2L).articles().get(0).articleId()).isEqualTo(100002L);
@@ -186,7 +186,7 @@ class OrderMessageProcessorTest {
         String message = createMessageString(2L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
         TimeUnit.MILLISECONDS.sleep(100);
-        assertThat(deliveries.getAll(1L, null)).hasSize(2);
+        assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 2L).status()).isEqualTo(DeliveryStatus.COMPLETED);
         assertThat(deliveries.getById(1L, 2L).articles()).hasSize(1);
         assertThat(deliveries.getById(1L, 2L).articles().get(0).articleId()).isEqualTo(100002L);

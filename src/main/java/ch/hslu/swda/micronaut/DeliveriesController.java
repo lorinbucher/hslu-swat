@@ -50,7 +50,7 @@ public final class DeliveriesController {
     @Tag(name = "delivery")
     @Get("/{branchId}")
     public List<Delivery> getAll(final long branchId, @QueryValue("status") @Nullable final DeliveryStatus status) {
-        final List<Delivery> result = deliveries.getAll(branchId, status);
+        final List<Delivery> result = deliveries.getAllByBranch(branchId, status);
         LOG.info("REST: All {} deliveries from branch {}{} returned.", result.size(), branchId,
                 status != null ? " with status " + status : "");
         return result;

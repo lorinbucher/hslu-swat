@@ -21,12 +21,21 @@ public class DeliveriesMemory implements Deliveries {
     }
 
     @Override
-    public List<Delivery> getAll(long branchId, DeliveryStatus status) {
+    public List<Delivery> getAllByBranch(long branchId, DeliveryStatus status) {
         List<Delivery> result = new ArrayList<>(deliveries.values());
         if (status != null) {
             result = result.stream().filter(d -> d.status() == status).toList();
         }
         return branchId == 1 ? result : List.of();
+    }
+
+    @Override
+    public List<Delivery> getAllByStatus(DeliveryStatus status) {
+        List<Delivery> result = new ArrayList<>(deliveries.values());
+        if (status != null) {
+            result = result.stream().filter(d -> d.status() == status).toList();
+        }
+        return result;
     }
 
     @Override
