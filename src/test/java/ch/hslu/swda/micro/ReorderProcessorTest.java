@@ -35,7 +35,7 @@ class ReorderProcessorTest {
     void testReorderArticlesWithLowStockNone() {
         ReorderProcessor processor = new ReorderProcessor(publisher, productCatalog, reorders);
         processor.run();
-        assertThat(reorders.getAll(1L, null)).isEmpty();
+        assertThat(reorders.getAllByBranch(1L, null)).isEmpty();
     }
 
     @Test
@@ -44,7 +44,7 @@ class ReorderProcessorTest {
         productCatalog.changeStock(1L, 100001L, -3);
         productCatalog.changeReserved(1L, 100002L, 10);
         processor.run();
-        assertThat(reorders.getAll(1L, null)).hasSize(2);
+        assertThat(reorders.getAllByBranch(1L, null)).hasSize(2);
         assertThat(reorders.getById(1L, 1L).articleId()).isEqualTo(100001L);
         assertThat(reorders.getById(1L, 1L).quantity()).isEqualTo(4);
         assertThat(reorders.getById(1L, 2L).articleId()).isEqualTo(100002L);
@@ -57,11 +57,11 @@ class ReorderProcessorTest {
         productCatalog.changeStock(1L, 100001L, -3);
         productCatalog.changeReserved(1L, 100002L, 10);
         processor.run();
-        assertThat(reorders.getAll(1L, null)).hasSize(2);
+        assertThat(reorders.getAllByBranch(1L, null)).hasSize(2);
         productCatalog.changeReserved(1L, 100001L, 3);
         productCatalog.changeStock(1L, 100002L, -6);
         processor.run();
-        assertThat(reorders.getAll(1L, null)).hasSize(3);
+        assertThat(reorders.getAllByBranch(1L, null)).hasSize(3);
         assertThat(reorders.getById(1L, 3L).articleId()).isEqualTo(100002L);
         assertThat(reorders.getById(1L, 3L).quantity()).isEqualTo(6);
     }
