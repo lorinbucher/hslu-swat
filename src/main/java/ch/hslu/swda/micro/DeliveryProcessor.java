@@ -2,62 +2,42 @@ package ch.hslu.swda.micro;
 
 import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.business.ProductCatalog;
-import ch.hslu.swda.entities.*;
+import ch.hslu.swda.dto.LogEventDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Implements order delivery processing.
  */
-public final class DeliveryProcessor {
+public final class DeliveryProcessor implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryProcessor.class);
 
+    private final MessagePublisher<LogEventDTO> eventLogger;
+
+    private final ProductCatalog catalog;
     private final Deliveries deliveries;
-    private final ProductCatalog productCatalog;
 
     /**
      * Constructor.
+     *
+     * @param messagePublisher Log message publisher.
+     * @param deliveries       Product catalog warehouse.
+     * @param catalog          Reorders warehouse.
      */
-    public DeliveryProcessor(final Deliveries deliveries, final ProductCatalog productCatalog) {
+    public DeliveryProcessor(final MessagePublisher<LogEventDTO> messagePublisher,
+                             final ProductCatalog catalog, final Deliveries deliveries) {
+        this.eventLogger = messagePublisher;
+        this.catalog = catalog;
         this.deliveries = deliveries;
-        this.productCatalog = productCatalog;
     }
 
     /**
-     * Changes the status of the delivery to the completed status.
-     *
-     * @param branchId    ID of the branch.
-     * @param orderNumber Order number.
-     * @return Delivery.
+     * Processed deliveries.
      */
-    public Delivery changeToCompleted(final long branchId, final long orderNumber) {
-        Delivery delivery = deliveries.getById(branchId, orderNumber);
-        if (delivery != null) {
-            // TODO (lorin): Temporary disabled until delivery processing is implemented
-            //if (delivery.status() != DeliveryStatus.READY) {
-            //    LOG.warn("REST: Delivery {} from branch {} is not ready yet", orderNumber, branchId);
-            //    throw new IllegalStateException("Delivery is not ready yet");
-            //}
-
-            // TODO (lorin): Remove after delivery processing is implemented
-            for (DeliveryArticle deliveryArticle : delivery.articles()) {
-                Article article = productCatalog.getById(branchId, deliveryArticle.articleId());
-                if (article == null || article.stock() < deliveryArticle.quantity()) {
-                    throw new IllegalStateException("Not all articles in stock");
-                }
-            }
-
-            for (DeliveryArticle deliveryArticle : delivery.articles()) {
-                productCatalog.changeStock(branchId, deliveryArticle.articleId(), -deliveryArticle.quantity());
-            }
-
-            Delivery completedDelivery = new Delivery(orderNumber, DeliveryStatus.COMPLETED, delivery.articles()
-                    .stream()
-                    .map(a -> new DeliveryArticle(a.articleId(), a.quantity(), DeliveryArticleStatus.DELIVERED))
-                    .toList());
-            delivery = deliveries.update(branchId, orderNumber, completedDelivery);
-        }
-        return delivery;
+    @Override
+    public void run() {
+        LOG.info("Starting scheduled delivery processing");
+        LOG.info("Finished scheduled delivery processing");
     }
 }
