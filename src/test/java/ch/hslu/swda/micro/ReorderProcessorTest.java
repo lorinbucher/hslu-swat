@@ -82,7 +82,7 @@ class ReorderProcessorTest {
         processor.run();
         assertThat(catalog.getById(1L, 100001L).stock()).isEqualTo(10);
         assertThat(catalog.getById(1L, 100002L).stock()).isEqualTo(17);
-        assertThat(reorders.getAllByStatus(ReorderStatus.DELIVERED)).hasSize(0);
+        assertThat(reorders.getAllByStatus(ReorderStatus.DELIVERED)).isEmpty();
         assertThat(reorders.getAllByStatus(ReorderStatus.COMPLETED)).hasSize(2);
     }
 
@@ -94,7 +94,7 @@ class ReorderProcessorTest {
 
         ReorderProcessor processor = new ReorderProcessor(publisher, catalog, reorders);
         processor.run();
-        assertThat(reorders.getAllByStatus(ReorderStatus.NEW)).hasSize(0);
+        assertThat(reorders.getAllByStatus(ReorderStatus.NEW)).isEmpty();
         assertThat(reorders.getAllByStatus(ReorderStatus.WAITING)).hasSize(2);
         assertThat(reorders.getById(1L, 1L).quantity()).isEqualTo(5);
         assertThat(reorders.getById(1L, 2L).quantity()).isEqualTo(10);
