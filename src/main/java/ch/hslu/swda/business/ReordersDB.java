@@ -62,11 +62,11 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAllByStatus(ReorderStatus status) {
+    public List<WarehouseEntity<Reorder>> getAllByStatus(ReorderStatus status) {
         Bson filter = Filters.eq("status", status);
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} reorders with status {}", documents.size(), status);
-        return documents.stream().map(Reorder::new).toList();
+        return documents.stream().map(d -> new WarehouseEntity<>(d.getLong("branchId"), new Reorder(d))).toList();
     }
 
     @Override

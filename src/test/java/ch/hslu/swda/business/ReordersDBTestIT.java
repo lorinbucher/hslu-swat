@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
+import ch.hslu.swda.entities.WarehouseEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -83,15 +84,17 @@ class ReordersDBTestIT {
         reordersDB.create(2L, 100001L, 5);
         reordersDB.updateStatus(1L, 1L, ReorderStatus.WAITING);
         reordersDB.updateStatus(2L, 3L, ReorderStatus.WAITING);
-        List<Reorder> reorders = reordersDB.getAllByStatus(ReorderStatus.WAITING);
+        List<WarehouseEntity<Reorder>> reorders = reordersDB.getAllByStatus(ReorderStatus.WAITING);
         assertThat(reorders).hasSize(2);
-        assertThat(reorders.get(0).status()).isEqualTo(ReorderStatus.WAITING);
-        assertThat(reorders.get(1).status()).isEqualTo(ReorderStatus.WAITING);
+        assertThat(reorders.get(0).branchId()).isEqualTo(1L);
+        assertThat(((Reorder) reorders.get(0).entity()).status()).isEqualTo(ReorderStatus.WAITING);
+        assertThat(reorders.get(1).branchId()).isEqualTo(2L);
+        assertThat(((Reorder) reorders.get(1).entity()).status()).isEqualTo(ReorderStatus.WAITING);
     }
 
     @Test
     void testGetAllByStatusEmpty() {
-        List<Reorder> reorders = reordersDB.getAllByStatus(ReorderStatus.COMPLETED);
+        List<WarehouseEntity<Reorder>> reorders = reordersDB.getAllByStatus(ReorderStatus.COMPLETED);
         assertThat(reorders).hasSize(0);
     }
 

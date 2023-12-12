@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
+import ch.hslu.swda.entities.WarehouseEntity;
 import com.mongodb.lang.Nullable;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public interface Reorders {
      * @param status Status of the reorders.
      * @return List of all reorders.
      */
-    List<Reorder> getAllByStatus(ReorderStatus status);
+    List<WarehouseEntity<Reorder>> getAllByStatus(ReorderStatus status);
 
     /**
      * Adds a reorder for the branch.

@@ -2,6 +2,7 @@ package ch.hslu.swda.business;
 
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
+import ch.hslu.swda.entities.WarehouseEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +32,12 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAllByStatus(ReorderStatus status) {
+    public List<WarehouseEntity<Reorder>> getAllByStatus(ReorderStatus status) {
         List<Reorder> result = new ArrayList<>(reorders.values());
         if (status != null) {
             result = result.stream().filter(r -> r.status() == status).toList();
         }
-        return result;
+        return result.stream().map(r -> new WarehouseEntity<>(1L, r)).toList();
     }
 
     @Override
