@@ -5,7 +5,6 @@ import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
 import ch.hslu.swda.micro.MessagePublisher;
-import ch.hslu.swda.micro.Routes;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -82,7 +81,7 @@ public final class ReordersController {
      */
     @Tag(name = "reorder")
     @Patch("/{branchId}/{reorderId}")
-    public Reorder changeState(final long branchId, final long reorderId, @JsonProperty ReorderStatus status) {
+    public Reorder changeStatus(final long branchId, final long reorderId, @JsonProperty ReorderStatus status) {
         if (status != ReorderStatus.DELIVERED) {
             LOG.warn("REST: Reorder status cannot be changed to {}", status);
             throw new IllegalArgumentException("Reorder status can only be changed to DELIVERED");
@@ -91,12 +90,10 @@ public final class ReordersController {
         Reorder reorder = reorders.updateStatus(branchId, reorderId, status);
         if (reorder != null) {
             LOG.info("REST: Reorder {} from branch {} was delivered", reorderId, branchId);
-            String message = "Received delivery for reorder " + reorderId + " from central warehouse";
-            eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "reorder.delivered", message));
         } else {
             LOG.error("REST: Failed to set status of reorder {} from branch {} to delivered", reorderId, branchId);
         }
-        return null;
+        return reorder;
     }
 
     @Error(exception = IllegalArgumentException.class)
@@ -107,7 +104,7 @@ public final class ReordersController {
     }
 
     @Error(exception = IllegalStateException.class)
-    public HttpResponse<JsonError> notReady(HttpRequest request, IllegalStateException ex) {
+    public HttpResponse<JsonError> notDelivered(HttpRequest request, IllegalStateException ex) {
         JsonError error = new JsonError(ex.getMessage())
                 .link(Link.SELF, Link.of(request.getUri()));
         return HttpResponse.<JsonError>badRequest().body(error);

@@ -68,9 +68,9 @@ public class DeliveriesMemory implements Deliveries {
     public Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status) {
         Delivery updated = null;
         if (branchId == 1) {
-            updated = deliveries.get(orderNumber);
-            if (updated != null) {
-                Delivery delivery = new Delivery(orderNumber, status, updated.articles());
+            Delivery exists = deliveries.get(orderNumber);
+            if (exists != null) {
+                Delivery delivery = new Delivery(orderNumber, status, exists.articles());
                 updated = deliveries.put(orderNumber, delivery);
             }
         }

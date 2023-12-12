@@ -2,7 +2,6 @@ package ch.hslu.swda.micronaut;
 
 import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.dto.ArticleDeliveredDTO;
-import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
 import ch.hslu.swda.micro.MessagePublisher;
@@ -34,9 +33,6 @@ public final class DeliveriesController {
 
     @Inject
     private MessagePublisher<ArticleDeliveredDTO> deliveryPublisher;
-
-    @Inject
-    private MessagePublisher<LogEventDTO> eventLogger;
 
     /**
      * Get all deliveries of the branch.
@@ -86,7 +82,7 @@ public final class DeliveriesController {
      */
     @Tag(name = "delivery")
     @Patch("/{branchId}/{orderNumber}")
-    public Delivery changeState(final long branchId, final long orderNumber, @JsonProperty DeliveryStatus status) {
+    public Delivery changeStatus(final long branchId, final long orderNumber, @JsonProperty DeliveryStatus status) {
         if (status != DeliveryStatus.DELIVERED) {
             LOG.warn("REST: Delivery status cannot be changed to {}", status);
             throw new IllegalArgumentException("Delivery status can only be changed to DELIVERED");
@@ -96,8 +92,6 @@ public final class DeliveriesController {
         if (delivery != null) {
             LOG.info("REST: Delivery {} from branch {} was delivered", orderNumber, branchId);
             deliveryPublisher.sendMessage(Routes.ARTICLE_DELIVERED, new ArticleDeliveredDTO(branchId, orderNumber));
-            String message = "Delivered articles for order number " + orderNumber;
-            eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "delivery.delivered", message));
         } else {
             LOG.error("REST: Failed to set status of delivery {} from branch {} to delivered", orderNumber, branchId);
         }
