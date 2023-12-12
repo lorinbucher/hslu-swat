@@ -7,7 +7,6 @@ import ch.hslu.swda.business.ProductCatalogMemory;
 import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -133,7 +132,6 @@ class DeliveryProcessorTest {
         assertThat(catalog.getById(1L, 100002L).reserved()).isEqualTo(3);
     }
 
-    @Disabled
     @Test
     void testProcessWaitingAndReadyDeliveriesNotReserved() {
         DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
@@ -155,12 +153,11 @@ class DeliveryProcessorTest {
         assertThat(processed.get(0).articles().get(1).status()).isEqualTo(DeliveryArticleStatus.MODIFY);
         assertThat(processed.get(1).articles().get(0).status()).isEqualTo(DeliveryArticleStatus.MODIFY);
         assertThat(catalog.getById(1L, 100001L).stock()).isEqualTo(5);
-        assertThat(catalog.getById(1L, 100001L).reserved()).isEqualTo(5);
+        assertThat(catalog.getById(1L, 100001L).reserved()).isEqualTo(3);
         assertThat(catalog.getById(1L, 100002L).stock()).isEqualTo(10);
         assertThat(catalog.getById(1L, 100002L).reserved()).isEqualTo(6);
     }
 
-    @Disabled
     @Test
     void testProcessWaitingAndReadyDeliveriesNotInStock() {
         DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
@@ -176,7 +173,6 @@ class DeliveryProcessorTest {
         assertThat(deliveries.getAllByStatus(DeliveryStatus.READY)).isEmpty();
     }
 
-    @Disabled
     @Test
     void testProcessWaitingAndReadyDeliveriesInStock() {
         DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);

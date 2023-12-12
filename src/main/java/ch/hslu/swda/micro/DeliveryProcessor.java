@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Implements order delivery processing.
@@ -45,10 +46,8 @@ public final class DeliveryProcessor implements Runnable {
     public void run() {
         LOG.info("Starting scheduled delivery processing");
         processDelivered();
-        processNewAndModified(deliveries.getAllByStatus(DeliveryStatus.NEW));
-        processNewAndModified(deliveries.getAllByStatus(DeliveryStatus.MODIFIED));
-        processWaitingAndReady(deliveries.getAllByStatus(DeliveryStatus.WAITING));
-        processWaitingAndReady(deliveries.getAllByStatus(DeliveryStatus.READY));
+        processNewAndModified();
+        processWaitingAndReady();
         LOG.info("Finished scheduled delivery processing");
     }
 
@@ -81,12 +80,13 @@ public final class DeliveryProcessor implements Runnable {
 
     /**
      * Processes new and modified deliveries.
-     *
-     * @param process List of deliveries to process.
      */
-    private void processNewAndModified(final List<WarehouseEntity<Delivery>> process) {
+    private void processNewAndModified() {
         LOG.info("Start processing new or modified deliveries");
-        for (WarehouseEntity<Delivery> entity : process) {
+        Stream.concat(
+                deliveries.getAllByStatus(DeliveryStatus.NEW).stream(),
+                deliveries.getAllByStatus(DeliveryStatus.MODIFIED).stream()
+        ).forEach(entity -> {
             Delivery delivery = (Delivery) entity.entity();
             LOG.info("Processing delivery {} from branch {}", delivery.orderNumber(), entity.branchId());
 
@@ -100,18 +100,37 @@ public final class DeliveryProcessor implements Runnable {
                 deliveries.delete(entity.branchId(), delivery.orderNumber());
                 LOG.info("Deleted delivery {} from branch {}", delivery.orderNumber(), entity.branchId());
             }
-        }
+        });
         LOG.info("Finished processing new or modified deliveries");
     }
 
     /**
      * Processes waiting and ready deliveries.
-     *
-     * @param process List of deliveries to process.
      */
-    private void processWaitingAndReady(final List<WarehouseEntity<Delivery>> process) {
+    private void processWaitingAndReady() {
         LOG.info("Start processing waiting or ready deliveries");
+        Stream.concat(
+                deliveries.getAllByStatus(DeliveryStatus.WAITING).stream(),
+                deliveries.getAllByStatus(DeliveryStatus.READY).stream()
+        ).forEach(entity -> {
+            Delivery delivery = (Delivery) entity.entity();
+            LOG.info("Processing delivery {} from branch {}", delivery.orderNumber(), entity.branchId());
 
+            if (delivery.articles().stream().allMatch(a -> a.status() == DeliveryArticleStatus.RESERVED)) {
+
+                Map<Long, Article> articles = catalog.getById(entity.branchId(), delivery.articles().stream()
+                        .map(DeliveryArticle::articleId).toList());
+                if (delivery.articles().stream().allMatch(a -> articles.get(a.articleId()).stock() >= a.quantity())) {
+                    deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.READY);
+                } else {
+                    deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.WAITING);
+                }
+            } else {
+                deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.MODIFIED);
+                LOG.warn("Not all all articles are reserved for delivery {} from branch {}",
+                        delivery.orderNumber(), entity.branchId());
+            }
+        });
         LOG.info("Finished processing waiting or ready deliveries");
     }
 
@@ -151,7 +170,7 @@ public final class DeliveryProcessor implements Runnable {
         Map<Long, DeliveryArticle> updatedArticles = articles.stream()
                 .filter(a -> a.status() == DeliveryArticleStatus.RESERVED)
                 .collect(Collectors.toMap(DeliveryArticle::articleId, a -> a));
-        for (DeliveryArticle a : articles.stream().filter(a -> a.status() != DeliveryArticleStatus.RESERVED).toList()) {
+        articles.stream().filter(a -> a.status() != DeliveryArticleStatus.RESERVED).forEach(a -> {
             int difference = 0;
             if (updatedArticles.containsKey(a.articleId())) {
                 int currentQuantity = updatedArticles.get(a.articleId()).quantity();
@@ -169,7 +188,7 @@ public final class DeliveryProcessor implements Runnable {
                         new DeliveryArticle(a.articleId(), a.quantity(), DeliveryArticleStatus.RESERVED));
             }
             catalog.changeReserved(branchId, a.articleId(), difference);
-        }
+        });
         return updatedArticles.values().stream().toList();
     }
 }
