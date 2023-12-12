@@ -33,10 +33,9 @@ class DeliveryProcessorTest {
         deliveries = new DeliveriesMemory();
     }
 
-    @Disabled
     @Test
     void testProcessDeliveredDeliveries() {
-        DeliveryArticle article1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
+        DeliveryArticle article1 = new DeliveryArticle(100001L, 10, DeliveryArticleStatus.RESERVED);
         DeliveryArticle article2 = new DeliveryArticle(100002L, 3, DeliveryArticleStatus.RESERVED);
         deliveries.create(1L, new Delivery(1L, DeliveryStatus.DELIVERED, List.of(article1, article2)));
         deliveries.create(1L, new Delivery(2L, DeliveryStatus.DELIVERED, List.of(article2)));
@@ -44,14 +43,18 @@ class DeliveryProcessorTest {
 
         DeliveryProcessor processor = new DeliveryProcessor(publisher, catalog, deliveries);
         processor.run();
-        assertThat(deliveries.getAllByStatus(DeliveryStatus.DELIVERED)).isEmpty();
-        assertThat(deliveries.getAllByStatus(DeliveryStatus.COMPLETED)).hasSize(2);
+        processor.run();
+        assertThat(deliveries.getAllByStatus(DeliveryStatus.DELIVERED)).hasSize(1);
+        assertThat(deliveries.getAllByStatus(DeliveryStatus.COMPLETED)).hasSize(1);
 
-        List<Delivery> processed = deliveries.getAllByBranch(1L, DeliveryStatus.COMPLETED);
-        assertThat(processed.get(0).articles()).allMatch(a -> a.status() == DeliveryArticleStatus.DELIVERED);
-        assertThat(processed.get(1).articles()).allMatch(a -> a.status() == DeliveryArticleStatus.DELIVERED);
-        assertThat(catalog.getById(1L, 100001L).stock()).isEqualTo(3);
-        assertThat(catalog.getById(1L, 100001L).reserved()).isEqualTo(1);
+        List<Delivery> processed = deliveries.getAllByBranch(1L, null);
+        assertThat(processed.get(0).status()).isEqualTo(DeliveryStatus.DELIVERED);
+        assertThat(processed.get(1).status()).isEqualTo(DeliveryStatus.COMPLETED);
+        assertThat(processed.get(0).articles().get(0).status()).isEqualTo(DeliveryArticleStatus.RESERVED);
+        assertThat(processed.get(0).articles().get(1).status()).isEqualTo(DeliveryArticleStatus.DELIVERED);
+        assertThat(processed.get(1).articles().get(0).status()).isEqualTo(DeliveryArticleStatus.DELIVERED);
+        assertThat(catalog.getById(1L, 100001L).stock()).isEqualTo(5);
+        assertThat(catalog.getById(1L, 100001L).reserved()).isEqualTo(3);
         assertThat(catalog.getById(1L, 100002L).stock()).isEqualTo(4);
         assertThat(catalog.getById(1L, 100002L).reserved()).isEqualTo(0);
     }
