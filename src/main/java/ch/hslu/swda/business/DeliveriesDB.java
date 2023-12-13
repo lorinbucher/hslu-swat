@@ -3,9 +3,7 @@ package ch.hslu.swda.business;
 import ch.hslu.swda.entities.Delivery;
 import ch.hslu.swda.entities.DeliveryStatus;
 import ch.hslu.swda.entities.WarehouseEntity;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.FindOneAndReplaceOptions;
-import com.mongodb.client.model.ReturnDocument;
+import com.mongodb.client.model.*;
 import com.mongodb.lang.Nullable;
 import jakarta.inject.Singleton;
 import org.bson.Document;
@@ -101,18 +99,8 @@ public final class DeliveriesDB implements Deliveries {
     @Override
     public Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
-        Document updated = null;
-        Document exists = this.db.collection().find(filter).first();
-        // TODO: use findOneAndUpdate function to make it atomic
-        // TODO: check if status change is allowed, throw IllegalStateException
-        if (exists != null) {
-            Delivery delivery = new Delivery(exists);
-            delivery = new Delivery(delivery.orderNumber(), status, delivery.articles());
-            WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
-            FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-            updated = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument(), options);
-        }
-
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER);
+        Document updated = this.db.collection().findOneAndUpdate(filter, Updates.set("status", status), options);
         LOG.info("DB: {}updated delivery status for branch {} with id {} to {}",
                 updated != null ? "" : "not ", branchId, orderNumber, status);
         return updated != null ? new Delivery(updated) : null;

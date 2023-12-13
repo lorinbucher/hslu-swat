@@ -3,6 +3,7 @@ package ch.hslu.swda.business;
 import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.WarehouseEntity;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import jakarta.inject.Singleton;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -84,7 +85,6 @@ public final class ProductCatalogDB implements ProductCatalog {
                     article.minStock(), article.stock(), article.reserved());
         }
 
-        // TODO: use findOneAndUpdate without updating stock to make it atomic
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
         WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, article);
         Document exists = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument());
@@ -108,50 +108,12 @@ public final class ProductCatalogDB implements ProductCatalog {
 
     @Override
     public boolean changeStock(long branchId, long articleId, int amount) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Article article = this.db.collection().find(filter).map(Article::new).first();
-
-        // TODO: use findOneAndUpdate and inc function with condition enough in stock to make it atomic
-        boolean result = false;
-        if (article != null) {
-            int newStock = article.stock() + amount;
-            if (newStock >= 0) {
-                Article changed = new Article(articleId, article.name(), article.price(), article.minStock(), newStock, article.reserved());
-                WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, changed);
-                result = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument()) != null;
-                LOG.info("DB: updated stocked items of article from branch {} with id {} -> {}", branchId, articleId, newStock);
-            } else {
-                LOG.info("DB: article from branch {} with id {} cannot have reserved below 0", branchId, articleId);
-            }
-        } else {
-            LOG.warn("DB: article from branch {} with id {} doesn't exist", branchId, articleId);
-        }
-        return result;
+        return incrementField("stock", branchId, articleId, amount);
     }
 
     @Override
     public boolean changeReserved(long branchId, long articleId, int amount) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        Article article = this.db.collection().find(filter).map(Article::new).first();
-
-        // TODO: maybe use common implementation with stock
-        // TODO: use findOneAndUpdate and inc function with condition enough in stock to make it atomic
-        boolean result = false;
-        if (article != null) {
-            int newReserved = article.reserved() + amount;
-            if (newReserved >= 0) {
-                Article changed = new Article(articleId, article.name(), article.price(), article.minStock(),
-                        article.stock(), newReserved);
-                WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, changed);
-                result = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument()) != null;
-                LOG.info("DB: updated reserved items of article from branch {} with id {} -> {}", branchId, articleId, newReserved);
-            } else {
-                LOG.info("DB: article from branch {} with id {} has not enough stocked items", branchId, articleId);
-            }
-        } else {
-            LOG.warn("DB: article from branch {} with id {} doesn't exist", branchId, articleId);
-        }
-        return result;
+        return incrementField("reserved", branchId, articleId, amount);
     }
 
     @Override
@@ -161,5 +123,25 @@ public final class ProductCatalogDB implements ProductCatalog {
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} articles with low stock", documents.size());
         return documents.stream().map(d -> new WarehouseEntity<>(d.getLong("branchId"), new Article(d))).toList();
+    }
+
+    /**
+     * Increments the specified field by the given amount.
+     *
+     * @param field     Name of the field to increment.
+     * @param branchId  ID of the branch.
+     * @param articleId ID of the article.
+     * @param amount    Amount to increment.
+     * @return True if successful, false if not.
+     */
+    private boolean incrementField(String field, long branchId, long articleId, int amount) {
+        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
+        if (amount < 0) {
+            filter = Filters.and(filter, Filters.gte(field, Math.abs(amount)));
+        }
+        long result = this.db.collection().updateOne(filter, Updates.inc(field, amount)).getModifiedCount();
+        LOG.info("DB: {}updated {} items of article from branch {} with id {}",
+                result == 1 ? "" : "not ", field, branchId, articleId);
+        return result == 1;
     }
 }

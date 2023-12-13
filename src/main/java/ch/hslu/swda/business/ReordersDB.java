@@ -87,18 +87,8 @@ public final class ReordersDB implements Reorders {
     @Override
     public Reorder updateStatus(long branchId, long reorderId, ReorderStatus status) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderId));
-        Document updated = null;
-        Document exists = this.db.collection().find(filter).first();
-        // TODO: use findOneAndUpdate function to make it atomic
-        // TODO: check if status change is allowed, throw IllegalStateException
-        if (exists != null) {
-            Reorder reorder = new Reorder(exists);
-            reorder = new Reorder(reorder.reorderId(), status, reorder.date(), reorder.articleId(), reorder.quantity());
-            WarehouseEntity<Reorder> warehouseEntity = new WarehouseEntity<>(branchId, reorder);
-            FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-            updated = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument(), options);
-        }
-
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER);
+        Document updated = this.db.collection().findOneAndUpdate(filter, Updates.set("status", status), options);
         LOG.info("DB: {}updated reorder status for branch {} with id {} to {}",
                 updated != null ? "" : "not ", branchId, reorderId, status);
         return updated != null ? new Reorder(updated) : null;
@@ -107,18 +97,8 @@ public final class ReordersDB implements Reorders {
     @Override
     public Reorder updateQuantity(long branchId, long reorderId, int quantity) {
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("reorderId", reorderId));
-        Document updated = null;
-        Document exists = this.db.collection().find(filter).first();
-        // TODO: use findOneAndUpdate function to make it atomic
-        // TODO: use common implementation for update functions
-        if (exists != null) {
-            Reorder reorder = new Reorder(exists);
-            reorder = new Reorder(reorder.reorderId(), reorder.status(), reorder.date(), reorder.articleId(), quantity);
-            WarehouseEntity<Reorder> warehouseEntity = new WarehouseEntity<>(branchId, reorder);
-            FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
-            updated = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument(), options);
-        }
-
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER);
+        Document updated = this.db.collection().findOneAndUpdate(filter, Updates.set("quantity", quantity), options);
         LOG.info("DB: {}updated reorder quantity for branch {} with id {} to {}",
                 updated != null ? "" : "not ", branchId, reorderId, quantity);
         return updated != null ? new Reorder(updated) : null;

@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -195,6 +198,21 @@ class ProductCatalogDBTestIT {
     }
 
     @Test
+    void testChangeStockConsistency() throws InterruptedException {
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(1);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        for (int i = 0; i < 1000; i++) {
+            executor.submit(() -> {
+                productCatalog.changeStock(1L, 100001, 5);
+                productCatalog.changeStock(1L, 100001, -2);
+            });
+        }
+        executor.shutdown();
+        assertThat(executor.awaitTermination(30, TimeUnit.SECONDS)).isTrue();
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(3001);
+    }
+
+    @Test
     void testChangeReservedNotExisting() {
         boolean result = productCatalog.changeReserved(1L, 100005L, 2);
         assertThat(result).isFalse();
@@ -222,6 +240,21 @@ class ProductCatalogDBTestIT {
         boolean result = productCatalog.changeReserved(1L, 100001L, -2);
         assertThat(result).isFalse();
         assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
+    }
+
+    @Test
+    void testChangeReservedConsistency() throws InterruptedException {
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        for (int i = 0; i < 1000; i++) {
+            executor.submit(() -> {
+                productCatalog.changeReserved(1L, 100001, 5);
+                productCatalog.changeReserved(1L, 100001, -2);
+            });
+        }
+        executor.shutdown();
+        assertThat(executor.awaitTermination(30, TimeUnit.SECONDS)).isTrue();
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(3001);
     }
 
     @Test
