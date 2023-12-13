@@ -3,6 +3,7 @@ package ch.hslu.swda.business;
 import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.WarehouseEntity;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,15 +52,13 @@ public class ProductCatalogMemory implements ProductCatalog {
     }
 
     @Override
-    public Article update(long branchId, long articleId, Article article) {
+    public Article update(long branchId, long articleId, String name, BigDecimal price, int minStock) {
         Article updated = null;
         if (branchId == 1) {
-            updated = new Article(articleId, article.name(), article.price(), article.minStock(),
-                    article.stock(), article.reserved());
             if (catalog.containsKey(articleId)) {
+                Article exists = catalog.get(articleId);
+                updated = new Article(articleId, name, price, minStock, exists.stock(), exists.reserved());
                 catalog.put(articleId, updated);
-            } else {
-                updated = create(branchId, updated);
             }
         }
         return updated;

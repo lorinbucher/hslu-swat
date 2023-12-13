@@ -5,13 +5,20 @@ import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.micro.MessagePublisher;
 import ch.hslu.swda.micro.Routes;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Error;
+import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.http.hateoas.Link;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -87,13 +94,16 @@ public final class ProductCatalogController {
      *
      * @param branchId  ID of the branch.
      * @param articleId ID of the article.
-     * @param article   Article.
+     * @param name      Name of the article.
+     * @param price     Price per article.
+     * @param minStock  Minimum number of articles in stock.
      * @return Updated article.
      */
     @Tag(name = "catalog")
-    @Put("/{branchId}/{articleId}")
-    public Article update(final long branchId, final long articleId, @Body final Article article) {
-        Article updated = productCatalog.update(branchId, articleId, article);
+    @Patch("/{branchId}/{articleId}")
+    public Article update(final long branchId, final long articleId,
+                          @JsonProperty String name, @JsonProperty BigDecimal price, @JsonProperty int minStock) {
+        Article updated = productCatalog.update(branchId, articleId, name, price, minStock);
         LOG.info("REST: Article {} from branch {} updated.", updated, branchId);
         String message = "Updated article " + articleId + " in catalog";
         this.eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "article.changed", message));
@@ -117,5 +127,12 @@ public final class ProductCatalogController {
             String message = "Removed article " + articleId + " from catalog";
             this.eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "article.removed", message));
         }
+    }
+
+    @Error(exception = IllegalArgumentException.class)
+    public HttpResponse<JsonError> invalidStatus(HttpRequest request, IllegalArgumentException ex) {
+        JsonError error = new JsonError(ex.getMessage())
+                .link(Link.SELF, Link.of(request.getUri()));
+        return HttpResponse.<JsonError>badRequest().body(error);
     }
 }

@@ -118,38 +118,20 @@ class ProductCatalogDBTestIT {
 
     @Test
     void testUpdateExisting() {
-        Article article = new Article(100001L, "Test", new BigDecimal("1.00"), 5, 5, 5);
-        Article updated = productCatalog.update(1L, 100001L, article);
+        Article updated = productCatalog.update(1L, 100001L, "Test", new BigDecimal("1.00"), 5);
         assertThat(productCatalog.getAll(1L)).hasSize(2);
-        assertThat(productCatalog.getById(1L, 100001L)).isEqualTo(article);
-        assertThat(updated).isEqualTo(article);
-        assertThat(updated.name()).isEqualTo(article.name());
-        assertThat(updated.price()).isEqualTo(article.price());
-        assertThat(updated.minStock()).isEqualTo(article.minStock());
-        assertThat(updated.stock()).isEqualTo(article.stock());
-        assertThat(updated.reserved()).isEqualTo(article.reserved());
-    }
-
-    @Test
-    void testUpdateExistingIdMismatch() {
-        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5, 5);
-        Article updated = productCatalog.update(1L, 100001L, article);
-        assertThat(productCatalog.getAll(1L)).hasSize(2);
-        assertThat(updated.articleId()).isEqualTo(100001L);
-        assertThat(updated.name()).isEqualTo(article.name());
-        assertThat(updated.price()).isEqualTo(article.price());
-        assertThat(updated.minStock()).isEqualTo(article.minStock());
-        assertThat(updated.stock()).isEqualTo(article.stock());
-        assertThat(updated.reserved()).isEqualTo(article.reserved());
+        assertThat(updated.name()).isEqualTo("Test");
+        assertThat(updated.price()).isEqualTo(new BigDecimal("1.00"));
+        assertThat(updated.minStock()).isEqualTo(5);
+        assertThat(updated.stock()).isEqualTo(1);
+        assertThat(updated.reserved()).isEqualTo(1);
     }
 
     @Test
     void testUpdateNotExisting() {
-        Article article = new Article(100005L, "Test", new BigDecimal("1.00"), 5, 5, 5);
-        Article updated = productCatalog.update(1L, 100005L, article);
-        assertThat(productCatalog.getAll(1L)).hasSize(3);
-        assertThat(productCatalog.getById(1L, 100005L)).isEqualTo(article);
-        assertThat(updated).isEqualTo(article);
+        Article updated = productCatalog.update(1L, 100005L, "Test", new BigDecimal("1.00"), 5);
+        assertThat(productCatalog.getAll(1L)).hasSize(2);
+        assertThat(updated).isNull();
     }
 
     @Test

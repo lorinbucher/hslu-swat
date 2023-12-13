@@ -3,6 +3,8 @@ package ch.hslu.swda.business;
 import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.WarehouseEntity;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.Updates;
 import jakarta.inject.Singleton;
 import org.bson.Document;
@@ -10,6 +12,7 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,23 +82,18 @@ public final class ProductCatalogDB implements ProductCatalog {
     }
 
     @Override
-    public Article update(long branchId, long articleId, Article article) {
-        if (articleId != article.articleId()) {
-            article = new Article(articleId, article.name(), article.price(),
-                    article.minStock(), article.stock(), article.reserved());
-        }
-
+    public Article update(long branchId, long articleId, String name, BigDecimal price, int minStock) {
+        Document article = new Article(articleId, name, price, minStock, 0, 0).toDocument();
         Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
-        WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, article);
-        Document exists = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument());
-        Article updated;
-        if (exists != null) {
-            updated = article;
-            LOG.info("DB: updated article from branch {} with id {}", branchId, articleId);
-        } else {
-            updated = create(branchId, article);
-        }
-        return updated;
+        Bson updates = Updates.combine(
+                Updates.set("name", article.get("name")),
+                Updates.set("price", article.get("price")),
+                Updates.set("minStock", article.get("minStock"))
+        );
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER);
+        Document updated = this.db.collection().findOneAndUpdate(filter, updates, options);
+        LOG.info("DB: {}updated article from branch {} with id {}", updated != null ? "" : "not ", branchId, articleId);
+        return updated != null ? new Article(updated) : null;
     }
 
     @Override

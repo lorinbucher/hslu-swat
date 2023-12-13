@@ -3,6 +3,7 @@ package ch.hslu.swda.business;
 import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.entities.WarehouseEntity;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -51,10 +52,12 @@ public interface ProductCatalog {
      *
      * @param branchId  ID of the branch.
      * @param articleId ID of the article.
-     * @param article   Article.
+     * @param name      Name of the article.
+     * @param price     Price per article.
+     * @param minStock  Minimum number of articles in stock.
      * @return Article.
      */
-    Article update(long branchId, long articleId, Article article);
+    Article update(long branchId, long articleId, String name, BigDecimal price, int minStock);
 
     /**
      * Deletes an article from the catalog of the branch.
