@@ -59,9 +59,9 @@ public final class Application {
         ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(2);
         scheduledExecutor.scheduleAtFixedRate(
                 new DeliveryProcessor(logEventMessagePublisher, productCatalog, deliveries),
-                5, 15, TimeUnit.MINUTES);
+                15, 30, TimeUnit.SECONDS);
         scheduledExecutor.scheduleAtFixedRate(
                 new ReorderProcessor(logEventMessagePublisher, productCatalog, reorders),
-                10, 15, TimeUnit.MINUTES);
+                30, 30, TimeUnit.SECONDS);
     }
 }

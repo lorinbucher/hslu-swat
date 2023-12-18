@@ -117,13 +117,16 @@ public final class DeliveryProcessor implements Runnable {
             LOG.info("Processing delivery {} from branch {}", delivery.orderNumber(), entity.branchId());
 
             if (delivery.articles().stream().allMatch(a -> a.status() == DeliveryArticleStatus.RESERVED)) {
-
                 Map<Long, Article> articles = catalog.getById(entity.branchId(), delivery.articles().stream()
                         .map(DeliveryArticle::articleId).toList());
                 if (delivery.articles().stream().allMatch(a -> articles.get(a.articleId()).stock() >= a.quantity())) {
-                    deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.READY);
+                    if (delivery.status() != DeliveryStatus.READY) {
+                        deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.READY);
+                    }
                 } else {
-                    deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.WAITING);
+                    if (delivery.status() != DeliveryStatus.WAITING) {
+                        deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.WAITING);
+                    }
                 }
             } else {
                 deliveries.updateStatus(entity.branchId(), delivery.orderNumber(), DeliveryStatus.MODIFIED);
