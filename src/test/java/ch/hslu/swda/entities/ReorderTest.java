@@ -88,16 +88,18 @@ class ReorderTest {
     void testNotEqual() {
         final Reorder reorder1 = new Reorder(1L, ReorderStatus.NEW, "", 100000L, 1);
         final Reorder reorder2 = new Reorder(2L, ReorderStatus.WAITING, "", 100001L, 2);
-        assertThat(reorder1).isNotEqualTo("");
-        assertThat(reorder1).isNotEqualTo(reorder2);
+        assertThat(reorder1)
+                .isNotEqualTo("")
+                .isNotEqualTo(reorder2);
     }
 
     @Test
     void testEqual() {
         final Reorder reorder1 = new Reorder(1L, ReorderStatus.NEW, "", 100000L, 1);
         final Reorder reorder2 = new Reorder(1L, ReorderStatus.WAITING, "", 100001L, 2);
-        assertThat(reorder1).isEqualTo(reorder1);
-        assertThat(reorder1).isEqualTo(reorder2);
+        assertThat(reorder1)
+                .isEqualTo(reorder1)
+                .isEqualTo(reorder2);
     }
 
     @Test

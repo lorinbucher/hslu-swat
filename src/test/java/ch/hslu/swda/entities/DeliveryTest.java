@@ -14,11 +14,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * Test cases for the delivery entity.
  */
-public class DeliveryTest {
+class DeliveryTest {
 
     @Test
     void testOrderNumberInvalid() {
-        assertThatThrownBy(() -> new Delivery(0L, DeliveryStatus.NEW, List.of()))
+        List<DeliveryArticle> articles = List.of();
+        assertThatThrownBy(() -> new Delivery(0L, DeliveryStatus.NEW, articles))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("orderNumber should not be lower than 1");
     }
@@ -31,7 +32,8 @@ public class DeliveryTest {
 
     @Test
     void testStatusInvalid() {
-        assertThatThrownBy(() -> new Delivery(1L, null, List.of()))
+        List<DeliveryArticle> articles = List.of();
+        assertThatThrownBy(() -> new Delivery(1L, null, articles))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("status should not be null");
     }
@@ -61,8 +63,9 @@ public class DeliveryTest {
         final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery1 = new Delivery(1L, DeliveryStatus.READY, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(2L, DeliveryStatus.COMPLETED, List.of(deliveryArticle));
-        assertThat(delivery1).isNotEqualTo(deliveryArticle);
-        assertThat(delivery1).isNotEqualTo(delivery2);
+        assertThat(delivery1)
+                .isNotEqualTo(deliveryArticle)
+                .isNotEqualTo(delivery2);
     }
 
     @Test
@@ -70,8 +73,9 @@ public class DeliveryTest {
         final DeliveryArticle deliveryArticle = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final Delivery delivery1 = new Delivery(1L, DeliveryStatus.MODIFIED, List.of(deliveryArticle));
         final Delivery delivery2 = new Delivery(1L, DeliveryStatus.NEW, List.of(deliveryArticle, deliveryArticle));
-        assertThat(delivery1).isEqualTo(delivery1);
-        assertThat(delivery1).isEqualTo(delivery2);
+        assertThat(delivery1)
+                .isEqualTo(delivery1)
+                .isEqualTo(delivery2);
     }
 
     @Test

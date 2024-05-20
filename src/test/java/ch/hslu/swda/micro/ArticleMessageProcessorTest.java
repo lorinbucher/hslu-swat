@@ -33,39 +33,35 @@ class ArticleMessageProcessorTest {
     }
 
     @Test
-    void testInvalidMessageReceived() throws InterruptedException {
+    void testInvalidMessageReceived() {
         String message = "{}";
         listener.mockMessage(Routes.ARTICLE_GET, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isNull();
     }
 
     @Test
-    void testValidMessageReceivedError() throws InterruptedException {
+    void testValidMessageReceivedError() {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100005]}";
         listener.mockMessage(Routes.ARTICLE_GET, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
                 "\"articles\":[],\"error\":[\"article 100005 not found in catalog\"]}");
     }
 
     @Test
-    void testValidMessageReceivedNoError() throws InterruptedException {
+    void testValidMessageReceivedNoError() {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100001]}";
         listener.mockMessage(Routes.ARTICLE_GET, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
                 "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}],\"error\":[]}");
     }
 
     @Test
-    void testValidMessageReceivedMixed() throws InterruptedException {
+    void testValidMessageReceivedMixed() {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100001,100005]}";
         listener.mockMessage(Routes.ARTICLE_GET, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         String response = publisher.getMessage(Routes.ARTICLE_RETURN);
         assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
                 "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}]," +

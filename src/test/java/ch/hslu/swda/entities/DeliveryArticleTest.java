@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * Test cases for the delivery article entity.
  */
-public class DeliveryArticleTest {
+class DeliveryArticleTest {
 
     @Test
     void testArticleIdInvalidMin() {
@@ -63,16 +63,18 @@ public class DeliveryArticleTest {
     void testNotEqual() {
         final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100002L, 2, DeliveryArticleStatus.RESERVED);
-        assertThat(deliveryArticle1).isNotEqualTo(100001L);
-        assertThat(deliveryArticle1).isNotEqualTo(deliveryArticle2);
+        assertThat(deliveryArticle1)
+                .isNotEqualTo(100001L)
+                .isNotEqualTo(deliveryArticle2);
     }
 
     @Test
     void testEqual() {
         final DeliveryArticle deliveryArticle1 = new DeliveryArticle(100001L, 2, DeliveryArticleStatus.RESERVED);
         final DeliveryArticle deliveryArticle2 = new DeliveryArticle(100001L, 3, DeliveryArticleStatus.DELIVERED);
-        assertThat(deliveryArticle1).isEqualTo(deliveryArticle1);
-        assertThat(deliveryArticle1).isEqualTo(deliveryArticle2);
+        assertThat(deliveryArticle1)
+                .isEqualTo(deliveryArticle1)
+                .isEqualTo(deliveryArticle2);
     }
 
     @Test

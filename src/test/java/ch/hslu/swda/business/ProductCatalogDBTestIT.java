@@ -49,8 +49,9 @@ class ProductCatalogDBTestIT {
     void testGetByIdExisting() {
         Article existing = new Article(100001L, "Test1", new BigDecimal("5.25"), 1, 1, 1);
         Article article = productCatalog.getById(1L, 100001L);
-        assertThat(article).isNotNull();
-        assertThat(article).isEqualTo(existing);
+        assertThat(article)
+                .isNotNull()
+                .isEqualTo(existing);
         assertThat(article.name()).isEqualTo(existing.name());
         assertThat(article.price()).isEqualTo(existing.price());
         assertThat(article.minStock()).isEqualTo(existing.minStock());
@@ -73,8 +74,9 @@ class ProductCatalogDBTestIT {
     @Test
     void testGetByIdListExisting() {
         Map<Long, Article> articles = productCatalog.getById(1L, List.of(100001L, 100002L, 100005L));
-        assertThat(articles).hasSize(2);
-        assertThat(articles).containsKeys(100001L, 100002L);
+        assertThat(articles)
+                .hasSize(2)
+                .containsKeys(100001L, 100002L);
     }
 
     @Test
@@ -168,7 +170,7 @@ class ProductCatalogDBTestIT {
         assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(1);
         boolean result = productCatalog.changeStock(1L, 100001L, -1);
         assertThat(result).isTrue();
-        assertThat(productCatalog.getById(1L, 100001L).stock()).isEqualTo(0);
+        assertThat(productCatalog.getById(1L, 100001L).stock()).isZero();
     }
 
     @Test
@@ -213,7 +215,7 @@ class ProductCatalogDBTestIT {
         assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(1);
         boolean result = productCatalog.changeReserved(1L, 100001L, -1);
         assertThat(result).isTrue();
-        assertThat(productCatalog.getById(1L, 100001L).reserved()).isEqualTo(0);
+        assertThat(productCatalog.getById(1L, 100001L).reserved()).isZero();
     }
 
     @Test

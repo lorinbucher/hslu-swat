@@ -1,5 +1,6 @@
 package ch.hslu.swda.dto;
 
+import ch.hslu.swda.entities.DeliveryArticle;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -32,14 +33,16 @@ class OrderDTOTest {
 
     @Test
     void testBranchIdInvalid() {
-        assertThatThrownBy(() -> new OrderDTO(0L, 1L, List.of(), null))
+        List<ArticleOrderDTO> articles = List.of();
+        assertThatThrownBy(() -> new OrderDTO(0L, 1L, articles, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("branchId should not be lower than 1");
     }
 
     @Test
     void testOrderNumberInvalid() {
-        assertThatThrownBy(() -> new OrderDTO(1L, 0L, List.of(), null))
+        List<ArticleOrderDTO> articles = List.of();
+        assertThatThrownBy(() -> new OrderDTO(1L, 0L, articles, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("orderNumber should not be lower than 1");
     }
@@ -47,6 +50,6 @@ class OrderDTOTest {
     @Test
     void testNoArticles() {
         OrderDTO dto = new OrderDTO(1L, 1L, null, null);
-        assertThat(dto.articles()).hasSize(0);
+        assertThat(dto.articles()).isEmpty();
     }
 }

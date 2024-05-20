@@ -95,7 +95,7 @@ class ReordersDBTestIT {
     @Test
     void testGetAllByStatusEmpty() {
         List<WarehouseEntity<Reorder>> reorders = reordersDB.getAllByStatus(ReorderStatus.COMPLETED);
-        assertThat(reorders).hasSize(0);
+        assertThat(reorders).isEmpty();
     }
 
     @Test
@@ -182,7 +182,7 @@ class ReordersDBTestIT {
     @Test
     void testCountReorderedArticlesNone() {
         int count = reordersDB.countReorderedArticles(2L, 100001L);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

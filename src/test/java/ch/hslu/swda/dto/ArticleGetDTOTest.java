@@ -30,19 +30,21 @@ class ArticleGetDTOTest {
     @Test
     void testNoArticles() {
         ArticleGetDTO dto = new ArticleGetDTO(1L, 1L, null);
-        assertThat(dto.articles()).hasSize(0);
+        assertThat(dto.articles()).isEmpty();
     }
 
     @Test
     void testBranchIdInvalid() {
-        assertThatThrownBy(() -> new ArticleGetDTO(0L, 1L, List.of()))
+        List<Long> articles = List.of();
+        assertThatThrownBy(() -> new ArticleGetDTO(0L, 1L, articles))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("branchId should not be lower than 1");
     }
 
     @Test
     void testOrderNumberInvalid() {
-        assertThatThrownBy(() -> new ArticleGetDTO(1L, 0L, List.of()))
+        List<Long> articles = List.of();
+        assertThatThrownBy(() -> new ArticleGetDTO(1L, 0L, articles))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("orderNumber should not be lower than 1");
     }

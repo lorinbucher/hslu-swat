@@ -49,8 +49,9 @@ class DeliveriesDBTestIT {
     void testGetByIdExisting() {
         Delivery existing = new Delivery(1L, DeliveryStatus.NEW, articles);
         Delivery delivery = deliveriesDB.getById(1L, 1L);
-        assertThat(delivery).isNotNull();
-        assertThat(delivery).isEqualTo(existing);
+        assertThat(delivery)
+                .isNotNull()
+                .isEqualTo(existing);
         assertThat(delivery.status()).isEqualTo(existing.status());
         assertThat(delivery.articles()).hasSize(2);
     }
@@ -96,7 +97,7 @@ class DeliveriesDBTestIT {
     @Test
     void testGetAllByStatusEmpty() {
         List<WarehouseEntity<Delivery>> deliveries = deliveriesDB.getAllByStatus(DeliveryStatus.WAITING);
-        assertThat(deliveries).hasSize(0);
+        assertThat(deliveries).isEmpty();
     }
 
     @Test

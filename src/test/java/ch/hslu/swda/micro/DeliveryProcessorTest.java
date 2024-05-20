@@ -56,7 +56,7 @@ class DeliveryProcessorTest {
         assertThat(catalog.getById(1L, 100001L).stock()).isEqualTo(5);
         assertThat(catalog.getById(1L, 100001L).reserved()).isEqualTo(3);
         assertThat(catalog.getById(1L, 100002L).stock()).isEqualTo(4);
-        assertThat(catalog.getById(1L, 100002L).reserved()).isEqualTo(0);
+        assertThat(catalog.getById(1L, 100002L).reserved()).isZero();
     }
 
     @Test

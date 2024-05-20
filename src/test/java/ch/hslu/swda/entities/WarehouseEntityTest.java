@@ -50,8 +50,9 @@ class WarehouseEntityTest {
         final Article article = new Article(100001L, "Test1", new BigDecimal("1.00"), 1, 0, 0);
         final WarehouseEntity<Article> warehouseEntity1 = new WarehouseEntity<>(1L, article);
         final WarehouseEntity<Article> warehouseEntity2 = new WarehouseEntity<>(1L, article);
-        assertThat(warehouseEntity1).isEqualTo(warehouseEntity1);
-        assertThat(warehouseEntity1).isEqualTo(warehouseEntity2);
+        assertThat(warehouseEntity1)
+                .isEqualTo(warehouseEntity1)
+                .isEqualTo(warehouseEntity2);
     }
 
     @Test

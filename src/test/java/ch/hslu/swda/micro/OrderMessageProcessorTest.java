@@ -36,25 +36,22 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testInvalidMessageReceived() throws InterruptedException {
+    void testInvalidMessageReceived() {
         listener.mockMessage(Routes.ORDER, "{}");
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
     }
 
     @Test
-    void testDeleteNotExistingDelivery() throws InterruptedException {
+    void testDeleteNotExistingDelivery() {
         String message = createMessageString(5L, List.of());
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
     }
 
     @Test
-    void testDeleteExistingDelivery() throws InterruptedException {
+    void testDeleteExistingDelivery() {
         String message = createMessageString(1L, List.of());
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
@@ -67,11 +64,10 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testNewDeliveryNewOrder() throws InterruptedException {
+    void testNewDeliveryNewOrder() {
         String article = createMessageStringArticle(100001L, 1, null);
         String message = createMessageString(5L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(3);
         assertThat(deliveries.getById(1L, 5L).status()).isEqualTo(DeliveryStatus.NEW);
         assertThat(deliveries.getById(1L, 5L).articles()).hasSize(1);
@@ -81,11 +77,10 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testNewDeliveryExistingOrder() throws InterruptedException {
+    void testNewDeliveryExistingOrder() {
         String article = createMessageStringArticle(100001L, 1, DeliveryArticleStatus.REMOVE);
         String message = createMessageString(5L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(3);
         assertThat(deliveries.getById(1L, 5L).status()).isEqualTo(DeliveryStatus.NEW);
         assertThat(deliveries.getById(1L, 5L).articles()).hasSize(1);
@@ -95,11 +90,10 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testExistingDeliveryStatusNew() throws InterruptedException {
+    void testExistingDeliveryStatusNew() {
         String article = createMessageStringArticle(100005L, 5, DeliveryArticleStatus.ADD);
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
@@ -112,12 +106,11 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testExistingDeliveryStatusModified() throws InterruptedException {
+    void testExistingDeliveryStatusModified() {
         deliveries.updateStatus(1L, 1L, DeliveryStatus.MODIFIED);
         String article = createMessageStringArticle(100001L, 5, DeliveryArticleStatus.MODIFY);
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
@@ -130,12 +123,11 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testExistingDeliveryStatusWaiting() throws InterruptedException {
+    void testExistingDeliveryStatusWaiting() {
         deliveries.updateStatus(1L, 1L, DeliveryStatus.WAITING);
         String article = createMessageStringArticle(100001L, 5, DeliveryArticleStatus.REMOVE);
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
@@ -148,12 +140,11 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testExistingDeliveryStatusReady() throws InterruptedException {
+    void testExistingDeliveryStatusReady() {
         deliveries.updateStatus(1L, 1L, DeliveryStatus.READY);
         String article = createMessageStringArticle(100005L, 5, DeliveryArticleStatus.ADD);
         String message = createMessageString(1L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 1L).status()).isEqualTo(DeliveryStatus.MODIFIED);
         assertThat(deliveries.getById(1L, 1L).articles()).hasSize(2);
@@ -166,12 +157,11 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testExistingDeliveryStatusDelivered() throws InterruptedException {
+    void testExistingDeliveryStatusDelivered() {
         deliveries.updateStatus(1L, 2L, DeliveryStatus.DELIVERED);
         String article = createMessageStringArticle(100001L, 5, DeliveryArticleStatus.MODIFY);
         String message = createMessageString(2L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 2L).status()).isEqualTo(DeliveryStatus.DELIVERED);
         assertThat(deliveries.getById(1L, 2L).articles()).hasSize(1);
@@ -181,11 +171,10 @@ class OrderMessageProcessorTest {
     }
 
     @Test
-    void testExistingDeliveryStatusCompleted() throws InterruptedException {
+    void testExistingDeliveryStatusCompleted() {
         String article = createMessageStringArticle(100001L, 5, DeliveryArticleStatus.REMOVE);
         String message = createMessageString(2L, List.of(article));
         listener.mockMessage(Routes.ORDER, message);
-        TimeUnit.MILLISECONDS.sleep(100);
         assertThat(deliveries.getAllByBranch(1L, null)).hasSize(2);
         assertThat(deliveries.getById(1L, 2L).status()).isEqualTo(DeliveryStatus.COMPLETED);
         assertThat(deliveries.getById(1L, 2L).articles()).hasSize(1);
