@@ -2,30 +2,35 @@
 
 ![CI](https://github.com/lorinbucher/hslu-swat/actions/workflows/ci.yml/badge.svg)
 
-Warehouse Microservice für SWDA, basierend auf RabbitMQ für g08.
+The Warehouse microservice, a component of the SWDA module, manages articles, reorders, and deliveries within the order
+system.
 
-## Build lokal
+## Build
 
-Der lokale Build setzt eine laufende Docker-Installation voraus!
+The local build requires a working Docker environment!
 
-* `mvn package` - erzeugt ein sharde-JAR (service.jar) und ein Docker-Image.
-* `mvn verify` - führt Integrationstests (mit TestContainer) aus.
+- `mvn package` - creates a shade JAR (service.jar) and a Docker image.
+- `mvn verify` - runs integration tests (with TestContainer).
 
-## Runtime
+## Run
 
-Vorausgesetzt, der backbone läuft, kann der Service lokal vielfältig gestartet werden:
+Provided the backbone is running, the service can be started locally in various ways:
 
 ### IDE
 
-* In der IDE kann die Klasse `ch.hslu.swda.micronaut.Application`-Klasse (mit `main()`-Methode) gestartet werden.
+- In the IDE, start the `main` method of the class `ch.hslu.swda.micronaut.Application`.
 
-### Konsole
+### Console
 
-* Java pur: `java -jar target/service.jar`
-* Maven pur: `mvn exec:java`
-* Maven mit Docker (interaktiv): `mvn docker:run`
-* Maven mit Docker (daemon):
-    * `mvn docker:start` - Start des Containers
-    * `mvn docker:logs` - Anzeige der Logs
-    * `mvn docker:stop` - Stoppen und löschen des Containers
-* Docker pur: `docker run --rm -it -e "RMQ_HOST=host.docker.internal" swda-23hs01/warehouse`
+- Java: `java -jar target/service.jar`
+- Maven: `mvn exec:java`
+- Maven with Docker (interactive): `mvn docker:run`
+- Maven with Docker (daemon):
+    - `mvn docker:start` - Start the container
+    - `mvn docker:logs` - Show the logs
+    - `mvn docker:stop` - Stop and remove the container
+- Docker: `docker run --rm -it -e "RMQ_HOST=host.docker.internal" swda-23hs01/warehouse`
+
+## Documentation
+
+The documentation using AsciiDoc can be found in [`src/docs/asciidoc`](src/docs/asciidoc/index.adoc).

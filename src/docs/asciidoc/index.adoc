@@ -1,40 +1,30 @@
-= Dokumentation Beispiel
-Vorname, Name <vorname.name@hslu.ch>
-V0.0.1, 2023-09-07
+= Documentation
+Lorin Bucher <lorin.bucher@stud.hslu.ch>
+V1.0.0, 2024-05-20
 :imagesdir: ./images
 :toc:
-:toc-title: Inhaltsverzeichnis
+:toc-title: Table of Contents
 :toclevels: 1
 
-== Einführung
-Sie haben die Möglichkeit eine Dokumentation mit https://asciidoc.org/ zu schreiben.
-Diese wird in HTML5 aufbereitet, oder steht auch als link:index.pdf[PDF] zur Verfügung.
+== Introduction
+The Warehouse microservice, a component of the SWDA module, manages articles, reorders, and deliveries within the order system.
 
-== Kapitel 1: Titel
-Beispiel für ein Kapitel.
+== Domain Model
+image::domain-model.png
 
-== Kapitel 2: tbd
-tbd
+== Class Diagram
+image::class-diagram.png
 
-== Appendix: Beispiele
-Mann kann ganz einfach Bilder integrieren:
+== Sequence Diagrams
 
-image::HSLU-Logo-21-klein.png[]
+=== Article Message Processing
+image::article-message-processing.png
 
-Und wichtige Textstellen mit vierschiedenen Levels auszeichnen:
+=== Order Message Processing
+image::order-message-processing.png
 
-WARNING: Das ist eine Warnung!
+=== Delivery Processing
+image::delivery-processing.png
 
-TIP: Das ist ein Tipp!
-
-IMPORTANT: Das ist wichtig!
-
-CAUTION: Achtung, das ist gefährlich!
-
-NOTE: Das ist ein kleiner Hinweis.
-
-Und man kann auch zitieren:
-
-[quote,Albert Einstein]
-Ein Mensch der keine Fehler macht, hat nie etwas neues ausprobiert.
-
+=== Reorder Processing
+image::reorder-processing.png
