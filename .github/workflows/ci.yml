@@ -2,6 +2,9 @@ name: CI
 
 on:
   push:
+    paths:
+      - 'src/main/**'
+      - 'src/test/**'
 
 jobs:
   build:
