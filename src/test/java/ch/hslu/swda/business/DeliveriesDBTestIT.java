@@ -1,6 +1,10 @@
 package ch.hslu.swda.business;
 
-import ch.hslu.swda.entities.*;
+import ch.hslu.swda.entities.Delivery;
+import ch.hslu.swda.entities.DeliveryArticle;
+import ch.hslu.swda.entities.DeliveryArticleStatus;
+import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.entities.WarehouseEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;

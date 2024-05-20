@@ -5,7 +5,11 @@ import ch.hslu.swda.business.DeliveriesMemory;
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.business.ProductCatalogMemory;
 import ch.hslu.swda.dto.LogEventDTO;
-import ch.hslu.swda.entities.*;
+import ch.hslu.swda.entities.Article;
+import ch.hslu.swda.entities.Delivery;
+import ch.hslu.swda.entities.DeliveryArticle;
+import ch.hslu.swda.entities.DeliveryArticleStatus;
+import ch.hslu.swda.entities.DeliveryStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

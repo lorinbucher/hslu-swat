@@ -56,11 +56,10 @@ public class DeliveriesMemory implements Deliveries {
     @Override
     public Delivery update(long branchId, long orderNumber, Delivery delivery) {
         Delivery updated = null;
-        if (branchId == 1) {
-            if (deliveries.containsKey(orderNumber)) {
-                updated = new Delivery(orderNumber, delivery.status(), delivery.articles());
-                deliveries.put(orderNumber, updated);
-            }
+        if (branchId == 1 && deliveries.containsKey(orderNumber)) {
+            updated = new Delivery(orderNumber, delivery.status(), delivery.articles());
+            deliveries.put(orderNumber, updated);
+
         }
         return updated;
     }

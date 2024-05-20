@@ -54,12 +54,10 @@ public class ProductCatalogMemory implements ProductCatalog {
     @Override
     public Article update(long branchId, long articleId, String name, BigDecimal price, int minStock) {
         Article updated = null;
-        if (branchId == 1) {
-            if (catalog.containsKey(articleId)) {
-                Article exists = catalog.get(articleId);
-                updated = new Article(articleId, name, price, minStock, exists.stock(), exists.reserved());
-                catalog.put(articleId, updated);
-            }
+        if (branchId == 1 && catalog.containsKey(articleId)) {
+            Article exists = catalog.get(articleId);
+            updated = new Article(articleId, name, price, minStock, exists.stock(), exists.reserved());
+            catalog.put(articleId, updated);
         }
         return updated;
     }

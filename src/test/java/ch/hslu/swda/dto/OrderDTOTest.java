@@ -1,6 +1,5 @@
 package ch.hslu.swda.dto;
 
-import ch.hslu.swda.entities.DeliveryArticle;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

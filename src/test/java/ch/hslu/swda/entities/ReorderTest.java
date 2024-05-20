@@ -71,7 +71,6 @@ class ReorderTest {
 
     @Test
     void testQuantityInvalid() {
-        String date = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         assertThatThrownBy(() -> new Reorder(1L, ReorderStatus.NEW, "", 100000L, 0))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("quantity should not be lower than 1");
@@ -79,7 +78,6 @@ class ReorderTest {
 
     @Test
     void testQuantityValid() {
-        String date = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         final Reorder reorder = new Reorder(1L, ReorderStatus.NEW, "", 100000L, 1);
         assertThat(reorder.quantity()).isEqualTo(1);
     }

@@ -3,7 +3,12 @@ package ch.hslu.swda.micro;
 import ch.hslu.swda.business.Deliveries;
 import ch.hslu.swda.business.ProductCatalog;
 import ch.hslu.swda.dto.LogEventDTO;
-import ch.hslu.swda.entities.*;
+import ch.hslu.swda.entities.Article;
+import ch.hslu.swda.entities.Delivery;
+import ch.hslu.swda.entities.DeliveryArticle;
+import ch.hslu.swda.entities.DeliveryArticleStatus;
+import ch.hslu.swda.entities.DeliveryStatus;
+import ch.hslu.swda.entities.WarehouseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
