@@ -19,7 +19,7 @@ jobs:
         run: mvn -B package -Ddocker.skip=true
 
       - name: Spotbugs
-        run: mvn -B spotbugs:check
+        run: mvn -B spotbugs:check -Dspotbugs.failThreshold=High
 
       - name: PMD
         run: mvn -B pmd:check
