@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Liest Konfiguration für RabbitMQ aus Propertyfile.
+ * Configures RabbitMQ using the property file.
  */
 public final class RabbitMqConfig {
 
@@ -38,16 +38,16 @@ public final class RabbitMqConfig {
     private final Properties properties = new Properties();
 
     /**
-     * Liest die Konfiguration vom Default-File ein.
+     * Reads the configuration from the default file.
      */
     public RabbitMqConfig() {
         this(CONFIG_FILE_NAME);
     }
 
     /**
-     * Liest die Konfiguration ein.
+     * Reads the configuration from the specified file.
      *
-     * @param fileName Dateiname.
+     * @param fileName File name.
      */
     RabbitMqConfig(final String fileName) {
         final InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
@@ -61,7 +61,9 @@ public final class RabbitMqConfig {
     }
 
     /**
-     * @return Liefert das Attribut host.
+     * Returns the host attribute of the configuration.
+     *
+     * @return Host configuration attribute.
      */
     String getHost() {
         String host = System.getenv(HOST_ENV);
@@ -72,21 +74,27 @@ public final class RabbitMqConfig {
     }
 
     /**
-     * @return Liefert das Attribut user.
+     * Returns the username attribute of the configuration.
+     *
+     * @return Username configuration attribute.
      */
     String getUsername() {
         return this.properties.getProperty(USER);
     }
 
     /**
-     * @return Liefert das Attribut password.
+     * Returns the password attribute of the configuration.
+     *
+     * @return Password configuration attribute.
      */
     String getPassword() {
         return this.properties.getProperty(PASSWORD);
     }
 
     /**
-     * @return Liefert das Attribut exchange.
+     * Returns the exchange attribute of the configuration.
+     *
+     * @return Exchange configuration attribute.
      */
     public String getExchange() {
         return this.properties.getProperty(EXCHANGE);

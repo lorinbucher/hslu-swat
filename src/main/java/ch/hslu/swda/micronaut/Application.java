@@ -30,9 +30,6 @@ import java.util.concurrent.TimeUnit;
 )
 public final class Application {
 
-    /**
-     * Private Constructor.
-     */
     private Application() {
     }
 

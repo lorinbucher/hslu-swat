@@ -16,16 +16,16 @@
 package ch.hslu.swda.bus;
 
 /**
- * Listener Interface für Messages aus RabbitMQ.
+ * Listener interface to receive messages from RabbitMQ.
  */
 public interface MessageReceiver {
 
     /**
-     * Listener Methode für Messages.
+     * Handles messages received from RabbitMQ.
      *
-     * @param route   Route.
-     * @param replyTo ReplyTo Route.
-     * @param corrId  corrId.
+     * @param route   Message route.
+     * @param replyTo Message reply route.
+     * @param corrId  Correlation id.
      * @param message Message.
      */
     void onMessageReceived(String route, String replyTo, String corrId, String message);

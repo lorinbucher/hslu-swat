@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Beispielcode für Verbindung mit RabbitMQ.
+ * Implement the connection to the RabbitMQ message broker.
  */
 public final class BusConnector implements AutoCloseable {
 
@@ -47,12 +47,12 @@ public final class BusConnector implements AutoCloseable {
     }
 
     /**
-     * Beispiel für asynchrone Kommunikation (Send).
+     * Sends a message to RabbitMQ asynchronously.
      *
-     * @param exchange Exchange.
-     * @param route    Route.
+     * @param exchange RabbitMQ exchange.
+     * @param route    Message route.
      * @param message  Message.
-     * @throws IOException Exception.
+     * @throws IOException Exception if sending message failed.
      */
     public void talkAsync(final String exchange, final String route, final String message) throws IOException {
         AMQP.BasicProperties props = new AMQP.BasicProperties();
@@ -60,13 +60,13 @@ public final class BusConnector implements AutoCloseable {
     }
 
     /**
-     * Beispiel für Listener (asynchroner Empfang).
+     * Listens for incoming messages asynchronously.
      *
-     * @param exchange  Exchange.
-     * @param queueName Queue.
-     * @param route     Route.
-     * @param receiver  Empfänger.
-     * @throws IOException IOException.
+     * @param exchange  RabbitMQ exchange.
+     * @param queueName Message queue.
+     * @param route     Message route.
+     * @param receiver  Message receiver.
+     * @throws IOException Exception if reading message failed.
      */
     public void listenFor(final String exchange, final String queueName, final String route,
                           final MessageReceiver receiver) throws IOException {
@@ -84,7 +84,7 @@ public final class BusConnector implements AutoCloseable {
 
 
     /**
-     * Connects to Rabbit MQ.
+     * Connects to Rabbit MQ retrying in case of a failure.
      */
     public void connectWithRetry() {
         boolean connected = false;
@@ -99,16 +99,17 @@ public final class BusConnector implements AutoCloseable {
                     TimeUnit.SECONDS.sleep(10);
                 } catch (InterruptedException ie) {
                     LOG.warn("Reconnection timeout interrupted: {}", ie.getMessage());
+                    Thread.currentThread().interrupt();
                 }
             }
         }
     }
 
     /**
-     * Öffnet die Verbindung zu RabbitMQ.
+     * Opens a connection to RabbitMQ.
      *
-     * @throws IOException      IOException.
-     * @throws TimeoutException TimeoutException.
+     * @throws IOException      IOException if the connection failed.
+     * @throws TimeoutException TimeoutException if the connection timed out.
      */
     public void connect() throws IOException, TimeoutException {
 
@@ -125,7 +126,7 @@ public final class BusConnector implements AutoCloseable {
     }
 
     /**
-     * Schliesst die Verbindung zu RabbitMQ.
+     * Closes the connection to RabbitMQ.
      *
      * @see java.lang.AutoCloseable#close()
      */
