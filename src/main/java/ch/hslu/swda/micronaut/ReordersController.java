@@ -1,10 +1,8 @@
 package ch.hslu.swda.micronaut;
 
 import ch.hslu.swda.business.Reorders;
-import ch.hslu.swda.dto.LogEventDTO;
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
-import ch.hslu.swda.micro.MessagePublisher;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -27,11 +25,12 @@ import java.util.List;
 public final class ReordersController {
     private static final Logger LOG = LoggerFactory.getLogger(ReordersController.class);
 
-    @Inject
-    private Reorders reorders;
+    private final Reorders reorders;
 
     @Inject
-    private MessagePublisher<LogEventDTO> eventLogger;
+    public ReordersController(Reorders reorders) {
+        this.reorders = reorders;
+    }
 
     /**
      * Get all reorders of the branch.

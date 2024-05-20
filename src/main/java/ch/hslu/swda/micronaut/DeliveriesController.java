@@ -28,11 +28,14 @@ import java.util.List;
 public final class DeliveriesController {
     private static final Logger LOG = LoggerFactory.getLogger(DeliveriesController.class);
 
-    @Inject
-    private Deliveries deliveries;
+    private final Deliveries deliveries;
+    private final MessagePublisher<ArticleDeliveredDTO> deliveryPublisher;
 
     @Inject
-    private MessagePublisher<ArticleDeliveredDTO> deliveryPublisher;
+    public DeliveriesController(Deliveries deliveries, MessagePublisher<ArticleDeliveredDTO> deliveryPublisher) {
+        this.deliveries = deliveries;
+        this.deliveryPublisher = deliveryPublisher;
+    }
 
     /**
      * Get all deliveries of the branch.

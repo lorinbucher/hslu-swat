@@ -28,11 +28,14 @@ import java.util.List;
 public final class ProductCatalogController {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogController.class);
 
-    @Inject
-    private MessagePublisher<LogEventDTO> eventLogger;
+    private final ProductCatalog productCatalog;
+    private final MessagePublisher<LogEventDTO> eventLogger;
 
     @Inject
-    private ProductCatalog productCatalog;
+    public ProductCatalogController(ProductCatalog productCatalog, MessagePublisher<LogEventDTO> eventLogger) {
+        this.productCatalog = productCatalog;
+        this.eventLogger = eventLogger;
+    }
 
     /**
      * Get all articles in the product catalog of the branch.
