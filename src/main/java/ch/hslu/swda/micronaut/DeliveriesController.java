@@ -101,15 +101,15 @@ public final class DeliveriesController {
         return delivery;
     }
 
+    /**
+     * Handles the raised illegal argument exception when the status in the request payload is invalid.
+     *
+     * @param request Request that was processed when the exception occurred.
+     * @param ex      Exception that occurred during the processing of the request.
+     * @return Bad request HTTP response with the error reason.
+     */
     @Error(exception = IllegalArgumentException.class)
-    public HttpResponse<JsonError> invalidStatus(HttpRequest request, IllegalArgumentException ex) {
-        JsonError error = new JsonError(ex.getMessage())
-                .link(Link.SELF, Link.of(request.getUri()));
-        return HttpResponse.<JsonError>badRequest().body(error);
-    }
-
-    @Error(exception = IllegalStateException.class)
-    public HttpResponse<JsonError> notReady(HttpRequest request, IllegalStateException ex) {
+    public HttpResponse<JsonError> invalidStatus(HttpRequest<?> request, IllegalArgumentException ex) {
         JsonError error = new JsonError(ex.getMessage())
                 .link(Link.SELF, Link.of(request.getUri()));
         return HttpResponse.<JsonError>badRequest().body(error);

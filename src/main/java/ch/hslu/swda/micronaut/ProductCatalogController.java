@@ -6,13 +6,8 @@ import ch.hslu.swda.entities.Article;
 import ch.hslu.swda.micro.MessagePublisher;
 import ch.hslu.swda.micro.Routes;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
-import io.micronaut.http.annotation.Error;
-import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.http.hateoas.Link;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -130,12 +125,5 @@ public final class ProductCatalogController {
             String message = "Removed article " + articleId + " from catalog";
             this.eventLogger.sendMessage(Routes.LOG_EVENT, new LogEventDTO(branchId, "article.removed", message));
         }
-    }
-
-    @Error(exception = IllegalArgumentException.class)
-    public HttpResponse<JsonError> invalidStatus(HttpRequest request, IllegalArgumentException ex) {
-        JsonError error = new JsonError(ex.getMessage())
-                .link(Link.SELF, Link.of(request.getUri()));
-        return HttpResponse.<JsonError>badRequest().body(error);
     }
 }
