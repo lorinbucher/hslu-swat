@@ -23,6 +23,10 @@ public final class DeliveriesDB implements Deliveries {
     private static final Logger LOG = LoggerFactory.getLogger(DeliveriesDB.class);
     public static final String COLLECTION = "deliveries";
 
+    private static final String BRANCH_ID = "branchId";
+    private static final String ORDER_NUMBER = "orderNumber";
+    private static final String STATUS = "status";
+
     private final MongoDBConnector db;
 
     /**
@@ -42,16 +46,16 @@ public final class DeliveriesDB implements Deliveries {
     @Override
     public Delivery getById(long branchId, long orderNumber) {
         LOG.info("DB: read delivery from branch {} with id {}", branchId, orderNumber);
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ORDER_NUMBER, orderNumber));
         Document exists = this.db.collection().find(filter).first();
         return exists != null ? new Delivery(exists) : null;
     }
 
     @Override
     public List<Delivery> getAllByBranch(long branchId, @Nullable DeliveryStatus status) {
-        Bson filter = Filters.eq("branchId", branchId);
+        Bson filter = Filters.eq(BRANCH_ID, branchId);
         if (status != null) {
-            filter = Filters.and(filter, Filters.eq("status", status.name()));
+            filter = Filters.and(filter, Filters.eq(STATUS, status.name()));
         }
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries from branch {}{}", documents.size(), branchId,
@@ -61,15 +65,15 @@ public final class DeliveriesDB implements Deliveries {
 
     @Override
     public List<WarehouseEntity<Delivery>> getAllByStatus(DeliveryStatus status) {
-        Bson filter = Filters.eq("status", status);
+        Bson filter = Filters.eq(STATUS, status);
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} deliveries with status {}", documents.size(), status);
-        return documents.stream().map(d -> new WarehouseEntity<>(d.getLong("branchId"), new Delivery(d))).toList();
+        return documents.stream().map(d -> new WarehouseEntity<>(d.getLong(BRANCH_ID), new Delivery(d))).toList();
     }
 
     @Override
     public Delivery create(long branchId, Delivery delivery) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", delivery.orderNumber()));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ORDER_NUMBER, delivery.orderNumber()));
         Document exists = this.db.collection().find(filter).first();
         if (exists == null) {
             WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
@@ -87,7 +91,7 @@ public final class DeliveriesDB implements Deliveries {
             delivery = new Delivery(orderNumber, delivery.status(), delivery.articles());
         }
 
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ORDER_NUMBER, orderNumber));
         WarehouseEntity<Delivery> warehouseEntity = new WarehouseEntity<>(branchId, delivery);
         FindOneAndReplaceOptions options = new FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER);
         Document updated = this.db.collection().findOneAndReplace(filter, warehouseEntity.toDocument(), options);
@@ -98,9 +102,9 @@ public final class DeliveriesDB implements Deliveries {
 
     @Override
     public Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ORDER_NUMBER, orderNumber));
         FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER);
-        Document updated = this.db.collection().findOneAndUpdate(filter, Updates.set("status", status), options);
+        Document updated = this.db.collection().findOneAndUpdate(filter, Updates.set(STATUS, status), options);
         LOG.info("DB: {}updated delivery status for branch {} with id {} to {}",
                 updated != null ? "" : "not ", branchId, orderNumber, status);
         return updated != null ? new Delivery(updated) : null;
@@ -108,7 +112,7 @@ public final class DeliveriesDB implements Deliveries {
 
     @Override
     public boolean delete(long branchId, long orderNumber) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("orderNumber", orderNumber));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ORDER_NUMBER, orderNumber));
         Document removed = this.db.collection().findOneAndDelete(filter);
         LOG.info("DB: {}removed delivery from branch {} with id {}", removed != null ? "" : "not ", branchId, orderNumber);
         return removed != null;

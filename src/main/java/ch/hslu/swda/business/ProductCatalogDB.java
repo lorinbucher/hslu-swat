@@ -27,6 +27,9 @@ public final class ProductCatalogDB implements ProductCatalog {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogDB.class);
     public static final String COLLECTION = "catalog";
 
+    private static final String ARTICLE_ID = "articleId";
+    private static final String BRANCH_ID = "branchId";
+
     private final MongoDBConnector db;
 
     /**
@@ -46,7 +49,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public Article getById(long branchId, long articleId) {
         LOG.info("DB: read article from branch {} with id {}", branchId, articleId);
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         Document exists = this.db.collection().find(filter).first();
         return exists != null ? new Article(exists) : null;
     }
@@ -54,14 +57,14 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public Map<Long, Article> getById(long branchId, List<Long> articleIds) {
         LOG.info("DB: read articles from branch {} with ids {}", branchId, articleIds);
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.in("articleId", articleIds));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.in(ARTICLE_ID, articleIds));
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         return documents.stream().map(Article::new).collect(Collectors.toMap(Article::articleId, a -> a));
     }
 
     @Override
     public List<Article> getAll(long branchId) {
-        Bson filter = Filters.eq("branchId", branchId);
+        Bson filter = Filters.eq(BRANCH_ID, branchId);
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} articles from branch {}", documents.size(), branchId);
         return documents.stream().map(Article::new).toList();
@@ -69,7 +72,7 @@ public final class ProductCatalogDB implements ProductCatalog {
 
     @Override
     public Article create(long branchId, Article article) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", article.articleId()));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, article.articleId()));
         Document exists = this.db.collection().find(filter).first();
         if (exists == null) {
             WarehouseEntity<Article> warehouseEntity = new WarehouseEntity<>(branchId, article);
@@ -84,7 +87,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     @Override
     public Article update(long branchId, long articleId, String name, BigDecimal price, int minStock) {
         Document article = new Article(articleId, name, price, minStock, 0, 0).toDocument();
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         Bson updates = Updates.combine(
                 Updates.set("name", article.get("name")),
                 Updates.set("price", article.get("price")),
@@ -98,7 +101,7 @@ public final class ProductCatalogDB implements ProductCatalog {
 
     @Override
     public boolean delete(long branchId, long articleId) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         Document removed = this.db.collection().findOneAndDelete(filter);
         LOG.info("DB: {}removed article from branch {} with id {}", removed != null ? "" : "not ", branchId, articleId);
         return removed != null;
@@ -120,7 +123,7 @@ public final class ProductCatalogDB implements ProductCatalog {
         Bson filter = Filters.expr(Document.parse(expression));
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} articles with low stock", documents.size());
-        return documents.stream().map(d -> new WarehouseEntity<>(d.getLong("branchId"), new Article(d))).toList();
+        return documents.stream().map(d -> new WarehouseEntity<>(d.getLong(BRANCH_ID), new Article(d))).toList();
     }
 
     /**
@@ -133,7 +136,7 @@ public final class ProductCatalogDB implements ProductCatalog {
      * @return True if successful, false if not.
      */
     private boolean incrementField(String field, long branchId, long articleId, int amount) {
-        Bson filter = Filters.and(Filters.eq("branchId", branchId), Filters.eq("articleId", articleId));
+        Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         if (amount < 0) {
             filter = Filters.and(filter, Filters.gte(field, Math.abs(amount)));
         }
