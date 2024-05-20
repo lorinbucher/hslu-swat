@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * @param datetime Message time.
  */
 public record LogEventDTO(long branchId, String type, String message, String datetime) {
-    public LogEventDTO(long branchId, String type, String message) {
+    public LogEventDTO(final long branchId, final String type, final String message) {
         this(branchId, type, message, LocalDateTime.now().toString());
     }
 }

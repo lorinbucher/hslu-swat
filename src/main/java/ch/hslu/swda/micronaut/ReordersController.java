@@ -8,7 +8,10 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Error;
-import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Patch;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.http.hateoas.Link;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +31,7 @@ public final class ReordersController {
     private final Reorders reorders;
 
     @Inject
-    public ReordersController(Reorders reorders) {
+    public ReordersController(final Reorders reorders) {
         this.reorders = reorders;
     }
 
@@ -63,7 +66,8 @@ public final class ReordersController {
     @Get("/{branchId}/{reorderId}")
     public Reorder get(final long branchId, final long reorderId) {
         final Reorder reorder = reorders.getById(branchId, reorderId);
-        LOG.info("REST: Reorder {} from branch {} {}.", reorderId, branchId, reorder != null ? "returned" : "not found");
+        LOG.info("REST: Reorder {} from branch {} {}.",
+                reorderId, branchId, reorder != null ? "returned" : "not found");
         return reorder;
     }
 
@@ -80,7 +84,7 @@ public final class ReordersController {
      */
     @Tag(name = "reorder")
     @Patch("/{branchId}/{reorderId}")
-    public Reorder changeStatus(final long branchId, final long reorderId, @JsonProperty ReorderStatus status) {
+    public Reorder changeStatus(final long branchId, final long reorderId, @JsonProperty final ReorderStatus status) {
         if (status != ReorderStatus.DELIVERED) {
             LOG.warn("REST: Reorder status cannot be changed to {}", status);
             throw new IllegalArgumentException("Reorder status can only be changed to DELIVERED");
@@ -103,7 +107,7 @@ public final class ReordersController {
      * @return Bad request HTTP response with the error reason.
      */
     @Error(exception = IllegalArgumentException.class)
-    public HttpResponse<JsonError> invalidStatus(HttpRequest<?> request, IllegalArgumentException ex) {
+    public HttpResponse<JsonError> invalidStatus(final HttpRequest<?> request, final IllegalArgumentException ex) {
         JsonError error = new JsonError(ex.getMessage())
                 .link(Link.SELF, Link.of(request.getUri()));
         return HttpResponse.<JsonError>badRequest().body(error);

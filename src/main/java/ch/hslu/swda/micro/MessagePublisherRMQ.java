@@ -12,6 +12,8 @@ import java.io.IOException;
 
 /**
  * Publishes messages to Rabbit MQ.
+ *
+ * @param <T> The message DTO.
  */
 @Singleton
 public final class MessagePublisherRMQ<T> implements MessagePublisher<T> {

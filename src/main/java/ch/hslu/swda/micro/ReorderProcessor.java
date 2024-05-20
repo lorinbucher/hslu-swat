@@ -123,8 +123,9 @@ public final class ReorderProcessor implements Runnable {
      *
      * @param articleId ID of the article.
      * @param quantity  Number of items to order.
+     * @return Number of ordered articles.
      */
-    private int orderArticles(int articleId, int quantity) {
+    private int orderArticles(final int articleId, final int quantity) {
         int stockCount = stock.getItemCount(articleId);
         int ordered;
         if (stockCount >= quantity) {

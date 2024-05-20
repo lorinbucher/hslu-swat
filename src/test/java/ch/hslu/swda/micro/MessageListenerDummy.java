@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 /**
  * Dummy implementation of the message listener used for testing.
  */
-public class MessageListenerDummy implements MessageListener {
+public final class MessageListenerDummy implements MessageListener {
 
     private final Map<String, Consumer<String>> callbacks = new HashMap<>();
 

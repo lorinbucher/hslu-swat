@@ -7,7 +7,13 @@ import ch.hslu.swda.micro.MessagePublisher;
 import ch.hslu.swda.micro.Routes;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Patch;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Status;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -27,8 +33,8 @@ public final class ProductCatalogController {
     private final MessagePublisher<LogEventDTO> eventLogger;
 
     @Inject
-    public ProductCatalogController(ProductCatalog productCatalog, MessagePublisher<LogEventDTO> eventLogger) {
-        this.productCatalog = productCatalog;
+    public ProductCatalogController(final ProductCatalog catalog, final MessagePublisher<LogEventDTO> eventLogger) {
+        this.productCatalog = catalog;
         this.eventLogger = eventLogger;
     }
 
@@ -61,7 +67,8 @@ public final class ProductCatalogController {
     @Get("/{branchId}/{articleId}")
     public Article get(final long branchId, final long articleId) {
         final Article article = productCatalog.getById(branchId, articleId);
-        LOG.info("REST: Article {} from branch {} {}.", articleId, branchId, article != null ? "returned" : "not found");
+        LOG.info("REST: Article {} from branch {} {}.",
+                articleId, branchId, article != null ? "returned" : "not found");
         return article;
     }
 
@@ -99,8 +106,8 @@ public final class ProductCatalogController {
      */
     @Tag(name = "catalog")
     @Patch("/{branchId}/{articleId}")
-    public Article update(final long branchId, final long articleId,
-                          @JsonProperty String name, @JsonProperty BigDecimal price, @JsonProperty int minStock) {
+    public Article update(final long branchId, final long articleId, @JsonProperty final String name,
+                          @JsonProperty final BigDecimal price, @JsonProperty final int minStock) {
         Article updated = productCatalog.update(branchId, articleId, name, price, minStock);
         LOG.info("REST: Article {} from branch {} updated.", updated, branchId);
         String message = "Updated article " + articleId + " in catalog";

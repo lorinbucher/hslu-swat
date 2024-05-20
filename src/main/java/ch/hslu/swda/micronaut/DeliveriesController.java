@@ -10,8 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
-import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Patch;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.http.hateoas.Link;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,9 +35,9 @@ public final class DeliveriesController {
     private final MessagePublisher<ArticleDeliveredDTO> deliveryPublisher;
 
     @Inject
-    public DeliveriesController(Deliveries deliveries, MessagePublisher<ArticleDeliveredDTO> deliveryPublisher) {
+    public DeliveriesController(final Deliveries deliveries, final MessagePublisher<ArticleDeliveredDTO> publisher) {
         this.deliveries = deliveries;
-        this.deliveryPublisher = deliveryPublisher;
+        this.deliveryPublisher = publisher;
     }
 
     /**
@@ -50,8 +53,8 @@ public final class DeliveriesController {
     @Get("/{branchId}")
     public List<Delivery> getAll(final long branchId, @QueryValue("status") @Nullable final DeliveryStatus status) {
         final List<Delivery> result = deliveries.getAllByBranch(branchId, status);
-        LOG.info("REST: All {} deliveries from branch {}{} returned.", result.size(), branchId,
-                status != null ? " with status " + status : "");
+        LOG.info("REST: All {} deliveries from branch {}{} returned.",
+                result.size(), branchId, status != null ? " with status " + status : "");
         return result;
     }
 
@@ -68,7 +71,8 @@ public final class DeliveriesController {
     @Get("/{branchId}/{orderNumber}")
     public Delivery get(final long branchId, final long orderNumber) {
         final Delivery delivery = deliveries.getById(branchId, orderNumber);
-        LOG.info("REST: Delivery {} from branch {} {}.", orderNumber, branchId, delivery != null ? "returned" : "not found");
+        LOG.info("REST: Delivery {} from branch {} {}.",
+                orderNumber, branchId, delivery != null ? "returned" : "not found");
         return delivery;
     }
 
@@ -85,7 +89,8 @@ public final class DeliveriesController {
      */
     @Tag(name = "delivery")
     @Patch("/{branchId}/{orderNumber}")
-    public Delivery changeStatus(final long branchId, final long orderNumber, @JsonProperty DeliveryStatus status) {
+    public Delivery changeStatus(final long branchId, final long orderNumber,
+                                 @JsonProperty final DeliveryStatus status) {
         if (status != DeliveryStatus.DELIVERED) {
             LOG.warn("REST: Delivery status cannot be changed to {}", status);
             throw new IllegalArgumentException("Delivery status can only be changed to DELIVERED");
@@ -109,9 +114,8 @@ public final class DeliveriesController {
      * @return Bad request HTTP response with the error reason.
      */
     @Error(exception = IllegalArgumentException.class)
-    public HttpResponse<JsonError> invalidStatus(HttpRequest<?> request, IllegalArgumentException ex) {
-        JsonError error = new JsonError(ex.getMessage())
-                .link(Link.SELF, Link.of(request.getUri()));
+    public HttpResponse<JsonError> invalidStatus(final HttpRequest<?> request, final IllegalArgumentException ex) {
+        JsonError error = new JsonError(ex.getMessage()).link(Link.SELF, Link.of(request.getUri()));
         return HttpResponse.<JsonError>badRequest().body(error);
     }
 }

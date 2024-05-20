@@ -45,7 +45,7 @@ final class ContainerServerStartIT {
                     .waitingFor(Wait.forLogMessage(".*Server Running.*\\n", 1));
 
     @Test
-    void testContainerStartable() throws Exception {
+    void testContainerStartable() {
         final String logs = container.getLogs();
         LOG.info(logs);
         assertThat(logs).contains("Server Running");

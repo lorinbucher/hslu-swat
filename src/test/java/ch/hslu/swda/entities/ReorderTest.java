@@ -118,8 +118,8 @@ class ReorderTest {
     void testJsonObject() {
         String date = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         final Reorder reorder = new Reorder(1L, ReorderStatus.COMPLETED, date, 100000L, 5);
-        String reorderJson = "{\"reorderId\":1,\"status\":\"COMPLETED\",\"date\":\"" + date +
-                "\",\"articleId\":100000,\"quantity\":5}";
+        String reorderJson = "{\"reorderId\":1,\"status\":\"COMPLETED\",\"date\":\"" + date
+                + "\",\"articleId\":100000,\"quantity\":5}";
         try {
             assertThat(new ObjectMapper().writeValueAsString(reorder)).isEqualTo(reorderJson);
         } catch (JsonProcessingException e) {

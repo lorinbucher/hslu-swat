@@ -182,7 +182,7 @@ class OrderMessageProcessorTest {
         assertThat(deliveries.getById(1L, 2L).articles().get(0).status()).isEqualTo(DeliveryArticleStatus.DELIVERED);
     }
 
-    private String createMessageString(long orderNumber, List<String> articles) {
+    private String createMessageString(final long orderNumber, final List<String> articles) {
         StringBuilder message = new StringBuilder();
         message.append("{\"branchId\":").append(1L);
         message.append(",\"orderNumber\":").append(orderNumber);
@@ -198,7 +198,8 @@ class OrderMessageProcessorTest {
         return message.toString();
     }
 
-    private String createMessageStringArticle(long articleId, int quantity, DeliveryArticleStatus action) {
+    private String createMessageStringArticle(final long articleId, final int quantity,
+                                              final DeliveryArticleStatus action) {
         StringBuilder message = new StringBuilder();
         message.append("{\"articleId\":").append(articleId);
         message.append(",\"quantity\":").append(quantity);

@@ -41,13 +41,15 @@ public final class ProductCatalogDB implements ProductCatalog {
 
     /**
      * Constructor with custom configuration.
+     *
+     * @param connector MongoDB connector.
      */
     public ProductCatalogDB(final MongoDBConnector connector) {
         db = connector;
     }
 
     @Override
-    public Article getById(long branchId, long articleId) {
+    public Article getById(final long branchId, final long articleId) {
         LOG.info("DB: read article from branch {} with id {}", branchId, articleId);
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         Document exists = this.db.collection().find(filter).first();
@@ -55,7 +57,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     }
 
     @Override
-    public Map<Long, Article> getById(long branchId, List<Long> articleIds) {
+    public Map<Long, Article> getById(final long branchId, final List<Long> articleIds) {
         LOG.info("DB: read articles from branch {} with ids {}", branchId, articleIds);
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.in(ARTICLE_ID, articleIds));
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
@@ -63,7 +65,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     }
 
     @Override
-    public List<Article> getAll(long branchId) {
+    public List<Article> getAll(final long branchId) {
         Bson filter = Filters.eq(BRANCH_ID, branchId);
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} articles from branch {}", documents.size(), branchId);
@@ -71,7 +73,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     }
 
     @Override
-    public Article create(long branchId, Article article) {
+    public Article create(final long branchId, final Article article) {
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, article.articleId()));
         Document exists = this.db.collection().find(filter).first();
         if (exists == null) {
@@ -85,7 +87,8 @@ public final class ProductCatalogDB implements ProductCatalog {
     }
 
     @Override
-    public Article update(long branchId, long articleId, String name, BigDecimal price, int minStock) {
+    public Article update(final long branchId, final long articleId, final String name,
+                          final BigDecimal price, final int minStock) {
         Document article = new Article(articleId, name, price, minStock, 0, 0).toDocument();
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         Bson updates = Updates.combine(
@@ -100,7 +103,7 @@ public final class ProductCatalogDB implements ProductCatalog {
     }
 
     @Override
-    public boolean delete(long branchId, long articleId) {
+    public boolean delete(final long branchId, final long articleId) {
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         Document removed = this.db.collection().findOneAndDelete(filter);
         LOG.info("DB: {}removed article from branch {} with id {}", removed != null ? "" : "not ", branchId, articleId);
@@ -108,12 +111,12 @@ public final class ProductCatalogDB implements ProductCatalog {
     }
 
     @Override
-    public boolean changeStock(long branchId, long articleId, int amount) {
+    public boolean changeStock(final long branchId, final long articleId, final int amount) {
         return incrementField("stock", branchId, articleId, amount);
     }
 
     @Override
-    public boolean changeReserved(long branchId, long articleId, int amount) {
+    public boolean changeReserved(final long branchId, final long articleId, final int amount) {
         return incrementField("reserved", branchId, articleId, amount);
     }
 
@@ -135,7 +138,7 @@ public final class ProductCatalogDB implements ProductCatalog {
      * @param amount    Amount to increment.
      * @return True if successful, false if not.
      */
-    private boolean incrementField(String field, long branchId, long articleId, int amount) {
+    private boolean incrementField(final String field, final long branchId, final long articleId, final int amount) {
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(ARTICLE_ID, articleId));
         if (amount < 0) {
             filter = Filters.and(filter, Filters.gte(field, Math.abs(amount)));

@@ -102,12 +102,12 @@ public record Reorder(@Nullable long reorderId, ReorderStatus status, String dat
      * @param dateString Date string in iso format.
      */
     private Date parseDateFromString(final String dateString) {
-        Date date;
+        Date parsedDate;
         try {
-            date = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+            parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
         } catch (ParseException e) {
             throw new IllegalArgumentException("date should match required format yyyy-MM-dd");
         }
-        return date;
+        return parsedDate;
     }
 }

@@ -8,8 +8,10 @@ import java.util.Map;
 
 /**
  * Dummy implementation of the message publisher used for testing.
+ *
+ * @param <T> The message DTO.
  */
-public class MessagePublisherDummy<T> implements MessagePublisher<T> {
+public final class MessagePublisherDummy<T> implements MessagePublisher<T> {
 
     private final Map<String, String> messages = new HashMap<>();
 

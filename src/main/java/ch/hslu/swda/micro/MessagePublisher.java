@@ -2,6 +2,8 @@ package ch.hslu.swda.micro;
 
 /**
  * Message publisher.
+ *
+ * @param <T> Message DTO.
  */
 public interface MessagePublisher<T> {
 

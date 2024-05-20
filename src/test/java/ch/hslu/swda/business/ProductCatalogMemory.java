@@ -12,17 +12,17 @@ import java.util.Map;
 /**
  * In-memory implementation of the product catalog used for testing.
  */
-public class ProductCatalogMemory implements ProductCatalog {
+public final class ProductCatalogMemory implements ProductCatalog {
 
     private final Map<Long, Article> catalog = new HashMap<>();
 
     @Override
-    public Article getById(long branchId, long articleId) {
+    public Article getById(final long branchId, final long articleId) {
         return branchId == 1 ? catalog.get(articleId) : null;
     }
 
     @Override
-    public Map<Long, Article> getById(long branchId, List<Long> articleIds) {
+    public Map<Long, Article> getById(final long branchId, final List<Long> articleIds) {
         Map<Long, Article> articles = new HashMap<>();
         for (long articleId : articleIds) {
             if (branchId == 1 && catalog.containsKey(articleId)) {
@@ -33,12 +33,12 @@ public class ProductCatalogMemory implements ProductCatalog {
     }
 
     @Override
-    public List<Article> getAll(long branchId) {
+    public List<Article> getAll(final long branchId) {
         return branchId == 1 ? new ArrayList<>(catalog.values()) : List.of();
     }
 
     @Override
-    public Article create(long branchId, Article article) {
+    public Article create(final long branchId, final Article article) {
         Article created = null;
         if (branchId == 1) {
             if (!catalog.containsKey(article.articleId())) {
@@ -52,7 +52,8 @@ public class ProductCatalogMemory implements ProductCatalog {
     }
 
     @Override
-    public Article update(long branchId, long articleId, String name, BigDecimal price, int minStock) {
+    public Article update(final long branchId, final long articleId, final String name,
+                          final BigDecimal price, final int minStock) {
         Article updated = null;
         if (branchId == 1 && catalog.containsKey(articleId)) {
             Article exists = catalog.get(articleId);
@@ -63,7 +64,7 @@ public class ProductCatalogMemory implements ProductCatalog {
     }
 
     @Override
-    public boolean delete(long branchId, long articleId) {
+    public boolean delete(final long branchId, final long articleId) {
         if (branchId == 1) {
             catalog.remove(articleId);
         }
@@ -71,7 +72,7 @@ public class ProductCatalogMemory implements ProductCatalog {
     }
 
     @Override
-    public boolean changeStock(long branchId, long articleId, int amount) {
+    public boolean changeStock(final long branchId, final long articleId, final int amount) {
         boolean result = false;
         Article article = catalog.get(articleId);
         if (branchId == 1 && article != null) {
@@ -87,7 +88,7 @@ public class ProductCatalogMemory implements ProductCatalog {
     }
 
     @Override
-    public boolean changeReserved(long branchId, long articleId, int amount) {
+    public boolean changeReserved(final long branchId, final long articleId, final int amount) {
         boolean result = false;
         Article article = catalog.get(articleId);
         if (branchId == 1 && article != null) {

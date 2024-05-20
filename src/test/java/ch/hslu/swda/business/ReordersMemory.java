@@ -13,17 +13,17 @@ import java.util.Map;
 /**
  * In-memory implementation of the reorders used for testing.
  */
-public class ReordersMemory implements Reorders {
+public final class ReordersMemory implements Reorders {
 
     private final Map<Long, Reorder> reorders = new HashMap<>();
 
     @Override
-    public Reorder getById(long branchId, long orderNumber) {
+    public Reorder getById(final long branchId, final long orderNumber) {
         return branchId == 1 ? reorders.get(orderNumber) : null;
     }
 
     @Override
-    public List<Reorder> getAllByBranch(long branchId, ReorderStatus status) {
+    public List<Reorder> getAllByBranch(final long branchId, final ReorderStatus status) {
         List<Reorder> result = new ArrayList<>(reorders.values());
         if (status != null) {
             result = result.stream().filter(r -> r.status() == status).toList();
@@ -32,7 +32,7 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public List<WarehouseEntity<Reorder>> getAllByStatus(ReorderStatus status) {
+    public List<WarehouseEntity<Reorder>> getAllByStatus(final ReorderStatus status) {
         List<Reorder> result = new ArrayList<>(reorders.values());
         if (status != null) {
             result = result.stream().filter(r -> r.status() == status).toList();
@@ -41,7 +41,7 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public Reorder create(long branchId, long articleId, int quantity) {
+    public Reorder create(final long branchId, final long articleId, final int quantity) {
         Reorder created = null;
         if (branchId == 1) {
             long reorderId = reorders.size() + 1;
@@ -54,7 +54,7 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public Reorder updateStatus(long branchId, long reorderId, ReorderStatus status) {
+    public Reorder updateStatus(final long branchId, final long reorderId, final ReorderStatus status) {
         Reorder updated = null;
         if (branchId == 1) {
             Reorder exists = reorders.get(reorderId);
@@ -67,7 +67,7 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public Reorder updateQuantity(long branchId, long reorderId, int quantity) {
+    public Reorder updateQuantity(final long branchId, final long reorderId, final int quantity) {
         Reorder updated = null;
         if (branchId == 1) {
             Reorder exists = reorders.get(reorderId);
@@ -80,7 +80,7 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public boolean delete(long branchId, long reorderId) {
+    public boolean delete(final long branchId, final long reorderId) {
         if (branchId == 1) {
             reorders.remove(reorderId);
         }
@@ -88,7 +88,7 @@ public class ReordersMemory implements Reorders {
     }
 
     @Override
-    public int countReorderedArticles(long branchId, long articleId) {
+    public int countReorderedArticles(final long branchId, final long articleId) {
         int count = 0;
         if (branchId == 1) {
             count = reorders.values().stream()

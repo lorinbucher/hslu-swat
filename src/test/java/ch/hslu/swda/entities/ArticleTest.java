@@ -171,8 +171,8 @@ class ArticleTest {
     @Test
     void testJsonObject() {
         final Article article = new Article(100001L, "Test", new BigDecimal("50.25"), 1, 5, 5);
-        String articleJson = "{\"articleId\":100001,\"name\":\"Test\",\"price\":50.25,\"" +
-                "minStock\":1,\"stock\":5,\"reserved\":5}";
+        String articleJson = "{\"articleId\":100001,\"name\":\"Test\",\"price\":50.25,\""
+                + "minStock\":1,\"stock\":5,\"reserved\":5}";
         try {
             assertThat(new ObjectMapper().writeValueAsString(article)).isEqualTo(articleJson);
         } catch (JsonProcessingException e) {

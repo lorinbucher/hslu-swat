@@ -11,6 +11,8 @@ public interface Entity<T> {
 
     /**
      * Creates a MongoDB document from a warehouse entity.
+     *
+     * @return MongoDB document of the entity.
      */
     Document toDocument();
 

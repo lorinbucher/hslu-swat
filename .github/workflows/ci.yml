@@ -28,7 +28,7 @@ jobs:
         run: mvn -B pmd:check
 
       - name: Checkstyle
-        run: mvn -B checkstyle:check -Dcheckstyle.maxAllowedViolations=250
+        run: mvn -B checkstyle:check -Dcheckstyle.maxAllowedViolations=50
 
       - name: Integration Test
         run: mvn -B verify

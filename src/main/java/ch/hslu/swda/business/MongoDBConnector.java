@@ -54,6 +54,8 @@ public final class MongoDBConnector {
 
     /**
      * Returns the MongoDB collection.
+     *
+     * @return MongoDB collection.
      */
     public MongoCollection<Document> collection() {
         return collection;

@@ -12,17 +12,17 @@ import java.util.Map;
 /**
  * In-memory implementation of the deliveries used for testing.
  */
-public class DeliveriesMemory implements Deliveries {
+public final class DeliveriesMemory implements Deliveries {
 
     private final Map<Long, Delivery> deliveries = new HashMap<>();
 
     @Override
-    public Delivery getById(long branchId, long orderNumber) {
+    public Delivery getById(final long branchId, final long orderNumber) {
         return branchId == 1 ? deliveries.get(orderNumber) : null;
     }
 
     @Override
-    public List<Delivery> getAllByBranch(long branchId, DeliveryStatus status) {
+    public List<Delivery> getAllByBranch(final long branchId, final DeliveryStatus status) {
         List<Delivery> result = new ArrayList<>(deliveries.values());
         if (status != null) {
             result = result.stream().filter(d -> d.status() == status).toList();
@@ -31,7 +31,7 @@ public class DeliveriesMemory implements Deliveries {
     }
 
     @Override
-    public List<WarehouseEntity<Delivery>> getAllByStatus(DeliveryStatus status) {
+    public List<WarehouseEntity<Delivery>> getAllByStatus(final DeliveryStatus status) {
         List<Delivery> result = new ArrayList<>(deliveries.values());
         if (status != null) {
             result = result.stream().filter(d -> d.status() == status).toList();
@@ -40,7 +40,7 @@ public class DeliveriesMemory implements Deliveries {
     }
 
     @Override
-    public Delivery create(long branchId, Delivery delivery) {
+    public Delivery create(final long branchId, final Delivery delivery) {
         Delivery created = null;
         if (branchId == 1) {
             if (!deliveries.containsKey(delivery.orderNumber())) {
@@ -54,7 +54,7 @@ public class DeliveriesMemory implements Deliveries {
     }
 
     @Override
-    public Delivery update(long branchId, long orderNumber, Delivery delivery) {
+    public Delivery update(final long branchId, final long orderNumber, final Delivery delivery) {
         Delivery updated = null;
         if (branchId == 1 && deliveries.containsKey(orderNumber)) {
             updated = new Delivery(orderNumber, delivery.status(), delivery.articles());
@@ -65,7 +65,7 @@ public class DeliveriesMemory implements Deliveries {
     }
 
     @Override
-    public Delivery updateStatus(long branchId, long orderNumber, DeliveryStatus status) {
+    public Delivery updateStatus(final long branchId, final long orderNumber, final DeliveryStatus status) {
         Delivery updated = null;
         if (branchId == 1) {
             Delivery exists = deliveries.get(orderNumber);
@@ -78,7 +78,7 @@ public class DeliveriesMemory implements Deliveries {
     }
 
     @Override
-    public boolean delete(long branchId, long orderNumber) {
+    public boolean delete(final long branchId, final long orderNumber) {
         if (branchId == 1) {
             deliveries.remove(orderNumber);
         }

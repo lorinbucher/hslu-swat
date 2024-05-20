@@ -4,7 +4,13 @@ import ch.hslu.swda.entities.DeliveryStatus;
 import ch.hslu.swda.entities.Reorder;
 import ch.hslu.swda.entities.ReorderStatus;
 import ch.hslu.swda.entities.WarehouseEntity;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
+import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Updates;
 import com.mongodb.lang.Nullable;
 import jakarta.inject.Singleton;
 import org.bson.Document;
@@ -40,13 +46,15 @@ public final class ReordersDB implements Reorders {
 
     /**
      * Constructor with custom configuration.
+     *
+     * @param connector MongoDB connector.
      */
     public ReordersDB(final MongoDBConnector connector) {
         db = connector;
     }
 
     @Override
-    public Reorder getById(long branchId, long reorderId) {
+    public Reorder getById(final long branchId, final long reorderId) {
         LOG.info("DB: read reorder from branch {} with id {}", branchId, reorderId);
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(REORDER_ID, reorderId));
         Document exists = this.db.collection().find(filter).first();
@@ -54,7 +62,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public List<Reorder> getAllByBranch(long branchId, @Nullable ReorderStatus status) {
+    public List<Reorder> getAllByBranch(final long branchId, @Nullable final ReorderStatus status) {
         Bson filter = Filters.eq(BRANCH_ID, branchId);
         if (status != null) {
             filter = Filters.and(filter, Filters.eq(STATUS, status.name()));
@@ -66,7 +74,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public List<WarehouseEntity<Reorder>> getAllByStatus(ReorderStatus status) {
+    public List<WarehouseEntity<Reorder>> getAllByStatus(final ReorderStatus status) {
         Bson filter = Filters.eq(STATUS, status);
         List<Document> documents = this.db.collection().find(filter).into(new ArrayList<>());
         LOG.info("DB: read all {} reorders with status {}", documents.size(), status);
@@ -74,7 +82,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public Reorder create(long branchId, long articleId, int quantity) {
+    public Reorder create(final long branchId, final long articleId, final int quantity) {
         Document lastDocument = this.db.collection().find().sort(Sorts.descending(REORDER_ID)).limit(1).first();
         long newReorderId = 1L;
         if (lastDocument != null) {
@@ -89,7 +97,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public Reorder updateStatus(long branchId, long reorderId, ReorderStatus status) {
+    public Reorder updateStatus(final long branchId, final long reorderId, final ReorderStatus status) {
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(REORDER_ID, reorderId));
         FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER);
         Document updated = this.db.collection().findOneAndUpdate(filter, Updates.set(STATUS, status), options);
@@ -99,7 +107,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public Reorder updateQuantity(long branchId, long reorderId, int quantity) {
+    public Reorder updateQuantity(final long branchId, final long reorderId, final int quantity) {
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(REORDER_ID, reorderId));
         FindOneAndUpdateOptions options = new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER);
         Document updated = this.db.collection().findOneAndUpdate(filter, Updates.set("quantity", quantity), options);
@@ -109,7 +117,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public boolean delete(long branchId, long reorderID) {
+    public boolean delete(final long branchId, final long reorderID) {
         Bson filter = Filters.and(Filters.eq(BRANCH_ID, branchId), Filters.eq(REORDER_ID, reorderID));
         Document removed = this.db.collection().findOneAndDelete(filter);
         LOG.info("DB: {}removed delivery from branch {} with id {}",
@@ -118,7 +126,7 @@ public final class ReordersDB implements Reorders {
     }
 
     @Override
-    public int countReorderedArticles(long branchId, long articleId) {
+    public int countReorderedArticles(final long branchId, final long articleId) {
         Bson match = Aggregates.match(Filters.and(
                 Filters.eq(BRANCH_ID, branchId),
                 Filters.eq("articleId", articleId),

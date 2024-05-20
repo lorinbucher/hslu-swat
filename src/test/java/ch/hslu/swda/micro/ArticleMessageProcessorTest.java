@@ -44,8 +44,8 @@ class ArticleMessageProcessorTest {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100005]}";
         listener.mockMessage(Routes.ARTICLE_GET, message);
         String response = publisher.getMessage(Routes.ARTICLE_RETURN);
-        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
-                "\"articles\":[],\"error\":[\"article 100005 not found in catalog\"]}");
+        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5,"
+                + "\"articles\":[],\"error\":[\"article 100005 not found in catalog\"]}");
     }
 
     @Test
@@ -53,8 +53,8 @@ class ArticleMessageProcessorTest {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100001]}";
         listener.mockMessage(Routes.ARTICLE_GET, message);
         String response = publisher.getMessage(Routes.ARTICLE_RETURN);
-        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
-                "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}],\"error\":[]}");
+        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5,"
+                + "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}],\"error\":[]}");
     }
 
     @Test
@@ -62,8 +62,8 @@ class ArticleMessageProcessorTest {
         String message = "{\"branchId\":1,\"orderNumber\":5,\"articles\":[100001,100005]}";
         listener.mockMessage(Routes.ARTICLE_GET, message);
         String response = publisher.getMessage(Routes.ARTICLE_RETURN);
-        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5," +
-                "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}]," +
-                "\"error\":[\"article 100005 not found in catalog\"]}");
+        assertThat(response).isEqualTo("{\"branchId\":1,\"orderNumber\":5,"
+                + "\"articles\":[{\"articleId\":100001,\"name\":\"Article 1\",\"price\":5.25}],"
+                + "\"error\":[\"article 100005 not found in catalog\"]}");
     }
 }
