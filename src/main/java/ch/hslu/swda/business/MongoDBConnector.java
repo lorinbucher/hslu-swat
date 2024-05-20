@@ -11,7 +11,7 @@ import org.bson.Document;
  */
 public final class MongoDBConnector {
 
-    private static final String DATABASE = "warehouse";
+    private static final String DATABASE_NAME = "warehouse";
 
     private final MongoClient client;
     private final MongoDatabase database;
@@ -48,7 +48,7 @@ public final class MongoDBConnector {
         }
 
         this.client = MongoClients.create(connectionURI);
-        this.database = this.client.getDatabase(DATABASE);
+        this.database = this.client.getDatabase(DATABASE_NAME);
         this.collection = this.database.getCollection(collection);
     }
 

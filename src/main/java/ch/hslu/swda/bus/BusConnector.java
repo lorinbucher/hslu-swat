@@ -18,9 +18,6 @@ package ch.hslu.swda.bus;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -40,10 +37,8 @@ public final class BusConnector implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BusConnector.class);
     private final RabbitMqConfig config;
 
-    // connection to bus
     private Connection connection;
 
-    // use different channels for different threads
     private Channel channelTalk;
     private Channel channelListen;
 
@@ -65,65 +60,6 @@ public final class BusConnector implements AutoCloseable {
     }
 
     /**
-     * Beispiel für Beantwortung einer synchronen Kommunikation (Send).
-     *
-     * @param exchange Exchange.
-     * @param route    Route.
-     * @param corrId   Route.
-     * @param message  Message.
-     * @throws IOException Exception.
-     */
-    public void reply(final String exchange, final String route, final String corrId, final String message) throws IOException {
-        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().correlationId(corrId).build();
-        channelTalk.basicPublish(exchange, route, props, message.getBytes(StandardCharsets.UTF_8));
-    }
-
-    /**
-     * Beispiel für synchrone Kommunikation.
-     *
-     * @param exchange Exchange.
-     * @param route    Route.
-     * @param message  Message.
-     * @return String.
-     * @throws IOException          Exception.
-     * @throws InterruptedException Exception.
-     */
-    public String talkSync(final String exchange, final String route, final String message)
-            throws IOException, InterruptedException {
-
-        // create a temporary reply queue
-        final String corrId = UUID.randomUUID().toString();
-        final String replyQueueName = channelTalk.queueDeclare().getQueue();
-        channelTalk.queueBind(replyQueueName, exchange, replyQueueName);
-
-        // setup receiver
-        final BlockingQueue<String> response = new ArrayBlockingQueue<>(1);
-        final String consumerId = channelTalk.basicConsume(replyQueueName, true, (consumerTag, delivery) -> {
-
-            // check if response matches correlation id
-            if (delivery.getProperties().getCorrelationId().equals(corrId)) {
-                response.offer(new String(delivery.getBody(), StandardCharsets.UTF_8));
-            }
-        }, consumerTag -> {
-            // empty
-        });
-
-        // send message
-        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().correlationId(corrId).replyTo(replyQueueName)
-                .build();
-        channelTalk.basicPublish(exchange, route, props, message.getBytes(StandardCharsets.UTF_8));
-
-        // To receive a message without timeout, use:
-        // String result = response.take();
-
-        // receive message with timeout
-        final String result = response.poll(5, TimeUnit.SECONDS);
-        channelTalk.basicCancel(consumerId);
-        return result;
-
-    }
-
-    /**
      * Beispiel für Listener (asynchroner Empfang).
      *
      * @param exchange  Exchange.
@@ -135,17 +71,14 @@ public final class BusConnector implements AutoCloseable {
     public void listenFor(final String exchange, final String queueName, final String route,
                           final MessageReceiver receiver) throws IOException {
 
-        // create queue to receive messages
         channelListen.queueDeclare(queueName, true, false, true, new HashMap<>());
         channelListen.queueBind(queueName, exchange, route);
 
-        // add listener
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
             receiver.onMessageReceived(route, delivery.getProperties().getReplyTo(), delivery.getProperties().getCorrelationId(), message);
         };
         channelListen.basicConsume(queueName, true, deliverCallback, consumerTag -> {
-            // empty
         });
     }
 
@@ -179,7 +112,6 @@ public final class BusConnector implements AutoCloseable {
      */
     public void connect() throws IOException, TimeoutException {
 
-        // create connection
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(config.getHost());
         factory.setUsername(config.getUsername());
@@ -187,7 +119,6 @@ public final class BusConnector implements AutoCloseable {
         LOG.info("Connecting to {}...", config.getHost());
         this.connection = factory.newConnection();
 
-        // create channels within connection
         this.channelTalk = connection.createChannel();
         this.channelListen = connection.createChannel();
         LOG.info("Successfully connected to {}...", config.getHost());

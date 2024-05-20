@@ -22,7 +22,7 @@ import java.util.List;
 @Singleton
 public final class ReordersDB implements Reorders {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Reorders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReordersDB.class);
     public static final String COLLECTION = "reorders";
 
     private final MongoDBConnector db;

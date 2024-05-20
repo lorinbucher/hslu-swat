@@ -20,7 +20,7 @@ import java.util.List;
 @Singleton
 public final class DeliveriesDB implements Deliveries {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProductCatalogDB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeliveriesDB.class);
     public static final String COLLECTION = "deliveries";
 
     private final MongoDBConnector db;
