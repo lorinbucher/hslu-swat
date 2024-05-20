@@ -7,24 +7,61 @@ V1.0.0, 2024-05-20
 :toclevels: 1
 
 == Introduction
-The Warehouse microservice, a component of the SWDA module, manages articles, reorders, and deliveries within the order system.
+The Warehouse microservice, a component of the SWDA module, manages articles, reorders, and deliveries within
+the order system.
 
 == Domain Model
-image::domain-model.png
+
+The warehouse manages the product catalog for all branches, including inventory levels, deliveries for individual
+orders, and reorders for products that fall below minimum stock levels.
+
+image::domain-model.png[]
 
 == Class Diagram
-image::class-diagram.png
 
-== Sequence Diagrams
+The Warehouse Service oversees deliveries, the product catalog, and reorders. Each domain is managed through a
+dedicated REST API, implemented within controller classes. Communication with the message bus is facilitated through
+interfaces for receiving (MessageListener) and sending (MessagePublisher) messages. The ArticleMessageProcessor class
+handles incoming messages from the Order Service, responding with the requested article information. Upon receiving an
+order message, the OrderMessageProcessor class initiates a new delivery. Delivery and reorder processing are handled
+asynchronously by the DeliveryProcessor and ReorderProcessor classes, respectively, operating in a separate thread.
+
+image::class-diagram.png[]
+
+== Processes
+
+The diagrams below illustrate the key processes within the warehouse service.
 
 === Article Message Processing
-image::article-message-processing.png
+Upon receiving a request for article data via RabbitMQ, the system retrieves the relevant articles from the store's
+product catalog within the database. This article data is then transmitted back via RabbitMQ. In the event that a
+requested article is not found in the catalog, an error message indicating its absence is returned.
+
+image::article-message-processing.png[]
 
 === Order Message Processing
-image::order-message-processing.png
+Upon receiving a message via RabbitMQ indicating a new or modified order, the system verifies if a delivery record
+already exists for the respective order. If not, a new delivery record is created. However, if a delivery record does
+exist and is not yet marked as delivered or completed, the existing record is updated to reflect the changes. In cases
+where a delivery record exists but is already delivered or completed, an error is generated and no adjustments are made
+to the delivery.
+
+image::order-message-processing.png[]
 
 === Delivery Processing
-image::delivery-processing.png
+Warehouse staff mark deliveries as "delivered" upon shipment. At scheduled intervals, an automated process initiates
+delivery processing. Delivered orders are prioritized, and the corresponding reserved items are cleared from the
+product catalog. Following this, item reservations for new or modified deliveries are adjusted. If a delivery no longer
+contains any items (e.g., due to order cancellation), it is deleted. Lastly, pending orders are updated based on the
+availability of items in the warehouse inventory.
+
+image::delivery-processing.png[]
 
 === Reorder Processing
-image::reorder-processing.png
+Periodically, the application initiates a reorder processing cycle. Initially, delivered reorders are logged within the
+warehouse system. Subsequently, items with low stock levels are identified. If the available stock, after accounting
+for reserved items and the potential reorder quantity, remains below the minimum threshold, a reorder is triggered.
+The reorder quantity is calculated to ensure that the resulting stock level reaches double the minimum requirement.
+Finally, these new reorders are placed with the central warehouse.
+
+image::reorder-processing.png[]
